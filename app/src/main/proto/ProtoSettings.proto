@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "app.thirtyninth.githubviewer";
+option java_multiple_files = true;
+
+message ProtoSettings {
+  bool isLoggedIn = 1;
+  string user_name = 2;
+  string user_token = 3;
+}

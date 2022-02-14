@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GitHub Viewer</string>
+    <string name="site_logo">Site logo</string>
+    <string name="personal_access_token">Personal access token</string>
+    <string name="username">Username</string>
+    <string name="sign_in">Sign in</string>
+</resources>
