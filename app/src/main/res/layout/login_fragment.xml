@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_200"
+    android:background="@color/gray"
     tools:context=".ui.view.LoginFragment">
 
     <androidx.constraintlayout.widget.Guideline
@@ -12,14 +12,14 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="16dp" />
+        app:layout_constraintGuide_begin="24dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/content_end"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="16dp" />
+        app:layout_constraintGuide_end="24dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/content_bottom"
@@ -42,7 +42,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/user_login_field"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:hint="@string/username"
@@ -57,28 +57,36 @@
             android:id="@+id/user_login"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textColor="@color/white"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/access_token_field"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginTop="16dp"
         android:hint="@string/personal_access_token"
         app:endIconMode="password_toggle"
+        app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@id/user_login_field"
-        app:passwordToggleEnabled="false">
+        app:passwordToggleEnabled="false"
+        app:boxStrokeColor="@color/accent_github"
+        app:boxStrokeErrorColor="@color/red_error"
+        android:textColorHint="@color/gray_light"
+        app:hintTextColor="@color/accent_github"
+        android:textColor="@color/white">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/access_token"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textColor="@color/white"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -86,6 +94,7 @@
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:text="@string/sign_in"
+        android:backgroundTint="@color/green_github"
         app:layout_constraintBottom_toBottomOf="@id/content_bottom"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start" />

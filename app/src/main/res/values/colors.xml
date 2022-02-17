@@ -8,5 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="logoColor">#FFffffff</color>
+    <color name="logo_white">#FFffffff</color>
+    <color name="gray">#FF222222</color>
+    <color name="gray_light">#9C9C9C</color>
+    <color name="accent_github">#FF58a6ff</color>
+    <color name="green_github">#FF5a9357</color>
+    <color name="red_error">#ffc93838</color>
 </resources>
