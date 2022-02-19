@@ -2,10 +2,14 @@ package app.thirtyninth.githubviewer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.models.User
 import app.thirtyninth.githubviewer.data.network.Resource
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.repository.Repository
+import app.thirtyninth.githubviewer.utils.LoginUtils
+import app.thirtyninth.githubviewer.utils.TokenState
+import app.thirtyninth.githubviewer.utils.UsernameState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -18,26 +22,47 @@ class LoginViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _user = MutableSharedFlow<Resource<User>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val user:SharedFlow<Resource<User>> = _user.asSharedFlow()
+    private val _user = MutableSharedFlow<Resource<User?>>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val user: SharedFlow<Resource<User?>> = _user.asSharedFlow()
 
-    private fun setUser(){
+    private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
+    val userNameValid: StateFlow<UsernameState> get() = _userNameValid
+
+    private val _authorisationTokenValid = MutableStateFlow(TokenState.CORRECT)
+    val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
+
+
+
+    fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch{
         _user.tryEmit(Resource.loading(null))
-    }
 
-    private fun getUser() = viewModelScope.launch {
-        _user.tryEmit(Resource.loading(null))
+        var userData:User? = null
 
-        repository.getUser("token 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", "user").let {response ->
-            if (response.isSuccessful){
-                _user.tryEmit(Resource.success(response.body()))
+        try {
+            userData = repository.getUser("token $token")
+        } catch (ex: Exception) {
+            _user.tryEmit(Resource.error(ex.toString(), null))
+        }
+
+        if (userData != null) {
+            if (userData.login.equals(username, true)){
+                userPreferences.saveUser(LoginData(username, token))
+
+                _user.tryEmit(Resource.success(userData))
             } else {
-                _user.tryEmit(Resource.error(response.errorBody().toString(), null))
+                _userNameValid.tryEmit(UsernameState.INVALID)
             }
         }
     }
 
-    fun loadUser(){
-        getUser()
+    fun validateUserName(userName: String) = viewModelScope.launch{
+        _userNameValid.value = LoginUtils.validateUserName(userName)
+    }
+
+    fun validateToken(token:String) = viewModelScope.launch {
+        _authorisationTokenValid.value = LoginUtils.validateAuthorisationToken(token)
     }
 }

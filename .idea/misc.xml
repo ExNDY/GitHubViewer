@@ -6,7 +6,10 @@
         <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/drawable/ic_github_logo.xml" value="0.2" />
         <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2115" />
         <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/activity_app.xml" value="0.36684782608695654" />
-        <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/login_fragment.xml" value="0.36684782608695654" />
+        <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/login_fragment.xml" value="0.264" />
+        <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/repositories_fragment.xml" value="0.33695652173913043" />
+        <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/repositories_item.xml" value="0.264" />
+        <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/layout/repositories_list_item.xml" value="0.4" />
         <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.207" />
         <entry key="..\:/Users/Endy/AndroidStudioProjects/APFP/GitHubViewer/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.207" />
       </map>

@@ -9,9 +9,11 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="logo_white">#FFffffff</color>
-    <color name="gray">#FF222222</color>
+    <color name="gray">#FF161A22</color>
+    <color name="gray_dark">#FF0F1217</color>
     <color name="gray_light">#9C9C9C</color>
     <color name="accent_github">#FF58a6ff</color>
+    <color name="kotlin">#FF7e60b8</color>
     <color name="green_github">#FF5a9357</color>
     <color name="red_error">#ffc93838</color>
 </resources>

@@ -19,5 +19,7 @@
         <item name="boxStrokeErrorColor">@color/red_error</item>
         <item name="android:textColorHint">@color/gray_light</item>
         <item name="hintTextColor">@color/accent_github</item>
+        <item name="errorEnabled">true</item>
+        <item name="helperTextEnabled">true</item>
     </style>
 </resources>

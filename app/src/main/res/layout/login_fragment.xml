@@ -32,10 +32,11 @@
         android:id="@+id/logo"
         android:layout_width="144dp"
         android:layout_height="144dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="64dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/site_logo"
         android:src="@drawable/ic_github_logo"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
         app:layout_constraintTop_toTopOf="parent" />
@@ -44,57 +45,60 @@
         android:id="@+id/user_login_field"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="112dp"
         android:hint="@string/username"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@id/sign_in_button"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_goneMarginBottom="80dp">
+        app:layout_constraintTop_toBottomOf="@id/logo"
+        app:layout_constraintVertical_bias="0"
+        app:layout_goneMarginBottom="80dp"
+        app:layout_goneMarginTop="208dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/user_login"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:textColor="@color/white"/>
+            android:maxLines="1"
+            android:text="@string/test_userName"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/access_token_field"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="wrap_content"
         android:hint="@string/personal_access_token"
         app:endIconMode="password_toggle"
         app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
-        app:layout_constraintTop_toBottomOf="@id/user_login_field"
-        app:passwordToggleEnabled="false"
-        app:boxStrokeColor="@color/accent_github"
-        app:boxStrokeErrorColor="@color/red_error"
-        android:textColorHint="@color/gray_light"
-        app:hintTextColor="@color/accent_github"
-        android:textColor="@color/white">
+        app:layout_constraintTop_toBottomOf="@+id/user_login_field"
+        app:layout_constraintVertical_bias="0"
+        app:passwordToggleEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/access_token"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:textColor="@color/white"/>
+            android:maxLines="1"
+            android:text="@string/test_Key"
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sign_in_button"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:text="@string/sign_in"
         android:backgroundTint="@color/green_github"
+        android:text="@string/sign_in"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="@id/content_bottom"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start" />

@@ -3,11 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/repositoriesFragment">
 
     <fragment
         android:id="@+id/loginFragment"
         android:name="app.thirtyninth.githubviewer.ui.view.LoginFragment"
         android:label="login_fragment"
         tools:layout="@layout/login_fragment" />
+    <fragment
+        android:id="@+id/repositoriesFragment"
+        android:name="app.thirtyninth.githubviewer.ui.view.RepositoriesFragment"
+        android:label="repositories_fragment"
+        tools:layout="@layout/repositories_fragment" />
 </navigation>

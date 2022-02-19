@@ -5,12 +5,13 @@
         <item name="colorPrimary">@color/accent_github</item>
         <item name="colorPrimaryVariant">#2E79CF</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="backgroundColor">@color/gray</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/gray</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/gray_dark</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>

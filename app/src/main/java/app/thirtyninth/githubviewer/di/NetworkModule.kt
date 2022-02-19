@@ -2,10 +2,8 @@ package app.thirtyninth.githubviewer.di
 
 import app.thirtyninth.githubviewer.data.network.interceptors.AcceptInterceptor
 import app.thirtyninth.githubviewer.common.Constants
-import app.thirtyninth.githubviewer.data.network.api.GitHubHelper
-import app.thirtyninth.githubviewer.data.network.api.GitHubHelperImpl
+import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
 import app.thirtyninth.githubviewer.data.network.api.GitHubService
-import app.thirtyninth.githubviewer.utils.ConverterFactory
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -14,9 +12,10 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import retrofit2.Converter
 import retrofit2.Retrofit
-import javax.annotation.Nullable
+import java.util.*
 import javax.inject.Singleton
 
 @Module
@@ -34,13 +33,16 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(acceptInterceptor: AcceptInterceptor) = OkHttpClient.Builder()
         .addInterceptor(acceptInterceptor)
+        .protocols(listOf(Protocol.HTTP_1_1))
         .build()
 
     @Provides
     @kotlinx.serialization.ExperimentalSerializationApi
     fun provideConverterFactory():Converter.Factory{
         val type = "application/json".toMediaType()
-        return Json.asConverterFactory(type)
+        return Json{
+            ignoreUnknownKeys = true
+        }.asConverterFactory(type)
     }
 
     @Provides
@@ -57,5 +59,5 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGitHubHelper(gitHubHelper: GitHubHelperImpl) : GitHubHelper = gitHubHelper
+    fun provideGitHubHelper(gitHubService: GitHubService) : GitHubRemoteData = GitHubRemoteData(gitHubService)
 }
