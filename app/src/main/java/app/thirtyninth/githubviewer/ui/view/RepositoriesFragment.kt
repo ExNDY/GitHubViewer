@@ -55,6 +55,7 @@ class RepositoriesFragment : Fragment() {
     ): View {
 
         initApp()
+
         return binding.root
     }
 
@@ -70,8 +71,9 @@ class RepositoriesFragment : Fragment() {
             viewModel.isLoggedIn
                 .onEach {
                     if (!it) {
+                        val action = RepositoriesFragmentDirections.navigateToLoginScreen()
                         //val action = findNavController().graph.getAction(R.id.navigate_toLoginScreen)
-                        findNavController().navigate(R.id.navigate_toLoginScreen)
+                        findNavController().navigate(action)
                     }
                 }.collect()
         }

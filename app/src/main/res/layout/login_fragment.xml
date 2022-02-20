@@ -28,7 +28,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_end="24dp" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/logo"
         android:layout_width="144dp"
         android:layout_height="144dp"
