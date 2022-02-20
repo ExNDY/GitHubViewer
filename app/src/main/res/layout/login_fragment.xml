@@ -45,9 +45,9 @@
         android:id="@+id/user_login_field"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
         android:layout_marginTop="112dp"
-        android:hint="@string/username"
+
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
@@ -59,10 +59,10 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/user_login"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:inputType="textPersonName"
+            android:hint="@string/username"
             android:maxLines="1"
-            android:text="@string/test_userName"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -70,12 +70,12 @@
         android:id="@+id/access_token_field"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/personal_access_token"
+        android:layout_height="64dp"
+
         app:endIconMode="password_toggle"
         app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_container"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@+id/user_login_field"
@@ -85,22 +85,39 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/access_token"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:inputType="textPassword"
             android:maxLines="1"
-            android:text="@string/test_Key"
+            android:hint="@string/personal_access_token"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/sign_in_button"
+    <FrameLayout
+        android:id="@+id/sign_in_container"
         android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:backgroundTint="@color/green_github"
-        android:text="@string/sign_in"
-        android:textColor="@color/white"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/content_bottom"
         app:layout_constraintEnd_toEndOf="@id/content_end"
-        app:layout_constraintStart_toStartOf="@id/content_start" />
+        app:layout_constraintStart_toStartOf="@id/content_start">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:backgroundTint="@color/green_github"
+            android:gravity="center"
+            android:text="@string/sign_in"
+            android:textColor="@color/white"/>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:elevation="10dp"
+            android:id="@+id/progress_circular"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_gravity="center"
+            app:indicatorColor="@color/white"
+            android:visibility="invisible" />
+    </FrameLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

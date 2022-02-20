@@ -11,11 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.network.Status
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
 import app.thirtyninth.githubviewer.ui.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.utils.TokenState
+import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.UsernameState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -40,6 +42,7 @@ class LoginFragment : Fragment() {
     private val binding:LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
     private var isCorrectUserName = false
     private var isCorrectAccessToken = false
+    private var isLoadingState = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,6 +99,17 @@ class LoginFragment : Fragment() {
             }
         }
 
+        viewModel.uiState.onEach {
+            when (it) {
+                UIState.NORMAL ->{
+                    setNormalState()
+                }
+                UIState.LOADING ->{
+                    setLoadingState()
+                }
+            }
+        }.launchIn(lifecycleScope)
+
         viewModel.userNameValid.onEach {
             when (it) {
                 UsernameState.CORRECT -> {
@@ -141,13 +155,13 @@ class LoginFragment : Fragment() {
                 .onEach {
                     when (it.status) {
                         Status.SUCCESS -> {
-                            showToast("SUCCESS " + (it.data?.login ?: ""))
+                            findNavController().navigate(R.id.navigate_toRepositoryList)
                         }
-                        Status.LOADING -> {
-                            showToast("LOADING")
-                        }
+
                         Status.ERROR -> {
-                            showToast("ERROR " + it.message)
+                            setNormalState()
+                        }else ->{
+
                         }
                     }
                 }.collect()
@@ -157,6 +171,24 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+    private fun setNormalState(){
+        with(binding){
+            signInButton.text = getString(R.string.sign_in)
+            progressCircular.visibility = View.GONE
+        }
+
+        isLoadingState = false
+    }
+
+    private fun setLoadingState(){
+        with(binding){
+            signInButton.text = ""
+            progressCircular.visibility = View.VISIBLE
+        }
+
+        isLoadingState = true
     }
 
     private fun showToast(message: String) {
@@ -174,16 +206,18 @@ class LoginFragment : Fragment() {
     }
 
     private fun signIn(username: String, token: String) {
-        if (!isCorrectUserName || !isCorrectAccessToken) {
-            if (!isCorrectUserName) {
-                setUsernameFieldError(getString(R.string.error_username_is_empty))
-            }
+        if (!isLoadingState){
+            if (!isCorrectUserName || !isCorrectAccessToken) {
+                if (!isCorrectUserName) {
+                    setUsernameFieldError(getString(R.string.error_username_is_empty))
+                }
 
-            if (!isCorrectAccessToken) {
-                setAccessTokenFieldError(getString(R.string.error_token_is_empty))
+                if (!isCorrectAccessToken) {
+                    setAccessTokenFieldError(getString(R.string.error_token_is_empty))
+                }
+            } else if (isCorrectUserName && isCorrectAccessToken) {
+                viewModel.signInGitHubAndStoreLoginData(username, token)
             }
-        } else if (isCorrectUserName && isCorrectAccessToken) {
-            viewModel.signInGitHubAndStoreLoginData(username, token)
         }
     }
 

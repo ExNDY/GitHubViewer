@@ -27,7 +27,19 @@ class RepositoriesViewModel @Inject constructor(
     )
     val repositoryList: SharedFlow<Resource<List<GitHubRepository>>> = _repositoryList.asSharedFlow()
 
+    private val _isLoggedIn = MutableSharedFlow<Boolean>(
+        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    val isLoggedIn:SharedFlow<Boolean> = _isLoggedIn.asSharedFlow()
+
     init {
+        viewModelScope.launch {
+            userPreferences.getLoggedInState().onEach {
+                _isLoggedIn.tryEmit(it)
+            }.collect()
+        }
+
         viewModelScope.launch {
             userPreferences.getAuthenticationToken().onEach {
                 if (it != null) {
@@ -37,7 +49,6 @@ class RepositoriesViewModel @Inject constructor(
                 }
             }.collect()
         }
-
     }
 
     private fun getUserRepositoryList(token:String) = viewModelScope.launch {

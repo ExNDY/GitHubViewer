@@ -1,5 +1,8 @@
 package app.thirtyninth.githubviewer.data.models
 
-data class LanguageColor(val name:String, val value: String)
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LanguageColor(val value: String)
 
 

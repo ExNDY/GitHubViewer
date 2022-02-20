@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.adapters
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +10,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class RepositoryListAdapter(
+    colors: JsonObject,
     val onItemClicked: (GitHubRepository) -> Unit
 ) : ListAdapter<GitHubRepository,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
+    private val languageColors = colors
 
     inner class RepositoryListViewHolder(
         private val itemBinding: RepositoriesListItemBinding,
@@ -27,32 +33,40 @@ class RepositoryListAdapter(
 
         fun bind(repository: GitHubRepository) {
             repository.name?.let { bindName(it) }
-            repository.language?.let { bindLanguage(it) }
 
-            if (repository.description.isNullOrEmpty()){
-                itemBinding.repositoryDescription.visibility = View.GONE
-            } else {
-                bindDescription(repository.description)
-            }
-
-
+            bindLanguage(repository.language)
+            bindDescription(repository.description)
         }
 
-        private fun bindName(name: String) {
+        private fun bindName(name: String?) {
             itemBinding.repositoryName.text = name
         }
 
-        private fun bindLanguage(language: String) {
-            itemBinding.language.text = language
+        private fun bindLanguage(language: String?) {
+            if (language.isNullOrEmpty()){
+                itemBinding.language.visibility = View.GONE
+            } else {
+                itemBinding.language.setTextColor(
+                    Color.parseColor(
+                        getHEX(language)
+                    ))
+
+                itemBinding.language.text = language
+            }
+
         }
 
-        fun bindDescription(description: String) {
-            if (description.isEmpty()) {
+        fun bindDescription(description: String?) {
+            if (description.isNullOrEmpty()) {
                 itemBinding.repositoryDescription.visibility = View.GONE
             } else {
                 itemBinding.repositoryDescription.text = description
             }
 
+        }
+
+        private fun getHEX(language: String):String{
+            return languageColors[language]?.let { Json.decodeFromJsonElement<String>(it) } ?: "#FFFFFF"
         }
     }
 

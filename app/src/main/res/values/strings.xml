@@ -13,7 +13,4 @@
     <string name="item_field_repository_name">Repository-name-android</string>
     <string name="item_field_language">Kotlin</string>
     <string name="item_field_repository_description">Example text of description repository inside repository list</string>
-
-    <string name="test_userName">s</string>
-    <string name="test_Key">s</string>
 </resources>

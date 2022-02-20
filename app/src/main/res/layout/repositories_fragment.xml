@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:scrollbarStyle="outsideOverlay"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 
         tools:context=".ui.view.RepositoriesFragment"

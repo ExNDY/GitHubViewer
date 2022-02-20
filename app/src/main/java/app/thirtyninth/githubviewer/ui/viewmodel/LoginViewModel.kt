@@ -9,6 +9,7 @@ import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.repository.Repository
 import app.thirtyninth.githubviewer.utils.LoginUtils
 import app.thirtyninth.githubviewer.utils.TokenState
+import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.UsernameState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -28,6 +29,9 @@ class LoginViewModel @Inject constructor(
     )
     val user: SharedFlow<Resource<User?>> = _user.asSharedFlow()
 
+    private val _uiState = MutableStateFlow(UIState.NORMAL)
+    val uiState:StateFlow<UIState> get() = _uiState
+
     private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
     val userNameValid: StateFlow<UsernameState> get() = _userNameValid
 
@@ -35,9 +39,8 @@ class LoginViewModel @Inject constructor(
     val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
 
 
-
     fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch{
-        _user.tryEmit(Resource.loading(null))
+        _uiState.tryEmit(UIState.LOADING)
 
         var userData:User? = null
 
@@ -51,8 +54,10 @@ class LoginViewModel @Inject constructor(
             if (userData.login.equals(username, true)){
                 userPreferences.saveUser(LoginData(username, token))
 
+                _uiState.tryEmit(UIState.NORMAL)
                 _user.tryEmit(Resource.success(userData))
             } else {
+                _uiState.tryEmit(UIState.NORMAL)
                 _userNameValid.tryEmit(UsernameState.INVALID)
             }
         }
