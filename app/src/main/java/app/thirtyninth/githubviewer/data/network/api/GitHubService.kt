@@ -20,10 +20,10 @@ interface GitHubService {
         @Header("Authorization") token: String
     ) : List<GitHubRepository>
 
-    @GET("/repos/{owner}/{repo}")
+    @GET("https://github.com/icerockdev/moko-resources")
     suspend fun getRepositoryInfo(
         @Header("Authorization") token: String,
         @Path("owner") username: String,
         @Path("repo") repositoryName: String
-    ):GitHubRepository
+    )
 }

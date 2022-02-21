@@ -12,7 +12,10 @@
         tools:layout="@layout/login_fragment" >
         <action
             android:id="@+id/navigate_toRepositoryList"
-            app:destination="@id/repositoriesFragment" />
+            app:destination="@id/repositoriesFragment"
+            app:launchSingleTop="true"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
     <fragment
         android:id="@+id/repositoriesFragment"
@@ -21,6 +24,22 @@
         tools:layout="@layout/repositories_fragment" >
         <action
             android:id="@+id/navigate_toLoginScreen"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fast_fade_out"
+            app:launchSingleTop="true" />
+        <action
+            android:id="@+id/navigate_toRepositoryInfo"
+            app:destination="@id/repositoryInfoFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/repositoriesFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/repositoryInfoFragment"
+        android:name="app.thirtyninth.githubviewer.ui.view.RepositoryInfoFragment"
+        android:label="repository_info_fragment"
+        tools:layout="@layout/repository_info_fragment" />
 </navigation>

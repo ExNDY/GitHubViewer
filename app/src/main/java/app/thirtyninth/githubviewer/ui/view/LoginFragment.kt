@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.view
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -155,7 +156,7 @@ class LoginFragment : Fragment() {
                 .onEach {
                     when (it.status) {
                         Status.SUCCESS -> {
-                            findNavController().navigate(R.id.navigate_toRepositoryList)
+                            navigateToRepositoryList()
                         }
 
                         Status.ERROR -> {
@@ -171,6 +172,12 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+    private fun navigateToRepositoryList(){
+        val action = LoginFragmentDirections.navigateToRepositoryList()
+
+        findNavController().navigate(action)
     }
 
     private fun setNormalState(){

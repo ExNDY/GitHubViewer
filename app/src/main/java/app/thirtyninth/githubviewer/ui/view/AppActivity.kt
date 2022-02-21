@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavHostController
+import androidx.navigation.findNavController
 import app.thirtyninth.githubviewer.R
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,6 +20,11 @@ class AppActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_app)
 
+        supportActionBar?.hide()
         //val navController = navHostFragment.navController
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 }

@@ -33,7 +33,7 @@
         android:layout_width="144dp"
         android:layout_height="144dp"
         android:layout_marginTop="64dp"
-        android:adjustViewBounds="true"
+        android:adjustViewBounds="false"
         android:contentDescription="@string/site_logo"
         android:src="@drawable/ic_github_logo"
         android:visibility="visible"
@@ -60,10 +60,11 @@
             android:id="@+id/user_login"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="textPersonName"
             android:hint="@string/username"
+            android:inputType="textPersonName"
             android:maxLines="1"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            tools:ignore="TextContrastCheck" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -71,7 +72,7 @@
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
         android:layout_height="64dp"
-
+        android:layout_marginTop="12dp"
         app:endIconMode="password_toggle"
         app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
@@ -88,6 +89,7 @@
             android:layout_height="match_parent"
             android:inputType="textPassword"
             android:maxLines="1"
+            android:text="@string/test_key"
             android:hint="@string/personal_access_token"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -99,6 +101,7 @@
         app:layout_constraintBottom_toBottomOf="@id/content_bottom"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start">
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/sign_in_button"
             android:layout_width="match_parent"
@@ -106,7 +109,9 @@
             android:backgroundTint="@color/green_github"
             android:gravity="center"
             android:text="@string/sign_in"
-            android:textColor="@color/white"/>
+            android:textAppearance="@style/LoginScreen.SignIn.TextStyle"
+            android:textColor="@color/white"
+            tools:ignore="TextContrastCheck" />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:elevation="10dp"

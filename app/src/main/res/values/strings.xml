@@ -13,4 +13,16 @@
     <string name="item_field_repository_name">Repository-name-android</string>
     <string name="item_field_language">Kotlin</string>
     <string name="item_field_repository_description">Example text of description repository inside repository list</string>
+
+    <string name="repo_info_link">github.com/link/repository_url</string>
+    <string name="repo_info_license">License</string>
+    <string name="repo_info_license_type">Apache-2.0</string>
+    <string name="repo_info_stared">stars</string>
+    <string name="repo_info_forks">forks</string>
+    <string name="repo_info_watchers">watchers</string>
+    <string name="repo_info_repository_description">desc</string>
+
+    <string name="test_key">s</string>
+    <string name="zero_value">0</string>
+    <string name="repo_info_license_type_not_specified">Not specified</string>
 </resources>

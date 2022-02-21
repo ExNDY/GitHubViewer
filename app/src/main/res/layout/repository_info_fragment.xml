@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="@color/gray"
+    tools:context=".ui.view.RepositoryInfoFragment">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_start"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="12dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_end"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="12dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_bottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="24dp" />
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <LinearLayout
+        android:id="@+id/block_link"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/content_end"
+        app:layout_constraintStart_toStartOf="@+id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_margin="4dp"
+            android:src="@drawable/ic_icons_link" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:gravity="center_vertical"
+            android:text="@string/repo_info_link"
+            android:textAlignment="gravity"
+            android:textColor="@color/accent_github"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/license_image"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="4dp"
+        android:src="@drawable/ic_icons_license"
+        app:layout_constraintStart_toEndOf="@id/content_start"
+        app:layout_constraintTop_toBottomOf="@id/block_link" />
+
+    <TextView
+        android:id="@+id/license"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="@string/repo_info_license"
+        android:textAlignment="gravity"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/license_image"
+        app:layout_constraintStart_toEndOf="@id/license_image"
+        app:layout_constraintTop_toTopOf="@+id/license_image" />
+
+    <TextView
+        android:id="@+id/license_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:padding="4dp"
+        android:text="@string/repo_info_license_type_not_specified"
+        android:textAlignment="gravity"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/license_image"
+        app:layout_constraintEnd_toStartOf="@+id/content_end"
+        app:layout_constraintTop_toTopOf="@+id/license_image"
+        tools:text="@string/repo_info_license_type" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/license_section_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="license_image, license, license_type" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/stars"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_icons_star_outline"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintEnd_toStartOf="@id/stars_count"
+        app:layout_constraintStart_toEndOf="@+id/content_start"
+        app:layout_constraintTop_toBottomOf="@+id/license_section_barrier"
+        />
+
+    <TextView
+        android:id="@+id/stars_count"
+        style="@style/RepositoryInfo.Counter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="56dp"
+        android:maxLines="1"
+        android:text="@string/zero_value"
+        android:textColor="@color/yellow"
+        app:layout_constraintEnd_toStartOf="@id/stars_name"
+        app:layout_constraintBottom_toBottomOf="@id/stars"
+        app:layout_constraintStart_toEndOf="@id/stars"
+        app:layout_constraintTop_toTopOf="@id/stars"
+        tools:text="999999999999" />
+
+    <TextView
+        android:id="@+id/stars_name"
+        style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repo_info_stared"
+        android:textColor="@color/white"
+        app:layout_constraintBaseline_toBaselineOf="@id/stars_count"
+        app:layout_constraintStart_toEndOf="@id/stars_count"
+        app:layout_constraintEnd_toStartOf="@id/forks"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/forks"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/ic_icons_forks"
+        app:layout_constraintTop_toBottomOf="@id/license_section_barrier"
+        app:layout_constraintStart_toEndOf="@id/stars_name"
+        app:layout_constraintEnd_toStartOf="@id/forks_count"
+         />
+
+    <TextView
+        android:id="@+id/forks_count"
+        style="@style/RepositoryInfo.Counter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="56dp"
+        android:maxLines="1"
+        android:text="@string/zero_value"
+        android:textColor="@color/green"
+        app:layout_constraintBottom_toBottomOf="@+id/forks"
+        app:layout_constraintStart_toEndOf="@id/forks"
+        app:layout_constraintTop_toTopOf="@+id/forks"
+        app:layout_constraintEnd_toStartOf="@id/forks_name"
+        tools:text="9999999999" />
+
+    <TextView
+        android:id="@+id/forks_name"
+        style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repo_info_forks"
+        app:layout_constraintBaseline_toBaselineOf="@id/forks_count"
+        app:layout_constraintStart_toEndOf="@id/forks_count"
+        app:layout_constraintEnd_toStartOf="@id/watchers"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/watchers"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/ic_icons_watchers"
+        app:layout_constraintEnd_toStartOf="@id/watchers_count"
+        app:layout_constraintStart_toEndOf="@id/forks_name"
+        app:layout_constraintTop_toTopOf="@+id/license_section_barrier" />
+
+    <TextView
+        android:id="@+id/watchers_count"
+        style="@style/RepositoryInfo.Counter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="56dp"
+        android:maxLines="1"
+        android:text="@string/zero_value"
+        android:textColor="@color/cyan"
+        app:layout_constraintBottom_toBottomOf="@+id/watchers"
+        app:layout_constraintStart_toEndOf="@id/watchers"
+        app:layout_constraintEnd_toStartOf="@id/watchers_name"
+        app:layout_constraintTop_toTopOf="@+id/watchers"
+        tools:text="9999999999999" />
+
+    <TextView
+        android:id="@+id/watchers_name"
+        style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/repo_info_watchers"
+        app:layout_constraintBaseline_toBaselineOf="@id/watchers_count"
+        app:layout_constraintEnd_toStartOf="@id/content_end"
+        app:layout_constraintStart_toEndOf="@id/watchers_count" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,5 +16,5 @@ class GitHubRemoteData @Inject constructor(
         token: String,
         userName: String,
         repositoryName: String
-    ): GitHubRepository = gitHubService.getRepositoryInfo(token, userName, repositoryName)
+    ) = gitHubService.getRepositoryInfo(token, userName, repositoryName)
 }

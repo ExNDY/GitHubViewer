@@ -16,4 +16,7 @@
     <color name="kotlin">#FF7e60b8</color>
     <color name="green_github">#FF5a9357</color>
     <color name="red_error">#ffc93838</color>
+    <color name="yellow">#FAD876</color>
+    <color name="green">#6ED370</color>
+    <color name="cyan">#9CFFF9</color>
 </resources>
