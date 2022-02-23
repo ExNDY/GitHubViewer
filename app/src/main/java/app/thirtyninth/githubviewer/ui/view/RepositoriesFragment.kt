@@ -1,57 +1,47 @@
 package app.thirtyninth.githubviewer.ui.view
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import app.thirtyninth.githubviewer.data.network.Status
+import app.thirtyninth.githubviewer.AppNavigationDirections
+import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
+import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.utils.StorageUtil
+import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.JsonObject
 
 @AndroidEntryPoint
-class RepositoriesFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = RepositoriesFragment()
-    }
-
+class RepositoriesFragment : BaseFragment() {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
     private lateinit var listAdapter: RepositoryListAdapter
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         initApp()
+
+        setHasOptionsMenu(true)
+
         return binding.root
     }
 
@@ -59,7 +49,6 @@ class RepositoriesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupUIComponents()
-        //setupObservers()
     }
 
     private fun initApp() {
@@ -67,11 +56,10 @@ class RepositoriesFragment : Fragment() {
             viewModel.isLoggedIn
                 .onEach {
                     if (it) {
-                        (activity as AppCompatActivity?)!!.supportActionBar!!.show()
                         setupObservers()
                     } else {
-                        val action = RepositoriesFragmentDirections.navigateToLoginScreen()
-                        findNavController().navigate(action)
+                        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
+                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
                     }
                 }.collect()
         }
@@ -88,7 +76,12 @@ class RepositoriesFragment : Fragment() {
         listAdapter = RepositoryListAdapter(
             colors
         ) {
-            findNavController().navigate(RepositoriesFragmentDirections.navigateToRepositoryInfo())
+            findNavController().navigate(
+                RepositoriesFragmentDirections.navigateToRepositoryInfo(
+                    it.owner?.login.toString(),
+                    it.name.toString()
+                )
+            )
         }
 
         with(binding) {
@@ -97,35 +90,94 @@ class RepositoriesFragment : Fragment() {
                 addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
                 adapter = listAdapter
             }
+
+            tryButton.setOnClickListener {
+                viewModel.loadData()
+            }
         }
     }
 
     private fun setupObservers() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.repositoryList
-                .onEach {
-                    when (it.status) {
-                        Status.SUCCESS -> {
-                            binding.progressHorizontal.visibility = View.GONE
+        viewModel.repositoryList
+            .onEach {
+                (binding.rvRepositoryList.adapter as RepositoryListAdapter).submitList(
+                    it
+                )
+            }.launchIn(lifecycleScope)
 
-                            (binding.rvRepositoryList.adapter as RepositoryListAdapter).submitList(
-                                it.data
-                            )
-                        }
-                        Status.LOADING -> {
-                            binding.progressHorizontal.visibility = View.VISIBLE
-                        }
-                        Status.ERROR -> {
-                            //showToast("ERROR " + it.message)
-                            it.message?.let { it1 -> Log.e("RETROFIT", it1) }
-                        }
-                    }
-                }.collect()
+        viewModel.uiState.onEach {
+            when (it) {
+                UIState.NORMAL -> {
+                    setNormalState()
+                }
+                UIState.LOADING -> {
+                    setLoadingState()
+                }
+                UIState.ERROR -> {
+                    setErrorState()
+                }
+                else -> {
+
+                }
+            }
+        }.launchIn(lifecycleScope)
+
+        viewModel.errorMessage.onEach {
+            if (it.isNotEmpty()) {
+                setErrorMessage(it)
+            } else {
+                setErrorMessage("")
+            }
+        }.launchIn(lifecycleScope)
+    }
+
+    override fun setNormalState() {
+        with(binding) {
+            errorBlock.visibility = View.GONE
+            progressHorizontal.visibility = View.GONE
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    override fun setLoadingState() {
+        with(binding) {
+            errorBlock.visibility = View.GONE
+            progressHorizontal.visibility = View.VISIBLE
+            rvRepositoryList.visibility = View.VISIBLE
+        }
     }
 
+    override fun setErrorState() {
+        with(binding) {
+            progressHorizontal.visibility = View.GONE
+            rvRepositoryList.visibility = View.GONE
+            errorBlock.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setErrorMessage(message: String) {
+        with(binding) {
+            errorMessage.text = message
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.logout -> {
+                viewModel.logout()
+                findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+                return true
+            }
+        }
+
+        return false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+    }
 }

@@ -48,7 +48,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     def retrofit_version = "2.9.0"
-    def navigation_version = "2.5.0-alpha02"
+    def navigation_version = "2.5.0-alpha03"
     def hilt_version = '2.41'
     def datastore_version = "1.0.0"
 

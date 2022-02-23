@@ -1,11 +1,16 @@
 package app.thirtyninth.githubviewer.ui.view
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import app.thirtyninth.githubviewer.R
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,10 +25,22 @@ class AppActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_app)
 
-        supportActionBar?.hide()
-        //val navController = navHostFragment.navController
+        //supportActionBar?.hide()
+
+        setupActionBarWithNavController(
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container)as NavHostFragment).navController,
+            AppBarConfiguration(setOf(R.id.repositoriesFragment, R.id.loginFragment))
+        )
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.action_bar_menu,menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return false
+    }
     override fun onBackPressed() {
         super.onBackPressed()
     }

@@ -3,8 +3,7 @@ package app.thirtyninth.githubviewer.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData
-import app.thirtyninth.githubviewer.data.models.User
-import app.thirtyninth.githubviewer.data.network.Resource
+import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.repository.Repository
 import app.thirtyninth.githubviewer.utils.LoginUtils
@@ -12,8 +11,9 @@ import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.UsernameState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,14 +23,11 @@ class LoginViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _user = MutableSharedFlow<Resource<User?>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val user: SharedFlow<Resource<User?>> = _user.asSharedFlow()
-
     private val _uiState = MutableStateFlow(UIState.NORMAL)
-    val uiState:StateFlow<UIState> get() = _uiState
+    val uiState:StateFlow<UIState> get() = _uiState.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage:StateFlow<String> get() = _errorMessage.asStateFlow()
 
     private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
     val userNameValid: StateFlow<UsernameState> get() = _userNameValid
@@ -42,23 +39,29 @@ class LoginViewModel @Inject constructor(
     fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch{
         _uiState.tryEmit(UIState.LOADING)
 
-        var userData:User? = null
+        when (val result = repository.getUser("token $token")){
+            is Result.Success ->{
+                val user = result.data
 
-        try {
-            userData = repository.getUser("token $token")
-        } catch (ex: Exception) {
-            _user.tryEmit(Resource.error(ex.toString(), null))
-        }
+                if (user != null){
+                    if (user.login.equals(username, true)){
+                        userPreferences.saveUser(LoginData(username, token))
 
-        if (userData != null) {
-            if (userData.login.equals(username, true)){
-                userPreferences.saveUser(LoginData(username, token))
+                        _uiState.tryEmit(UIState.SUCCESS)
+                    } else {
+                        _uiState.tryEmit(UIState.NORMAL)
+                        _userNameValid.tryEmit(UsernameState.INVALID)
+                    }
+                } else {
+                    _uiState.tryEmit(UIState.NORMAL)
+                    _errorMessage.tryEmit("Error: Data is empty")
+                }
 
+
+            }
+            is Result.Error->{
+                _errorMessage.tryEmit(result.exception.message.toString())
                 _uiState.tryEmit(UIState.NORMAL)
-                _user.tryEmit(Resource.success(userData))
-            } else {
-                _uiState.tryEmit(UIState.NORMAL)
-                _userNameValid.tryEmit(UsernameState.INVALID)
             }
         }
     }

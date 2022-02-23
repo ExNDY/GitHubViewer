@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.ui.view
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,13 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.data.network.Status
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
+import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
@@ -26,21 +24,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = LoginFragment()
-    }
-
+class LoginFragment : BaseFragment() {
     private val viewModel: LoginViewModel by viewModels()
     private val binding:LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
+
     private var isCorrectUserName = false
     private var isCorrectAccessToken = false
     private var isLoadingState = false
@@ -50,12 +43,18 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUI()
+        setupObservers()
+    }
+
+    private fun setupUI(){
         with(binding){
             userLogin.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -99,7 +98,9 @@ class LoginFragment : Fragment() {
                 signIn(binding.userLogin.text.toString(), binding.accessToken.text.toString())
             }
         }
+    }
 
+    private fun setupObservers(){
         viewModel.uiState.onEach {
             when (it) {
                 UIState.NORMAL ->{
@@ -107,6 +108,12 @@ class LoginFragment : Fragment() {
                 }
                 UIState.LOADING ->{
                     setLoadingState()
+                }
+                UIState.SUCCESS->{
+                    navigateToRepositoryList()
+                }
+                else -> {
+
                 }
             }
         }.launchIn(lifecycleScope)
@@ -151,27 +158,11 @@ class LoginFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.user
-                .onEach {
-                    when (it.status) {
-                        Status.SUCCESS -> {
-                            navigateToRepositoryList()
-                        }
-
-                        Status.ERROR -> {
-                            setNormalState()
-                        }else ->{
-
-                        }
-                    }
-                }.collect()
+        viewModel.errorMessage.onEach {
+            if (it.isNotEmpty()){
+                showToast(it)
+            }
         }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
     }
 
     private fun navigateToRepositoryList(){
@@ -180,7 +171,7 @@ class LoginFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun setNormalState(){
+    override fun setNormalState(){
         with(binding){
             signInButton.text = getString(R.string.sign_in)
             progressCircular.visibility = View.GONE
@@ -189,13 +180,17 @@ class LoginFragment : Fragment() {
         isLoadingState = false
     }
 
-    private fun setLoadingState(){
+    override fun setLoadingState(){
         with(binding){
             signInButton.text = ""
             progressCircular.visibility = View.VISIBLE
         }
 
         isLoadingState = true
+    }
+
+    override fun setErrorState() {
+
     }
 
     private fun showToast(message: String) {

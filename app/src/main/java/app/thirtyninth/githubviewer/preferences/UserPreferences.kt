@@ -1,10 +1,8 @@
 package app.thirtyninth.githubviewer.preferences
 
-import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
-import androidx.datastore.dataStore
 import app.thirtyninth.githubviewer.ProtoSettings
 import app.thirtyninth.githubviewer.data.models.LoginData
 import com.google.protobuf.InvalidProtocolBufferException
@@ -43,6 +41,20 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
             }
     }
 
+    override suspend fun getLoginData(): Flow<LoginData?> {
+        return dataStore.data
+            .catch { ex ->
+                if (ex is IOException){
+                    emit(ProtoSettings.getDefaultInstance())
+                } else {
+                    throw ex
+                }
+            }
+            .map {
+                LoginData(it.userName, it.userToken)
+            }
+    }
+
     override suspend fun saveUser(user: LoginData) {
         dataStore.updateData {
             it.toBuilder()
@@ -53,10 +65,12 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
         }
     }
 
-    override suspend fun clear() {
+    override suspend fun logout() {
         dataStore.updateData {
             it.toBuilder()
-                .clear()
+                .setIsLoggedIn(false)
+                .setUserName("")
+                .setUserToken("token " + "")
                 .build()
         }
     }

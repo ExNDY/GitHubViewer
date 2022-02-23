@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray"
+    tools:background="@color/gray_blue"
     tools:context=".ui.view.LoginFragment">
 
     <androidx.constraintlayout.widget.Guideline
@@ -89,7 +89,6 @@
             android:layout_height="match_parent"
             android:inputType="textPassword"
             android:maxLines="1"
-            android:text="@string/test_key"
             android:hint="@string/personal_access_token"
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>

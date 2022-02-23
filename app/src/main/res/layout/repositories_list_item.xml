@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:foreground="?android:attr/selectableItemBackground"
     android:minHeight="80dp"
-    tools:background="@color/gray">
+    tools:background="@color/gray_blue">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/content_start"

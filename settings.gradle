@@ -8,9 +8,6 @@ pluginManagement {
 
     resolutionStrategy {
         eachPlugin{
-            /*if (requested.id.id == 'androidx.navigation.saveargs.kotlin'){
-                useModule("androidx.navigation:navigation-safe-args-gradle-plugin:${requested.version}")
-            }*/
             if (requested.id.id == 'dagger.hilt.android.plugin') {
                 useModule("com.google.dagger:hilt-android-gradle-plugin:${requested.version}")
             }
@@ -27,9 +24,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url "https://jitpack.io"
-        }
     }
 }
 rootProject.name = "GitHub Viewer"

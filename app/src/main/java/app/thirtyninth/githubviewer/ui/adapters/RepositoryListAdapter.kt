@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import app.thirtyninth.githubviewer.data.models.GitHubRepository
+import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -16,8 +16,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 class RepositoryListAdapter(
     colors: JsonObject,
-    val onItemClicked: (GitHubRepository) -> Unit
-) : ListAdapter<GitHubRepository,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
+    val onItemClicked: (GitHubRepositoryModel) -> Unit
+) : ListAdapter<GitHubRepositoryModel,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
     private val languageColors = colors
 
     inner class RepositoryListViewHolder(
@@ -31,8 +31,8 @@ class RepositoryListAdapter(
             }
         }
 
-        fun bind(repository: GitHubRepository) {
-            repository.name?.let { bindName(it) }
+        fun bind(repository: GitHubRepositoryModel) {
+            bindName(repository.name)
 
             bindLanguage(repository.language)
             bindDescription(repository.description)
@@ -107,8 +107,8 @@ class RepositoryListAdapter(
 
 private const val PAYLOAD_DESCRIPTION = "PAYLOAD_DESCRIPTION"
 
-private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepository>(){
-    override fun getChangePayload(oldItem: GitHubRepository, newItem: GitHubRepository): Any? {
+private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>(){
+    override fun getChangePayload(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Any? {
         if (newItem.name == oldItem.name) {
             return if (newItem.description == oldItem.description){
                 super.getChangePayload(oldItem, newItem)
@@ -123,10 +123,10 @@ private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositor
         return super.getChangePayload(oldItem, newItem)
     }
 
-    override fun areItemsTheSame(oldItem: GitHubRepository, newItem: GitHubRepository): Boolean =
+    override fun areItemsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
         oldItem.name == newItem.name
 
 
-    override fun areContentsTheSame(oldItem: GitHubRepository, newItem: GitHubRepository): Boolean =
+    override fun areContentsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
         oldItem == newItem
 }
