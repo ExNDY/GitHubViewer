@@ -42,12 +42,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/user_login_field"
+        android:id="@+id/user_login_container"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="112dp"
-
+        android:hint="@string/username"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
@@ -59,37 +59,35 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/user_login"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="@string/username"
+            android:layout_height="56dp"
             android:inputType="textPersonName"
             android:maxLines="1"
-            android:textColor="@color/white"
-            tools:ignore="TextContrastCheck" />
+            android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/access_token_field"
+        android:id="@+id/access_token_container"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/personal_access_token"
         app:endIconMode="password_toggle"
         app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_container"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
-        app:layout_constraintTop_toBottomOf="@+id/user_login_field"
+        app:layout_constraintTop_toBottomOf="@+id/user_login_container"
         app:layout_constraintVertical_bias="0"
         app:passwordToggleEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/access_token"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             android:inputType="textPassword"
             android:maxLines="1"
-            android:hint="@string/personal_access_token"
+
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,14 +111,14 @@
             tools:ignore="TextContrastCheck" />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:elevation="10dp"
             android:id="@+id/progress_circular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true"
             android:layout_gravity="center"
-            app:indicatorColor="@color/white"
-            android:visibility="invisible" />
+            android:elevation="10dp"
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorColor="@color/white" />
     </FrameLayout>
 
 

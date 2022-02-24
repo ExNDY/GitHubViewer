@@ -24,10 +24,10 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UIState.NORMAL)
-    val uiState:StateFlow<UIState> get() = _uiState.asStateFlow()
+    val uiState: StateFlow<UIState> get() = _uiState.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow("")
-    val errorMessage:StateFlow<String> get() = _errorMessage.asStateFlow()
+    private val _errorFlow = MutableStateFlow(-13)
+    val errorFlow: StateFlow<Int> get() = _errorFlow.asStateFlow()
 
     private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
     val userNameValid: StateFlow<UsernameState> get() = _userNameValid
@@ -36,15 +36,15 @@ class LoginViewModel @Inject constructor(
     val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
 
 
-    fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch{
+    fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch {
         _uiState.tryEmit(UIState.LOADING)
 
-        when (val result = repository.getUser("token $token")){
-            is Result.Success ->{
+        when (val result = repository.getUser("token $token")) {
+            is Result.Success -> {
                 val user = result.data
 
-                if (user != null){
-                    if (user.login.equals(username, true)){
+                if (user != null) {
+                    if (user.login.equals(username, true)) {
                         userPreferences.saveUser(LoginData(username, token))
 
                         _uiState.tryEmit(UIState.SUCCESS)
@@ -54,23 +54,23 @@ class LoginViewModel @Inject constructor(
                     }
                 } else {
                     _uiState.tryEmit(UIState.NORMAL)
-                    _errorMessage.tryEmit("Error: Data is empty")
+                    _errorFlow.tryEmit(-1)
                 }
-
-
             }
-            is Result.Error->{
-                _errorMessage.tryEmit(result.exception.message.toString())
+            is Result.Error -> {
+                val errorCode:Int = result.code ?: 0
+
+                _errorFlow.tryEmit(errorCode)
                 _uiState.tryEmit(UIState.NORMAL)
             }
         }
     }
 
-    fun validateUserName(userName: String) = viewModelScope.launch{
+    fun validateUserName(userName: String) = viewModelScope.launch {
         _userNameValid.value = LoginUtils.validateUserName(userName)
     }
 
-    fun validateToken(token:String) = viewModelScope.launch {
+    fun validateToken(token: String) = viewModelScope.launch {
         _authorisationTokenValid.value = LoginUtils.validateAuthorisationToken(token)
     }
 }

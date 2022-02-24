@@ -2,10 +2,7 @@ package app.thirtyninth.githubviewer.data.network.api
 
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.User
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import retrofit2.Response
-import java.lang.Exception
 import javax.inject.Inject
 
 class GitHubRemoteData @Inject constructor(

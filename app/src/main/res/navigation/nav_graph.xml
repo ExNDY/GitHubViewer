@@ -46,8 +46,8 @@
     <action
         android:id="@+id/navigate_toLoginScreen"
         app:destination="@id/loginFragment"
-        app:enterAnim="@anim/fade_in"
-        app:exitAnim="@anim/fast_fade_out"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
         app:popUpTo="@id/app_navigation"
         app:popUpToInclusive="true"
         app:launchSingleTop="true" />

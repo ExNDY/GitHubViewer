@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.Exception
 
 @Singleton
 class Repository
@@ -22,13 +21,17 @@ class Repository
 
             if (response.isSuccessful) {
                 val user = response.body()
-                return@withContext Result.Success(user, response.code())
 
+                return@withContext Result.Success(user, response.code())
             } else {
+                if (response.code() == 401){
+                    return@withContext Result.Error(Exception(Exceptions.AUTHENTICATOR_ERROR), 401)
+                }
+
                 return@withContext Result.Error(Exception(Exceptions.SERVER_ERROR), response.code())
             }
         } catch (ex: Exception){
-            return@withContext Result.Error(ex, null)
+            return@withContext Result.Error(ex, 0)
         }
     }
 
@@ -39,12 +42,15 @@ class Repository
             if (response.isSuccessful) {
                 val list = response.body()
                 return@withContext Result.Success(list, response.code())
-
             } else {
+                if (response.code() == 401){
+                    return@withContext Result.Error(Exception(Exceptions.AUTHENTICATOR_ERROR), 401)
+                }
+
                 return@withContext Result.Error(Exception(Exceptions.SERVER_ERROR), response.code())
             }
         } catch (ex: Exception){
-            return@withContext Result.Error(ex, null)
+            return@withContext Result.Error(ex, 0)
         }
     }
 
@@ -58,13 +64,17 @@ class Repository
 
             if (response.isSuccessful) {
                 val repo = response.body()
-                return@withContext Result.Success(repo, response.code())
 
+                return@withContext Result.Success(repo, response.code())
             } else {
+                if (response.code() == 401){
+                    return@withContext Result.Error(Exception(Exceptions.AUTHENTICATOR_ERROR), 401)
+                }
+
                 return@withContext Result.Error(Exception(Exceptions.SERVER_ERROR), response.code())
             }
         } catch (ex: Exception){
-            return@withContext Result.Error(ex, null)
+            return@withContext Result.Error(ex, 0)
         }
     }
 }

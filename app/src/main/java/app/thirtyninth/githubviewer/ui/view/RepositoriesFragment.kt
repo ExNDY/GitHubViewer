@@ -1,8 +1,10 @@
 package app.thirtyninth.githubviewer.ui.view
 
 import android.os.Bundle
-import android.view.*
-import android.widget.Toast
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -11,7 +13,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
@@ -122,11 +123,25 @@ class RepositoriesFragment : BaseFragment() {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.errorMessage.onEach {
-            if (it.isNotEmpty()) {
-                setErrorMessage(it)
-            } else {
-                setErrorMessage("")
+        viewModel.errorFlow.onEach {
+            when(it){
+                -13->{
+
+                }
+                -1 -> {
+                    setErrorMessage(getString(R.string.request_error_connection_with_server))
+                }
+                (401) ->{
+                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
+                } else ->{
+                    viewModel.errorMessage.onEach {msg ->
+                        if (msg.isNotEmpty()) {
+                            setErrorMessage(msg)
+                        } else {
+                            setErrorMessage("")
+                        }
+                    }
+                }
             }
         }.launchIn(lifecycleScope)
     }
@@ -160,10 +175,6 @@ class RepositoriesFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.logout -> {
@@ -176,8 +187,4 @@ class RepositoriesFragment : BaseFragment() {
         return false
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-    }
 }

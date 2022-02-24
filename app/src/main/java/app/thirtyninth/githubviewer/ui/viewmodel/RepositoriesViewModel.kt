@@ -1,13 +1,12 @@
 package app.thirtyninth.githubviewer.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.common.ServerResponseConstants
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.repository.Repository
-import app.thirtyninth.githubviewer.ui.view.RepositoriesFragmentDirections
 import app.thirtyninth.githubviewer.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -39,6 +38,9 @@ class RepositoriesViewModel @Inject constructor(
 
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> get() = _errorMessage.asStateFlow()
+
+    private val _errorFlow = MutableStateFlow(-13)
+    val errorFlow: StateFlow<Int> get() = _errorFlow.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -78,10 +80,18 @@ class RepositoriesViewModel @Inject constructor(
                     _uiState.tryEmit(UIState.NORMAL)
                 } else {
                     _uiState.tryEmit(UIState.ERROR)
+                    _errorFlow.tryEmit(-1)
                     _errorMessage.tryEmit("Error: Data is empty")
                 }
             }
             is Result.Error -> {
+                var errorCode:Int = result.code ?:0
+
+                if (result.exception.message == ServerResponseConstants.SERVER_NOT_AVAILABLE){
+                    errorCode = -1
+                }
+
+                _errorFlow.tryEmit(errorCode)
                 _errorMessage.tryEmit(result.exception.message.toString())
                 _uiState.tryEmit(UIState.ERROR)
             }

@@ -6,8 +6,6 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavHostController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -25,8 +23,6 @@ class AppActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_app)
 
-        //supportActionBar?.hide()
-
         setupActionBarWithNavController(
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container)as NavHostFragment).navController,
             AppBarConfiguration(setOf(R.id.repositoriesFragment, R.id.loginFragment))
@@ -40,8 +36,5 @@ class AppActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return false
-    }
-    override fun onBackPressed() {
-        super.onBackPressed()
     }
 }

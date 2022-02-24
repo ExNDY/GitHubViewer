@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class LoginFragment : BaseFragment() {
     private val viewModel: LoginViewModel by viewModels()
-    private val binding:LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
+    private val binding: LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
     private var isCorrectUserName = false
     private var isCorrectAccessToken = false
@@ -54,8 +54,8 @@ class LoginFragment : BaseFragment() {
         setupObservers()
     }
 
-    private fun setupUI(){
-        with(binding){
+    private fun setupUI() {
+        with(binding) {
             userLogin.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -100,16 +100,16 @@ class LoginFragment : BaseFragment() {
         }
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         viewModel.uiState.onEach {
             when (it) {
-                UIState.NORMAL ->{
+                UIState.NORMAL -> {
                     setNormalState()
                 }
-                UIState.LOADING ->{
+                UIState.LOADING -> {
                     setLoadingState()
                 }
-                UIState.SUCCESS->{
+                UIState.SUCCESS -> {
                     navigateToRepositoryList()
                 }
                 else -> {
@@ -132,9 +132,6 @@ class LoginFragment : BaseFragment() {
                     setUsernameFieldError(getString(R.string.error_username_is_empty))
                     isCorrectUserName = false
                 }
-                else -> {
-                    //PLACEHOLDER
-                }
             }
         }.launchIn(lifecycleScope)
 
@@ -152,27 +149,36 @@ class LoginFragment : BaseFragment() {
                     setAccessTokenFieldError(getString(R.string.error_token_is_empty))
                     isCorrectAccessToken = false
                 }
-                else -> {
-                    //PLACEHOLDER
-                }
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.errorMessage.onEach {
-            if (it.isNotEmpty()){
-                showToast(it)
+        viewModel.errorFlow.onEach {
+            when (it) {
+                (-13)->{
+
+                }
+                (401) -> {
+                    setAccessTokenFieldError(getString(R.string.request_error_401_authentication_error))
+
+                    lifecycleScope.run {
+                        delay(2000)
+                    }
+
+                    setAccessTokenFieldError("")
+                }
+                else -> {
+                    showToast(getString(R.string.request_error_connection_with_server))
+                }
             }
-        }
+        }.launchIn(lifecycleScope)
     }
 
-    private fun navigateToRepositoryList(){
-        val action = LoginFragmentDirections.navigateToRepositoryList()
-
-        findNavController().navigate(action)
+    private fun navigateToRepositoryList() {
+        findNavController().navigate(LoginFragmentDirections.navigateToRepositoryList())
     }
 
-    override fun setNormalState(){
-        with(binding){
+    override fun setNormalState() {
+        with(binding) {
             signInButton.text = getString(R.string.sign_in)
             progressCircular.visibility = View.GONE
         }
@@ -180,8 +186,8 @@ class LoginFragment : BaseFragment() {
         isLoadingState = false
     }
 
-    override fun setLoadingState(){
-        with(binding){
+    override fun setLoadingState() {
+        with(binding) {
             signInButton.text = ""
             progressCircular.visibility = View.VISIBLE
         }
@@ -208,7 +214,7 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun signIn(username: String, token: String) {
-        if (!isLoadingState){
+        if (!isLoadingState) {
             if (!isCorrectUserName || !isCorrectAccessToken) {
                 if (!isCorrectUserName) {
                     setUsernameFieldError(getString(R.string.error_username_is_empty))
@@ -224,10 +230,15 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun setUsernameFieldError(errorMessage: String?) {
-        binding.userLoginField.error = errorMessage
+        with(binding) {
+            userLoginContainer.error = errorMessage
+        }
+
     }
 
     private fun setAccessTokenFieldError(errorMessage: String?) {
-        binding.accessTokenField.error = errorMessage
+        with(binding) {
+            accessTokenContainer.error = errorMessage
+        }
     }
 }

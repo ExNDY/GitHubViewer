@@ -46,10 +46,6 @@ class RepositoryInfoFragment : BaseFragment() {
         setupObservers()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.logout -> {
@@ -89,11 +85,25 @@ class RepositoryInfoFragment : BaseFragment() {
             initUI(it)
         }.launchIn(lifecycleScope)
 
-        viewModel.errorMessage.onEach {
-            if (it.isNotEmpty()) {
-                setErrorMessage(it)
-            } else {
-                setErrorMessage("")
+        viewModel.errorFlow.onEach {
+            when(it){
+                -13->{
+
+                }
+                -1 -> {
+                    setErrorMessage(getString(R.string.request_error_connection_with_server))
+                }
+                (401) ->{
+                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
+                } else ->{
+                viewModel.errorMessage.onEach {msg ->
+                    if (msg.isNotEmpty()) {
+                        setErrorMessage(msg)
+                    } else {
+                        setErrorMessage("")
+                    }
+                }
+            }
             }
         }.launchIn(lifecycleScope)
     }
@@ -125,8 +135,6 @@ class RepositoryInfoFragment : BaseFragment() {
                 if (source.htmlURL != null)
                     openInBrowser(source.htmlURL)
             }
-
-
         }
     }
 
@@ -161,6 +169,7 @@ class RepositoryInfoFragment : BaseFragment() {
             userUiGroup.visibility = View.GONE
             errorBlock.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
+
             reloadDataButton.setOnClickListener {
                 viewModel.loadRepositoryInfo()
             }
