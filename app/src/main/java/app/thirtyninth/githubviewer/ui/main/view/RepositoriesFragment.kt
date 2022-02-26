@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.view
+package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,8 +15,8 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
-import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
-import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel
+import app.thirtyninth.githubviewer.ui.base.BaseFragment
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.utils.StorageUtil
 import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod

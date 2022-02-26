@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.view
+package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
 import android.view.Menu

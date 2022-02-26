@@ -1,11 +1,11 @@
-package app.thirtyninth.githubviewer.ui.viewmodel
+package app.thirtyninth.githubviewer.ui.main.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.repository.Repository
+import app.thirtyninth.githubviewer.data.repository.Repository
 import app.thirtyninth.githubviewer.utils.LoginUtils
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState

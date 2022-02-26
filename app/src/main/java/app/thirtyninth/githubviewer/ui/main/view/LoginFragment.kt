@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.view
+package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
 import android.text.Editable
@@ -13,8 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
-import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
-import app.thirtyninth.githubviewer.ui.viewmodel.LoginViewModel
+import app.thirtyninth.githubviewer.ui.base.BaseFragment
+import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.UsernameState

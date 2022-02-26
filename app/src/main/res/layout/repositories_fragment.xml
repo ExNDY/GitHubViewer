@@ -29,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/progress_horizontal"
-        tools:context=".ui.view.RepositoriesFragment"
+        tools:context=".ui.main.view.RepositoriesFragment"
         tools:itemCount="10"
         tools:listitem="@layout/repositories_list_item" />
 

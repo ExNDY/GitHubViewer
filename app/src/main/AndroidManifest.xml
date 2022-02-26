@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/SplashScreen">
         <activity
-            android:name="app.thirtyninth.githubviewer.ui.view.AppActivity"
+            android:name="app.thirtyninth.githubviewer.ui.main.view.AppActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true">
             <intent-filter>

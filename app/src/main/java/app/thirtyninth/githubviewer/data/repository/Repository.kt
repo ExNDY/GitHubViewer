@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.repository
+package app.thirtyninth.githubviewer.data.repository
 
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.User

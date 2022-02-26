@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:background="@color/gray_blue"
-    tools:context=".ui.view.LoginFragment">
+    tools:context=".ui.main.view.LoginFragment">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/content_start"

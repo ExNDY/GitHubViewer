@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.view
+package app.thirtyninth.githubviewer.ui.main.view
 
 import android.content.Intent
 import android.net.Uri
@@ -13,8 +13,8 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
-import app.thirtyninth.githubviewer.ui.view.base.BaseFragment
-import app.thirtyninth.githubviewer.ui.viewmodel.RepositoryInfoViewModel
+import app.thirtyninth.githubviewer.ui.base.BaseFragment
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel
 import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding

@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.view.base
+package app.thirtyninth.githubviewer.ui.base
 
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     tools:background="@color/gray_blue"
-    tools:context=".ui.view.RepositoryInfoFragment">
+    tools:context=".ui.main.view.RepositoryInfoFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_height="wrap_content"

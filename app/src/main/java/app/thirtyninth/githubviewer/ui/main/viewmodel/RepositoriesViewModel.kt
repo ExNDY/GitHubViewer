@@ -1,13 +1,12 @@
-package app.thirtyninth.githubviewer.ui.viewmodel
+package app.thirtyninth.githubviewer.ui.main.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.common.ServerResponseConstants
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.repository.Repository
+import app.thirtyninth.githubviewer.data.repository.Repository
 import app.thirtyninth.githubviewer.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,20 +15,26 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RepositoryInfoViewModel @Inject constructor(
+class RepositoriesViewModel @Inject constructor(
     private val repository: Repository,
-    private val userPreferences: UserPreferences,
-    state: SavedStateHandle
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _repositoryInfo = MutableSharedFlow<GitHubRepositoryModel>(
+    private var token: String = ""
+
+    private val _repositoryList = MutableSharedFlow<List<GitHubRepositoryModel>>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val repositoryInfo: SharedFlow<GitHubRepositoryModel> = _repositoryInfo.asSharedFlow()
+    val repositoryList: SharedFlow<List<GitHubRepositoryModel>> = _repositoryList.asSharedFlow()
+
+    private val _isLoggedIn = MutableSharedFlow<Boolean>(
+        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val isLoggedIn: SharedFlow<Boolean> = _isLoggedIn.asSharedFlow()
 
     private val _uiState = MutableStateFlow(UIState.NORMAL)
-    val uiState: StateFlow<UIState> get() = _uiState
+    val uiState: StateFlow<UIState> get() = _uiState.asStateFlow()
 
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> get() = _errorMessage.asStateFlow()
@@ -37,32 +42,41 @@ class RepositoryInfoViewModel @Inject constructor(
     private val _errorFlow = MutableStateFlow(-13)
     val errorFlow: StateFlow<Int> get() = _errorFlow.asStateFlow()
 
-    private val currentUsername:String = state.get<String>("username").toString()
-    private val currentRepositoryName:String = state.get<String>("repository_name").toString()
-
     init {
         viewModelScope.launch {
-            loadRepositoryInfo()
+            userPreferences.getLoggedInState().onEach {
+                _isLoggedIn.tryEmit(it)
+            }.collect()
+        }
+
+        viewModelScope.launch {
+            userPreferences.getLoginData().onEach {
+                if (it != null) {
+                    token = it.token
+
+                    getUserRepositoryList(token)
+                }
+            }.collect()
         }
     }
 
-    fun loadRepositoryInfo() = viewModelScope.launch{
-        userPreferences.getAuthenticationToken().onEach {
-            if (it != null){
-                getRepositoryInfo(it, currentUsername, currentRepositoryName)
-            }
-        }.collect()
+    fun loadData() = viewModelScope.launch {
+        getUserRepositoryList(token)
     }
 
-    private fun getRepositoryInfo(token: String, username:String, repositoryName:String) = viewModelScope.launch {
+    fun logout() = viewModelScope.launch{
+        userPreferences.logout()
+    }
+
+    private fun getUserRepositoryList(token: String) = viewModelScope.launch {
         _uiState.tryEmit(UIState.LOADING)
 
-        when (val result = repository.getRepositoryInfo(token, username, repositoryName)) {
+        when (val result = repository.getUserRepository(token)) {
             is Result.Success -> {
-                val repo = result.data
+                val repoList = result.data
 
-                if (repo != null) {
-                    _repositoryInfo.tryEmit(repo)
+                if (repoList != null) {
+                    _repositoryList.tryEmit(repoList)
                     _uiState.tryEmit(UIState.NORMAL)
                 } else {
                     _uiState.tryEmit(UIState.ERROR)
@@ -78,14 +92,9 @@ class RepositoryInfoViewModel @Inject constructor(
                 }
 
                 _errorFlow.tryEmit(errorCode)
-
                 _errorMessage.tryEmit(result.exception.message.toString())
                 _uiState.tryEmit(UIState.ERROR)
             }
         }
-    }
-
-    fun logout() = viewModelScope.launch{
-        userPreferences.logout()
     }
 }
