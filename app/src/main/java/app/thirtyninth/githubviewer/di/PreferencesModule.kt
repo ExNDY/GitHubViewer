@@ -31,10 +31,4 @@ object PreferencesModule {
             corruptionHandler = null
         )
     }
-
-/*
-    private val Context.dataStore : DataStore<ProtoSettings> by dataStore(
-        fileName = "preferences.proto",
-        serializer = PreferencesSerializer
-    )*/
 }

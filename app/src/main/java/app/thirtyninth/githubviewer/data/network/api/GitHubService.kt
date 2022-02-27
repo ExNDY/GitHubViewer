@@ -21,10 +21,10 @@ interface GitHubService {
         @Header("Authorization") token: String
     ) : Response<List<GitHubRepositoryModel>>
 
-    @GET("/repos/{username}/{repository}")
+    @GET("/repos/{owner}/{repository}")
     suspend fun getRepositoryInfo(
         @Header("Authorization") token: String,
-        @Path("username") username:String,
+        @Path("owner") username:String,
         @Path("repository") repository:String
     ): Response<GitHubRepositoryModel>
 }

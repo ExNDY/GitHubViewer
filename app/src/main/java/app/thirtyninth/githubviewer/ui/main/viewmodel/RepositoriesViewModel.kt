@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.common.ServerResponseConstants
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.data.repository.Repository
 import app.thirtyninth.githubviewer.utils.UIState
+import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
@@ -39,8 +41,11 @@ class RepositoriesViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> get() = _errorMessage.asStateFlow()
 
-    private val _errorFlow = MutableStateFlow(-13)
-    val errorFlow: StateFlow<Int> get() = _errorFlow.asStateFlow()
+    private val _errorFlow = MutableSharedFlow<NetworkExceptionType>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -64,37 +69,36 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList(token)
     }
 
-    fun logout() = viewModelScope.launch{
+    fun logout() = viewModelScope.launch {
         userPreferences.logout()
     }
 
     private fun getUserRepositoryList(token: String) = viewModelScope.launch {
-        _uiState.tryEmit(UIState.LOADING)
+        if (Variables.isNetworkConnected) {
+            _uiState.tryEmit(UIState.LOADING)
 
-        when (val result = repository.getUserRepository(token)) {
-            is Result.Success -> {
-                val repoList = result.data
+            when (val result = repository.getRepositorysList(token)) {
+                is Result.Success -> {
+                    val repoList = result.data
 
-                if (repoList != null) {
-                    _repositoryList.tryEmit(repoList)
+                    if (repoList != null) {
+                        _repositoryList.tryEmit(repoList)
+                        _uiState.tryEmit(UIState.NORMAL)
+                    } else {
+                        _uiState.tryEmit(UIState.ERROR)
+                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                        _errorMessage.tryEmit("Error: Data is empty")
+                    }
+                }
+
+                is Result.Error -> {
                     _uiState.tryEmit(UIState.NORMAL)
-                } else {
-                    _uiState.tryEmit(UIState.ERROR)
-                    _errorFlow.tryEmit(-1)
-                    _errorMessage.tryEmit("Error: Data is empty")
+                    _errorFlow.tryEmit(result.type)
                 }
             }
-            is Result.Error -> {
-                var errorCode:Int = result.code ?:0
-
-                if (result.exception.message == ServerResponseConstants.SERVER_NOT_AVAILABLE){
-                    errorCode = -1
-                }
-
-                _errorFlow.tryEmit(errorCode)
-                _errorMessage.tryEmit(result.exception.message.toString())
-                _uiState.tryEmit(UIState.ERROR)
-            }
+        } else {
+            _uiState.tryEmit(UIState.ERROR)
+            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
         }
     }
 }

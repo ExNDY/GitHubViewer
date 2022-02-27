@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.base.BaseFragment
@@ -124,17 +125,18 @@ class RepositoriesFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
-            when(it){
-                -13->{
+            when (it) {
+                NetworkExceptionType.NOT_MODIFIED -> {
 
                 }
-                -1 -> {
+                NetworkExceptionType.SERVER_ERROR -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
-                (401) ->{
+                NetworkExceptionType.UNAUTHORIZED -> {
                     setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                } else ->{
-                    viewModel.errorMessage.onEach {msg ->
+                }
+                else -> {
+                    viewModel.errorMessage.onEach { msg ->
                         if (msg.isNotEmpty()) {
                             setErrorMessage(msg)
                         } else {
@@ -176,7 +178,7 @@ class RepositoriesFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.logout -> {
                 viewModel.logout()
                 findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())

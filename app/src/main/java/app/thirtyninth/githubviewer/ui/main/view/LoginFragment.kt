@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
 import app.thirtyninth.githubviewer.ui.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
@@ -119,45 +120,42 @@ class LoginFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.userNameValid.onEach {
-            when (it) {
+            isCorrectUserName = when (it) {
                 UsernameState.CORRECT -> {
                     setUsernameFieldError(null)
-                    isCorrectUserName = true
+                    true
                 }
                 UsernameState.INVALID -> {
                     setUsernameFieldError(getString(R.string.error_invalid_username))
-                    isCorrectUserName = false
+                    false
                 }
                 UsernameState.EMPTY -> {
                     setUsernameFieldError(getString(R.string.error_username_is_empty))
-                    isCorrectUserName = false
+                    false
                 }
             }
         }.launchIn(lifecycleScope)
 
         viewModel.authorisationTokenValid.onEach {
-            when (it) {
+            isCorrectAccessToken = when (it) {
                 TokenState.CORRECT -> {
                     setAccessTokenFieldError(null)
-                    isCorrectAccessToken = true
+                    true
                 }
                 TokenState.INVALID -> {
                     setAccessTokenFieldError(getString(R.string.error_invalid_token))
-                    isCorrectAccessToken = false
+                    false
                 }
                 TokenState.EMPTY -> {
                     setAccessTokenFieldError(getString(R.string.error_token_is_empty))
-                    isCorrectAccessToken = false
+                    false
                 }
             }
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
             when (it) {
-                (-13)->{
-
-                }
-                (401) -> {
+                NetworkExceptionType.UNAUTHORIZED -> {
                     setAccessTokenFieldError(getString(R.string.request_error_401_authentication_error))
 
                     lifecycleScope.run {
@@ -166,9 +164,16 @@ class LoginFragment : BaseFragment() {
 
                     setAccessTokenFieldError("")
                 }
-                else -> {
+                NetworkExceptionType.NOT_MODIFIED -> {
+                    showToast("Status: 304 Not Modified")
+                }
+                NetworkExceptionType.SERVER_ERROR -> {
                     showToast(getString(R.string.request_error_connection_with_server))
                 }
+                else -> {
+                    showToast("Something wrong. Please try later")
+                }
+
             }
         }.launchIn(lifecycleScope)
     }

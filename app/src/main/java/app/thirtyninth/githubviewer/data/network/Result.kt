@@ -3,9 +3,9 @@ package app.thirtyninth.githubviewer.data.network
 import kotlin.Exception
 
 sealed class Result<out R> {
-    data class Success<out T>(val data: T,val code:Int?) : Result<T>()
+    data class Success<out T>(val data: T) : Result<T>()
 
-    data class Error(val exception: Exception,val code:Int?) : Result<Nothing>()
+    data class Error(val exception: Exception?, val type: NetworkExceptionType) : Result<Nothing>()
 
     override fun toString(): String {
         return when (this) {

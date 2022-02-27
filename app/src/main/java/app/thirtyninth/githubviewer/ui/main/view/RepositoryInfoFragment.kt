@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel
@@ -26,7 +27,7 @@ import kotlinx.coroutines.flow.onEach
 class RepositoryInfoFragment : BaseFragment() {
     private val viewModel: RepositoryInfoViewModel by viewModels()
     private val binding: RepositoryInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
-    private val args:RepositoryInfoFragmentArgs by navArgs()
+    private val args: RepositoryInfoFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,13 +48,13 @@ class RepositoryInfoFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.logout -> {
                 viewModel.logout()
                 findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
                 return true
             }
-            android.R.id.home ->{
+            android.R.id.home -> {
                 findNavController().navigateUp()
                 return true
             }
@@ -86,24 +87,23 @@ class RepositoryInfoFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
-            when(it){
-                -13->{
-
+            when (it) {
+                NetworkExceptionType.NOT_FOUND -> {
+                    setErrorMessage("Repository not found")
                 }
-                -1 -> {
+                NetworkExceptionType.EMPTY_DATA ->{
+                    //placeholder ADD RESOURCES
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
-                (401) ->{
-                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                } else ->{
-                viewModel.errorMessage.onEach {msg ->
-                    if (msg.isNotEmpty()) {
-                        setErrorMessage(msg)
-                    } else {
-                        setErrorMessage("")
+                else -> {
+                    viewModel.errorMessage.onEach { msg ->
+                        if (msg.isNotEmpty()) {
+                            setErrorMessage(msg)
+                        } else {
+                            setErrorMessage("")
+                        }
                     }
                 }
-            }
             }
         }.launchIn(lifecycleScope)
     }
@@ -116,8 +116,8 @@ class RepositoryInfoFragment : BaseFragment() {
 
     private fun bindRepositoryInfo(source: GitHubRepositoryModel) {
         with(binding) {
-            with(source.license?.spdxID){
-                if (this.isNullOrEmpty()){
+            with(source.license?.spdxID) {
+                if (this.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
                     licenseType.text = this

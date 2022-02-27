@@ -1,19 +1,19 @@
 package app.thirtyninth.githubviewer.ui.main.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.LoginData
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.data.repository.Repository
-import app.thirtyninth.githubviewer.utils.LoginUtils
-import app.thirtyninth.githubviewer.utils.TokenState
-import app.thirtyninth.githubviewer.utils.UIState
-import app.thirtyninth.githubviewer.utils.UsernameState
+import app.thirtyninth.githubviewer.ui.NetworkConnectionManager
+import app.thirtyninth.githubviewer.utils.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,8 +26,11 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UIState.NORMAL)
     val uiState: StateFlow<UIState> get() = _uiState.asStateFlow()
 
-    private val _errorFlow = MutableStateFlow(-13)
-    val errorFlow: StateFlow<Int> get() = _errorFlow.asStateFlow()
+    private val _errorFlow = MutableSharedFlow<NetworkExceptionType>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
     private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
     val userNameValid: StateFlow<UsernameState> get() = _userNameValid
@@ -37,32 +40,34 @@ class LoginViewModel @Inject constructor(
 
 
     fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch {
-        _uiState.tryEmit(UIState.LOADING)
+        if (Variables.isNetworkConnected){
+            _uiState.tryEmit(UIState.LOADING)
 
-        when (val result = repository.getUser("token $token")) {
-            is Result.Success -> {
-                val user = result.data
+            when (val result = repository.getUserInfo("token $token")) {
+                is Result.Success -> {
+                    val user = result.data
 
-                if (user != null) {
-                    if (user.login.equals(username, true)) {
-                        userPreferences.saveUser(LoginData(username, token))
+                    if (user != null) {
+                        if (user.login.equals(username, true)) {
+                            userPreferences.saveUser(LoginData(username, token))
 
-                        _uiState.tryEmit(UIState.SUCCESS)
+                            _uiState.tryEmit(UIState.SUCCESS)
+                        } else {
+                            _uiState.tryEmit(UIState.NORMAL)
+                            _userNameValid.tryEmit(UsernameState.INVALID)
+                        }
                     } else {
                         _uiState.tryEmit(UIState.NORMAL)
-                        _userNameValid.tryEmit(UsernameState.INVALID)
+                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
                     }
-                } else {
+                }
+                is Result.Error -> {
                     _uiState.tryEmit(UIState.NORMAL)
-                    _errorFlow.tryEmit(-1)
+                    _errorFlow.tryEmit(result.type)
                 }
             }
-            is Result.Error -> {
-                val errorCode:Int = result.code ?: 0
-
-                _errorFlow.tryEmit(errorCode)
-                _uiState.tryEmit(UIState.NORMAL)
-            }
+        } else {
+            Log.d("INTERNER: ","OFFLINE")
         }
     }
 

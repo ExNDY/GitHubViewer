@@ -10,12 +10,15 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.ui.NetworkConnectionManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        NetworkConnectionManager(this).startNetworkCallback()
 
         installSplashScreen()
 
@@ -37,4 +40,10 @@ class AppActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return false
     }
+
+    override fun onPause() {
+        super.onPause()
+        NetworkConnectionManager(this).stopNetworkCallback()
+    }
+
 }
