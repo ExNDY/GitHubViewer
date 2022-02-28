@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.ui.main.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData

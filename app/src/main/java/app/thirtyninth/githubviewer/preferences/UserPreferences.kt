@@ -7,10 +7,8 @@ import app.thirtyninth.githubviewer.ProtoSettings
 import app.thirtyninth.githubviewer.data.models.LoginData
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
-import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject

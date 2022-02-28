@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:foreground="?android:attr/selectableItemBackground"
     android:minHeight="80dp"
     tools:background="@color/gray_blue">
@@ -59,32 +59,32 @@
         android:id="@+id/language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/kotlin"
-        android:textSize="16sp"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
         android:textAlignment="center"
+        android:textColor="@color/kotlin"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/repository_description"
-        app:layout_constraintStart_toEndOf="@id/repository_name"
         app:layout_constraintEnd_toStartOf="@+id/content_end"
+        app:layout_constraintStart_toEndOf="@id/repository_name"
         app:layout_constraintTop_toBottomOf="@id/content_top"
-        tools:text="@string/item_field_language"/>
+        tools:text="@string/item_field_language" />
 
     <TextView
         android:id="@+id/repository_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:maxLines="4"
-        android:textColor="@color/white"
-        android:textSize="16sp"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:textAlignment="textStart"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="visible"
+        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@id/content_bottom"
         app:layout_constraintEnd_toStartOf="@+id/content_end"
         app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@id/repository_name"
-        app:layout_constrainedHeight="true"
-        tools:text="@tools:sample/lorem/random"
-        android:visibility="visible"/>
+        tools:text="@tools:sample/lorem/random" />
 </androidx.constraintlayout.widget.ConstraintLayout>

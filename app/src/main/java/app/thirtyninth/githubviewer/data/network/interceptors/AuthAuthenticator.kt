@@ -1,6 +1,9 @@
 package app.thirtyninth.githubviewer.data.network.interceptors
 
-import okhttp3.*
+import okhttp3.Authenticator
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Route
 import javax.inject.Inject
 
 /*
@@ -22,7 +25,7 @@ class AuthAuthenticator @Inject constructor(private val tokenProvider:TokenProvi
 class AuthAuthenticator @Inject constructor(private val tokenProvider: TokenProvider) :
     Authenticator {
     override fun authenticate(route: Route?, response: Response): Request {
-        val request =  response.request.newBuilder()
+        val request = response.request.newBuilder()
 
         val token = tokenProvider.token
 

@@ -16,7 +16,7 @@
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/app_navigation"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/repositoriesFragment"
@@ -30,7 +30,7 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/repositoriesFragment"/>
+            app:popUpTo="@id/repositoriesFragment" />
     </fragment>
     <fragment
         android:id="@+id/repositoryInfoFragment"
@@ -48,7 +48,7 @@
         app:destination="@id/loginFragment"
         app:enterAnim="@anim/slide_in_right"
         app:exitAnim="@anim/slide_out_left"
+        app:launchSingleTop="true"
         app:popUpTo="@id/app_navigation"
-        app:popUpToInclusive="true"
-        app:launchSingleTop="true" />
+        app:popUpToInclusive="true" />
 </navigation>

@@ -10,8 +10,8 @@
     tools:context=".ui.main.view.RepositoryInfoFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/content_start"
@@ -38,7 +38,7 @@
             android:id="@+id/header_section_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="repository_link_button"/>
+            app:constraint_referenced_ids="repository_link_button" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/license_section_group"
@@ -86,9 +86,9 @@
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="0dp"
             android:layout_height="64dp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="14sp"
             android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="14sp"
+            android:autoSizeTextType="uniform"
             android:maxLines="2"
             android:textAlignment="viewStart"
             android:textAllCaps="false"

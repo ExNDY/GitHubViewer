@@ -1,7 +1,6 @@
 package app.thirtyninth.githubviewer.ui.adapters
 
 import android.graphics.Color
-import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,7 +53,7 @@ class RepositoryListAdapter(
             } else {
                 val languageTextColor = languageColors[language]
 
-                if (languageTextColor != null){
+                if (languageTextColor != null) {
                     itemBinding.language.setTextColor(
                         languageTextColor.toArgb()
                     )

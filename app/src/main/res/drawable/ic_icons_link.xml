@@ -3,16 +3,16 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <path
-      android:pathData="M14,11.9976C14,9.5059 11.683,7 8.8571,7C8.5224,7 7.419,7 7.1429,7C4.3025,7 2,9.2375 2,11.9976C2,14.376 3.7097,16.3664 6,16.8714C6.3676,16.9525 6.7501,16.9952 7.1429,16.9952"
-      android:strokeLineJoin="round"
-      android:strokeWidth="1.5"
-      android:strokeColor="@color/accent_github"
-      android:strokeLineCap="round"/>
-  <path
-      android:pathData="M10,11.9976C10,14.4893 12.317,16.9952 15.1429,16.9952C15.4776,16.9952 16.581,16.9952 16.8571,16.9952C19.6975,16.9952 22,14.7577 22,11.9976C22,9.6192 20.2903,7.6288 18,7.1238C17.6324,7.0428 17.2499,7 16.8571,7"
-      android:strokeLineJoin="round"
-      android:strokeWidth="1.5"
-      android:strokeColor="@color/accent_github"
-      android:strokeLineCap="round"/>
+    <path
+        android:pathData="M14,11.9976C14,9.5059 11.683,7 8.8571,7C8.5224,7 7.419,7 7.1429,7C4.3025,7 2,9.2375 2,11.9976C2,14.376 3.7097,16.3664 6,16.8714C6.3676,16.9525 6.7501,16.9952 7.1429,16.9952"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/accent_github"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M10,11.9976C10,14.4893 12.317,16.9952 15.1429,16.9952C15.4776,16.9952 16.581,16.9952 16.8571,16.9952C19.6975,16.9952 22,14.7577 22,11.9976C22,9.6192 20.2903,7.6288 18,7.1238C17.6324,7.0428 17.2499,7 16.8571,7"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/accent_github"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
 </vector>
