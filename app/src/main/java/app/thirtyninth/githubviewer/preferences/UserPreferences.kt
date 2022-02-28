@@ -30,7 +30,7 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
     override suspend fun getUserName(): Flow<String?> {
         return dataStore.data
             .catch { ex ->
-                if (ex is IOException){
+                if (ex is IOException) {
                     // FIXME зачем так?
                     emit(ProtoSettings.getDefaultInstance())
                 } else {
@@ -45,7 +45,7 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
     override suspend fun getLoginData(): Flow<LoginData?> {
         return dataStore.data
             .catch { ex ->
-                if (ex is IOException){
+                if (ex is IOException) {
                     // FIXME зачем так?
                     emit(ProtoSettings.getDefaultInstance())
                 } else {
@@ -71,9 +71,9 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
         dataStore.updateData {
             it.toBuilder()
                 .setIsLoggedIn(false)
-                    // FIXME почему не null?
-                .setUserName("")
-                .setUserToken("token " + "")
+                // FIXME почему не null?
+                .setUserName(null)
+                .setUserToken(null)
                 .build()
         }
     }
@@ -81,7 +81,7 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
     val saved get() = dataStore.data.take(1)
 
     // FIXME зачем саппрессить? надо было в withContext(Dispatchers.IO) завернуть
-    @Suppress("BlockingMethodInNonBlockingContext")
+//    @Suppress("BlockingMethodInNonBlockingContext")
     object PreferencesSerializer : Serializer<ProtoSettings> {
         override val defaultValue: ProtoSettings
             get() = ProtoSettings.getDefaultInstance()

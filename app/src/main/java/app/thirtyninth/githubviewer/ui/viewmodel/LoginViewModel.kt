@@ -60,7 +60,7 @@ class LoginViewModel @Inject constructor(
                 }
             }
             is Result.Error -> {
-                val errorCode:Int = result.code ?: 0
+                val errorCode: Int = result.code ?: 0
 
                 // FIXME на своем аккаунте я ловлю ошибку
                 //  Error(exception=kotlinx.serialization.MissingFieldException: Field 'plan' is required for type with serial name 'app.thirtyninth.githubviewer.data.models.User', but it was missing, code=0)

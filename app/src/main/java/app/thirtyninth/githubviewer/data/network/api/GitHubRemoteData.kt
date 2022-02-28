@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GitHubRemoteData @Inject constructor(
     private val gitHubService: GitHubService
 ) {
-    suspend fun getUser(token: String): Response<User>  = gitHubService.getUser(token)
+    suspend fun getUser(token: String): Response<User> = gitHubService.getUser(token)
 
     suspend fun getUserRepositoryList(token: String): Response<List<GitHubRepositoryModel>> =
         gitHubService.getUserRepositoryList(token)
@@ -17,5 +17,6 @@ class GitHubRemoteData @Inject constructor(
         token: String,
         username: String,
         repository: String
-    ): Response<GitHubRepositoryModel> = gitHubService.getRepositoryInfo(token, username, repository)
+    ): Response<GitHubRepositoryModel> =
+        gitHubService.getRepositoryInfo(token, username, repository)
 }

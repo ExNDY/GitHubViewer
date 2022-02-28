@@ -18,17 +18,17 @@ interface GitHubService {
     @Headers("Accept: application/vnd.github.v3+json")
     suspend fun getUser(
         @Header("Authorization") token: String
-    ) : Response<User>
+    ): Response<User>
 
     @GET("/user/repos")
     suspend fun getUserRepositoryList(
         @Header("Authorization") token: String
-    ) : Response<List<GitHubRepositoryModel>>
+    ): Response<List<GitHubRepositoryModel>>
 
     @GET("/repos/{username}/{repository}")
     suspend fun getRepositoryInfo(
         @Header("Authorization") token: String,
-        @Path("username") username:String,
-        @Path("repository") repository:String
+        @Path("username") username: String,
+        @Path("repository") repository: String
     ): Response<GitHubRepositoryModel>
 }

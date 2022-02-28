@@ -132,17 +132,18 @@ class RepositoriesFragment : BaseFragment() {
 
         viewModel.errorFlow.onEach {
             // FIXME как и в авторизации - ненадежно :(
-            when(it){
-                -13->{
+            when (it) {
+                -13 -> {
 
                 }
                 -1 -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
-                (401) ->{
+                (401) -> {
                     setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                } else ->{
-                    viewModel.errorMessage.onEach {msg ->
+                }
+                else -> {
+                    viewModel.errorMessage.onEach { msg ->
                         if (msg.isNotEmpty()) {
                             setErrorMessage(msg)
                         } else {
@@ -184,7 +185,7 @@ class RepositoriesFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.logout -> {
                 viewModel.logout()
                 findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
