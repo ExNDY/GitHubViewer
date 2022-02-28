@@ -3,7 +3,10 @@ package app.thirtyninth.githubviewer.ui.main.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -91,7 +94,7 @@ class RepositoryInfoFragment : BaseFragment() {
                 NetworkExceptionType.NOT_FOUND -> {
                     setErrorMessage("Repository not found")
                 }
-                NetworkExceptionType.EMPTY_DATA ->{
+                NetworkExceptionType.EMPTY_DATA -> {
                     //placeholder ADD RESOURCES
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }

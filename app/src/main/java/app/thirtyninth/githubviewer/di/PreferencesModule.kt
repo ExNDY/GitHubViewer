@@ -16,18 +16,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
-private const val PREFERENCES_NAME = "preferences"
-
 @Module
 @InstallIn(SingletonComponent::class)
 object PreferencesModule {
+    private const val PREFERENCES_NAME = "preferences"
+
     @Provides
     @Singleton
-    fun provideSettings(@ApplicationContext context: Context):DataStore<ProtoSettings>{
+    fun provideSettings(@ApplicationContext context: Context): DataStore<ProtoSettings> {
         return DataStoreFactory.create(
             serializer = UserPreferences.PreferencesSerializer,
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = { context.dataStoreFile(PREFERENCES_NAME)},
+            produceFile = { context.dataStoreFile(PREFERENCES_NAME) },
             corruptionHandler = null
         )
     }

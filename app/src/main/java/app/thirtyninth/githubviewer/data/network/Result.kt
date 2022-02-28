@@ -1,7 +1,5 @@
 package app.thirtyninth.githubviewer.data.network
 
-import kotlin.Exception
-
 sealed class Result<out R> {
     data class Success<out T>(val data: T) : Result<T>()
 

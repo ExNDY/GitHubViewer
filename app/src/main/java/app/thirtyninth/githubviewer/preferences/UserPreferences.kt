@@ -29,13 +29,6 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
 
     override suspend fun getUserName(): Flow<String?> {
         return dataStore.data
-            .catch { ex ->
-                if (ex is IOException){
-                    emit(ProtoSettings.getDefaultInstance())
-                } else {
-                    throw ex
-                }
-            }
             .map {
                 it.userName
             }
@@ -43,13 +36,6 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
 
     override suspend fun getLoginData(): Flow<LoginData?> {
         return dataStore.data
-            .catch { ex ->
-                if (ex is IOException){
-                    emit(ProtoSettings.getDefaultInstance())
-                } else {
-                    throw ex
-                }
-            }
             .map {
                 LoginData(it.userName, it.userToken)
             }
@@ -77,6 +63,7 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
 
     val saved get() = dataStore.data.take(1)
 
+    //TODO FIX THIS???
     @Suppress("BlockingMethodInNonBlockingContext")
     object PreferencesSerializer : Serializer<ProtoSettings> {
         override val defaultValue: ProtoSettings

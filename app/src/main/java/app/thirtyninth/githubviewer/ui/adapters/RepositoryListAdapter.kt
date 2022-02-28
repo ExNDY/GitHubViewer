@@ -1,6 +1,7 @@
 package app.thirtyninth.githubviewer.ui.adapters
 
 import android.graphics.Color
+import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,15 +11,20 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonPrimitive
 
 class RepositoryListAdapter(
     colors: JsonObject,
     val onItemClicked: (GitHubRepositoryModel) -> Unit
-) : ListAdapter<GitHubRepositoryModel,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
-    private val languageColors = colors
+) : ListAdapter<GitHubRepositoryModel, RepositoryListAdapter.RepositoryListViewHolder>(
+    RepositoryListDiffCallback()
+) {
+    val languageColors: Map<String, Color> = colors.mapValues { (_, colorString) ->
+        Color.parseColor(colorString.jsonPrimitive.content).let {
+            Color.valueOf(it)
+        }
+    }
 
     inner class RepositoryListViewHolder(
         private val itemBinding: RepositoriesListItemBinding,
@@ -43,13 +49,16 @@ class RepositoryListAdapter(
         }
 
         private fun bindLanguage(language: String?) {
-            if (language.isNullOrEmpty()){
+            if (language.isNullOrEmpty()) {
                 itemBinding.language.visibility = View.GONE
             } else {
-                itemBinding.language.setTextColor(
-                    Color.parseColor(
-                        getHEX(language)
-                    ))
+                val languageTextColor = languageColors[language]
+
+                if (languageTextColor != null){
+                    itemBinding.language.setTextColor(
+                        languageTextColor.toArgb()
+                    )
+                }
 
                 itemBinding.language.text = language
             }
@@ -63,10 +72,6 @@ class RepositoryListAdapter(
                 itemBinding.repositoryDescription.text = description
             }
 
-        }
-
-        private fun getHEX(language: String):String{
-            return languageColors[language]?.let { Json.decodeFromJsonElement<String>(it) } ?: "#FFFFFF"
         }
     }
 
@@ -88,13 +93,13 @@ class RepositoryListAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isEmpty()){
+        if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads)
         } else {
             val bundle = payloads[0] as Bundle
 
-            for (key:String in bundle.keySet()){
-                if (key == PAYLOAD_DESCRIPTION){
+            for (key: String in bundle.keySet()) {
+                if (key == PAYLOAD_DESCRIPTION) {
                     bundle.getString(PAYLOAD_DESCRIPTION)?.let { holder.bindDescription(it) }
                 }
             }
@@ -107,10 +112,13 @@ class RepositoryListAdapter(
 
 private const val PAYLOAD_DESCRIPTION = "PAYLOAD_DESCRIPTION"
 
-private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>(){
-    override fun getChangePayload(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Any? {
+private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>() {
+    override fun getChangePayload(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Any? {
         if (newItem.name == oldItem.name) {
-            return if (newItem.description == oldItem.description){
+            return if (newItem.description == oldItem.description) {
                 super.getChangePayload(oldItem, newItem)
             } else {
                 val bundle = Bundle()
@@ -123,10 +131,16 @@ private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositor
         return super.getChangePayload(oldItem, newItem)
     }
 
-    override fun areItemsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
+    override fun areItemsTheSame(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Boolean =
         oldItem.name == newItem.name
 
 
-    override fun areContentsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
+    override fun areContentsTheSame(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Boolean =
         oldItem == newItem
 }

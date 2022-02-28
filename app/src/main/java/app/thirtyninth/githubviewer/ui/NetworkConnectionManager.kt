@@ -9,25 +9,16 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresPermission
 import app.thirtyninth.githubviewer.utils.Variables
 
-class NetworkConnectionManager(applicationContext:Context) {
+class NetworkConnectionManager(applicationContext: Context) {
     val context = applicationContext
 
     private var isRegistered = false
 
-    fun stopNetworkCallback() {
-        if (isRegistered){
-            val connectivityManager = context.getSystemService(Context. CONNECTIVITY_SERVICE ) as ConnectivityManager
-
-            connectivityManager.unregisterNetworkCallback(networkCallback)
-
-            isRegistered = false
-        }
-    }
-
     fun startNetworkCallback() {
         try {
-            if (!isRegistered){
-                val connectivityManager = context.getSystemService(Context. CONNECTIVITY_SERVICE ) as ConnectivityManager
+            if (!isRegistered) {
+                val connectivityManager =
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
                 Variables.isNetworkConnected = checkConnection(connectivityManager)
 
@@ -37,6 +28,17 @@ class NetworkConnectionManager(applicationContext:Context) {
             }
         } catch (e: Exception) {
             set(false)
+        }
+    }
+
+    fun stopNetworkCallback() {
+        if (isRegistered) {
+            val connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+
+            isRegistered = false
         }
     }
 
@@ -71,6 +73,7 @@ class NetworkConnectionManager(applicationContext:Context) {
                 ((actualNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI))
                         || actualNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                         || actualNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
+                        && !actualNetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
             } else false
         }
     }

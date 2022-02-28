@@ -22,12 +22,9 @@ import app.thirtyninth.githubviewer.utils.UsernameState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -67,11 +64,7 @@ class LoginFragment : BaseFragment() {
                 }
 
                 override fun afterTextChanged(p0: Editable?) {
-                    CoroutineScope(IO).launch {
-                        delay(150)
-
-                        viewModel.validateUserName(p0.toString())
-                    }
+                    viewModel.validateUserName(p0.toString())
                 }
 
             })
@@ -86,11 +79,7 @@ class LoginFragment : BaseFragment() {
                 }
 
                 override fun afterTextChanged(p0: Editable?) {
-                    CoroutineScope(IO).launch {
-                        delay(250)
-
-                        viewModel.validateToken(p0.toString())
-                    }
+                    viewModel.validateToken(p0.toString())
                 }
 
             })

@@ -18,15 +18,15 @@ class Repository
         return unwrapResponse(gitHub.getUser(token))
     }
 
-    suspend fun getRepositorysList(token: String): Result<List<GitHubRepositoryModel>?> {
-        return unwrapResponse(gitHub.getUserRepositoryList(token))
+    suspend fun getRepositoryList(): Result<List<GitHubRepositoryModel>?> {
+        return unwrapResponse(gitHub.getUserRepositoryList())
     }
 
     suspend fun getRepositoryInfo(
-        token: String, username: String,
+        username: String,
         repository: String
     ): Result<GitHubRepositoryModel?> {
-        return unwrapResponse(gitHub.getRepositoryInfo(token, username, repository))
+        return unwrapResponse(gitHub.getRepositoryInfo(username, repository))
     }
 
     private fun <T> unwrapResponse(response: Response<T>): Result<T?> {
@@ -35,9 +35,6 @@ class Repository
         val code = response.code()
 
         when {
-            body != null -> {
-                return Result.Success(body)
-            }
             error != null -> {
                 when (code) {
                     304 -> {
@@ -77,6 +74,9 @@ class Repository
                         )
                     }
                 }
+            }
+            body != null -> {
+                return Result.Success(body)
             }
             else -> {
                 return Result.Error(

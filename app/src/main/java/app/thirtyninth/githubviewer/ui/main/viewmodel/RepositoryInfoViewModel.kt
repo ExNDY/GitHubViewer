@@ -3,12 +3,11 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.thirtyninth.githubviewer.common.ServerResponseConstants
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
-import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.data.repository.Repository
+import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,53 +41,48 @@ class RepositoryInfoViewModel @Inject constructor(
     )
     val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
-    private val currentUsername:String = state.get<String>("username").toString()
-    private val currentRepositoryName:String = state.get<String>("repository_name").toString()
+    private val currentUsername: String = state.get<String>("username").toString()
+    private val currentRepositoryName: String = state.get<String>("repository_name").toString()
 
     init {
+        loadRepositoryInfo()
+    }
+
+    fun loadRepositoryInfo() = viewModelScope.launch {
+        getRepositoryInfo(currentUsername, currentRepositoryName)
+    }
+
+    private fun getRepositoryInfo(username: String, repositoryName: String) =
         viewModelScope.launch {
-            loadRepositoryInfo()
-        }
-    }
+            if (Variables.isNetworkConnected) {
+                _uiState.tryEmit(UIState.LOADING)
 
-    fun loadRepositoryInfo() = viewModelScope.launch{
-        userPreferences.getAuthenticationToken().onEach {
-            if (it != null){
-                getRepositoryInfo(it, currentUsername, currentRepositoryName)
-            }
-        }.collect()
-    }
+                when (val result = repository.getRepositoryInfo(username, repositoryName)) {
+                    is Result.Success -> {
+                        val repo = result.data
 
-    private fun getRepositoryInfo(token: String, username:String, repositoryName:String) = viewModelScope.launch {
-        if (Variables.isNetworkConnected) {
-            _uiState.tryEmit(UIState.LOADING)
+                        if (repo != null) {
+                            _repositoryInfo.tryEmit(repo)
+                            _uiState.tryEmit(UIState.NORMAL)
+                        } else {
+                            _uiState.tryEmit(UIState.ERROR)
+                            _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                            _errorMessage.tryEmit("Error: Data is empty")
+                        }
+                    }
 
-            when (val result = repository.getRepositoryInfo(token, username, repositoryName)){
-                is Result.Success ->{
-                    val repo = result.data
-
-                    if (repo != null) {
-                        _repositoryInfo.tryEmit(repo)
+                    is Result.Error -> {
                         _uiState.tryEmit(UIState.NORMAL)
-                    } else {
-                        _uiState.tryEmit(UIState.ERROR)
-                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
-                        _errorMessage.tryEmit("Error: Data is empty")
+                        _errorFlow.tryEmit(result.type)
                     }
                 }
-
-                is Result.Error ->{
-                    _uiState.tryEmit(UIState.NORMAL)
-                    _errorFlow.tryEmit(result.type)
-                }
+            } else {
+                _uiState.tryEmit(UIState.ERROR)
+                _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
             }
-        } else {
-            _uiState.tryEmit(UIState.ERROR)
-            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
         }
-    }
 
-    fun logout() = viewModelScope.launch{
+    fun logout() = viewModelScope.launch {
         userPreferences.logout()
     }
 }

@@ -2,12 +2,11 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.thirtyninth.githubviewer.common.ServerResponseConstants
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
-import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.data.repository.Repository
+import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +20,6 @@ class RepositoriesViewModel @Inject constructor(
     private val repository: Repository,
     private val userPreferences: UserPreferences
 ) : ViewModel() {
-
-    private var token: String = ""
 
     private val _repositoryList = MutableSharedFlow<List<GitHubRepositoryModel>>(
         replay = 1,
@@ -54,30 +51,22 @@ class RepositoriesViewModel @Inject constructor(
             }.collect()
         }
 
-        viewModelScope.launch {
-            userPreferences.getLoginData().onEach {
-                if (it != null) {
-                    token = it.token
-
-                    getUserRepositoryList(token)
-                }
-            }.collect()
-        }
+        getUserRepositoryList()
     }
 
     fun loadData() = viewModelScope.launch {
-        getUserRepositoryList(token)
+        getUserRepositoryList()
     }
 
     fun logout() = viewModelScope.launch {
         userPreferences.logout()
     }
 
-    private fun getUserRepositoryList(token: String) = viewModelScope.launch {
+    private fun getUserRepositoryList() = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
             _uiState.tryEmit(UIState.LOADING)
 
-            when (val result = repository.getRepositorysList(token)) {
+            when (val result = repository.getRepositoryList()) {
                 is Result.Success -> {
                     val repoList = result.data
 
