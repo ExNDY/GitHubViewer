@@ -86,6 +86,7 @@ class RepositoryInfoFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
+            // FIXME как и в авторизации - ненадежно :(
             when(it){
                 -13->{
 
@@ -130,6 +131,8 @@ class RepositoryInfoFragment : BaseFragment() {
             watchersCount.text = source.watchersCount.toString()
             repositoryName.text = source.name
             repositoryDescription.text = source.description
+
+            // FIXME а где ридми?
 
             repositoryLinkButton.setOnClickListener {
                 if (source.htmlURL != null)

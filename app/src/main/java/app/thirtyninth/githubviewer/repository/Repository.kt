@@ -10,12 +10,16 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// FIXME сильно код едет без форматирования, надо автоформатирование всегда применять.
+// FIXME имя класса слишком абстрактное, нужно точнее :)
 @Singleton
 class Repository
 @Inject constructor(
     private val gitHub: GitHubRemoteData
 ) {
     suspend fun getUser(token: String): Result<User?> = withContext(Dispatchers.IO){
+        // FIXME вся внутрянка дублируется между всеми 3 функциями. стоит выделить отдельную функцию
+        //  которая содержит всю обработку ошибок
         try {
             val response = gitHub.getUser(token)
 

@@ -3,6 +3,8 @@ package app.thirtyninth.githubviewer.data.models
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// FIXME в нашей задаче не требуется настолько много данных, сколько описано тут.
+//  Зачем описывать вообще все данные которые может выдать сервер?
 @Serializable
 data class GitHubRepositoryModel(
     val id: Int? = 0,

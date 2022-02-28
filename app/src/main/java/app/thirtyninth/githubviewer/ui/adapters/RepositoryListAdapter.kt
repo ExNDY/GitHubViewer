@@ -15,11 +15,13 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
 class RepositoryListAdapter(
+    // FIXME почему бы сразу не указать private val ?
     colors: JsonObject,
     val onItemClicked: (GitHubRepositoryModel) -> Unit
 ) : ListAdapter<GitHubRepositoryModel,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
     private val languageColors = colors
 
+    // FIXME для чего именно inner класом сделано?
     inner class RepositoryListViewHolder(
         private val itemBinding: RepositoriesListItemBinding,
         onItemClicked: (Int) -> Unit
@@ -83,6 +85,7 @@ class RepositoryListAdapter(
         holder.bind(currentList[position])
     }
 
+    // FIXME почему только на описание реакция обновления есть? ненадежно выглядит
     override fun onBindViewHolder(
         holder: RepositoryListViewHolder,
         position: Int,
@@ -107,6 +110,8 @@ class RepositoryListAdapter(
 
 private const val PAYLOAD_DESCRIPTION = "PAYLOAD_DESCRIPTION"
 
+// FIXME почему только на описание реакция обновления есть? ненадежно выглядит.
+//  в текущем случае надежнее вообще пейлоад не получать
 private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>(){
     override fun getChangePayload(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Any? {
         if (newItem.name == oldItem.name) {
@@ -123,6 +128,8 @@ private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositor
         return super.getChangePayload(oldItem, newItem)
     }
 
+    // FIXME почему сравнение по имени? у нас одинаковое имя может быть, надежности тут нет. вот ссылка - уникальна.
+    //  а главное это id разумеется
     override fun areItemsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
         oldItem.name == newItem.name
 

@@ -32,6 +32,8 @@ class RepositoriesFragment : BaseFragment() {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
+    // FIXME зачем сохранять адаптер? он после onDestroyView вообще будет не нужен и являться
+    //  будет утечкой памяти
     private lateinit var listAdapter: RepositoryListAdapter
 
     override fun onCreateView(
@@ -54,6 +56,9 @@ class RepositoriesFragment : BaseFragment() {
 
     private fun initApp() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            // FIXME вот эту логику в каждый экран таскать довольно неприятно. лучше сделать
+            //  централизованное управление авторизацией. У тебя есть активити, единая, а значит она
+            //  может в нужный момент всю навигацию сбросить до экрана входа
             viewModel.isLoggedIn
                 .onEach {
                     if (it) {
@@ -69,7 +74,9 @@ class RepositoriesFragment : BaseFragment() {
     private fun setupUIComponents() {
         val colors: JsonObject
 
+        // FIXME зачем тут скоуп? почему run?
         lifecycleScope.run {
+            // FIXME requireContext будет логичнее тогда
             colors =
                 context?.let { StorageUtil.jsonToLanguageColorList(it, "LanguageColors.json") }!!
         }
@@ -124,6 +131,7 @@ class RepositoriesFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
+            // FIXME как и в авторизации - ненадежно :(
             when(it){
                 -13->{
 

@@ -38,6 +38,8 @@ class LoginFragment : BaseFragment() {
     private var isCorrectAccessToken = false
     private var isLoadingState = false
 
+    // FIXME упущен вызов super метода, из-за этого не будет работать системная логика восстановления
+    //  instance state у вьюх
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -56,6 +58,7 @@ class LoginFragment : BaseFragment() {
 
     private fun setupUI() {
         with(binding) {
+            // FIXME в отдельную функцию стоит вынести накидывание такого textWatcher'а
             userLogin.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -67,6 +70,7 @@ class LoginFragment : BaseFragment() {
 
                 override fun afterTextChanged(p0: Editable?) {
                     CoroutineScope(IO).launch {
+                        // FIXME что дает этот delay?
                         delay(150)
 
                         viewModel.validateUserName(p0.toString())
@@ -75,6 +79,7 @@ class LoginFragment : BaseFragment() {
 
             })
 
+            // FIXME в отдельную функцию стоит вынести накидывание такого textWatcher'а
             accessToken.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
@@ -153,6 +158,10 @@ class LoginFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
+            // FIXME ненадежная реализация - константы хардкодные без имен, если они поменяются в
+            //  одном месте то в другом могут быть забыты, плюс нет гарантии что в else это реально
+            //  сервер недоступен будет. Я наткнулся на ошибку сериализации, а писало мне
+            //  "сервер недоступен" что не правда
             when (it) {
                 (-13)->{
 
@@ -183,6 +192,9 @@ class LoginFragment : BaseFragment() {
             progressCircular.visibility = View.GONE
         }
 
+        // FIXME когда раздельно флаги выставляются - падает надежность реализации.
+        //  будет сильно надежнее код если будет в одном месте в ui написано
+        //  isLoadingState = <тут условие на основе данных от вьюмодели>
         isLoadingState = false
     }
 
@@ -195,6 +207,7 @@ class LoginFragment : BaseFragment() {
         isLoadingState = true
     }
 
+    // FIXME зачем тогда состояние ошибки нам тут?
     override fun setErrorState() {
 
     }
@@ -205,6 +218,8 @@ class LoginFragment : BaseFragment() {
 
     override fun onPause() {
         super.onPause()
+        // FIXME лучше скрой вообще на уровне темы его и используй Toolbar везде в своей верстке
+        //  - больше контроля и меньше проблем с ним
         (activity as AppCompatActivity?)!!.supportActionBar!!.show()
     }
 
@@ -214,6 +229,7 @@ class LoginFragment : BaseFragment() {
     }
 
     private fun signIn(username: String, token: String) {
+        // FIXME тут логика прям находится, на ui. а не должно быть - это все должна вьюмодель делать
         if (!isLoadingState) {
             if (!isCorrectUserName || !isCorrectAccessToken) {
                 if (!isCorrectUserName) {

@@ -19,6 +19,7 @@ class AppActivity : AppCompatActivity() {
 
         installSplashScreen()
 
+        // это можно на уровне темы сделать, это понадежнее будет - сразу система будет грузить верные ресурсы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         setContentView(R.layout.activity_app)

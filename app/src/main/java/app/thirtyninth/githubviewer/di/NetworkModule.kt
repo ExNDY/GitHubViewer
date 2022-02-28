@@ -20,6 +20,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    // FIXME примитивные типы такие как String не должны добавляться в граф хилта. Если прям
+    //  очень надо - то нужно ставить квалификатор чтобы явно указывать куда эту строчку надо доставлять
     @Provides
     fun providesBaseUrl(): String = Constants.BASE_URL
 
@@ -32,6 +34,7 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(acceptInterceptor: AcceptInterceptor) = OkHttpClient.Builder()
         .addInterceptor(acceptInterceptor)
+            // FIXME зачем указан протокол?
         .protocols(listOf(Protocol.HTTP_1_1))
         .callTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -47,6 +50,7 @@ object NetworkModule {
     fun provideRetrofit(BASE_URL: String, okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttpClient)
+            // FIXME тут имеет смысл Json вынести как отдельный Provides
         .addConverterFactory(Json {
             ignoreUnknownKeys = true
         }.asConverterFactory("application/json".toMediaType()))

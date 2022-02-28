@@ -73,6 +73,7 @@ class RepositoryInfoViewModel @Inject constructor(
             is Result.Error -> {
                 var errorCode:Int = result.code ?:0
 
+                // FIXME ненадежно, уже писал как надо делать
                 if (result.exception.message == ServerResponseConstants.SERVER_NOT_AVAILABLE){
                     errorCode = -1
                 }

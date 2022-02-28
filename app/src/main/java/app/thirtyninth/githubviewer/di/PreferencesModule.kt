@@ -16,6 +16,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
+// FIXME у нас же ниже object - в нем и нужно было приватную константу положить. зачем на toplevel?
+//  в текущем виде после компиляции у нас получится 2 класса - PreferencesModule с статической функцией
+//  и PreferencesModuleKt с статическим полем. а можно было 1 классом PreferencesModule обойтись :)
 private const val PREFERENCES_NAME = "preferences"
 
 @Module
