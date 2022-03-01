@@ -2,6 +2,7 @@ package app.thirtyninth.githubviewer.data.repository
 
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.User
+import app.thirtyninth.githubviewer.data.network.NetworkException
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
@@ -10,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class Repository
+class GitHubViewerRepository
 @Inject constructor(
     private val gitHub: GitHubRemoteData
 ) {
@@ -39,7 +40,7 @@ class Repository
                 when (code) {
                     304 -> {
                         return Result.Error(
-                            Exception(error.string()),
+                            NetworkException(),
                             NetworkExceptionType.NOT_MODIFIED
                         )
                     }
@@ -52,7 +53,7 @@ class Repository
                     403 -> {
                         return Result.Error(
                             Exception(error.string()),
-                            NetworkExceptionType.NOT_MODIFIED
+                            NetworkExceptionType.FORBIDDEN
                         )
                     }
                     404 -> {

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.Result
-import app.thirtyninth.githubviewer.data.repository.Repository
+import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.Variables
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RepositoryInfoViewModel @Inject constructor(
-    private val repository: Repository,
+    private val repository: GitHubViewerRepository,
     private val userPreferences: UserPreferences,
     state: SavedStateHandle
 ) : ViewModel() {

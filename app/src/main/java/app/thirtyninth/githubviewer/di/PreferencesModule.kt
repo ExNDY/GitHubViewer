@@ -5,7 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import app.thirtyninth.githubviewer.ProtoSettings
-import app.thirtyninth.githubviewer.preferences.UserPreferences
+import app.thirtyninth.githubviewer.preferences.PreferencesSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,8 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
-@Module
 @InstallIn(SingletonComponent::class)
+@Module
 object PreferencesModule {
     private const val PREFERENCES_NAME = "preferences"
 
@@ -25,10 +25,10 @@ object PreferencesModule {
     @Singleton
     fun provideSettings(@ApplicationContext context: Context): DataStore<ProtoSettings> {
         return DataStoreFactory.create(
-            serializer = UserPreferences.PreferencesSerializer,
+            serializer = PreferencesSerializer,
+            corruptionHandler = null,
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = { context.dataStoreFile(PREFERENCES_NAME) },
-            corruptionHandler = null
+            produceFile = { context.dataStoreFile(PREFERENCES_NAME) }
         )
     }
 }

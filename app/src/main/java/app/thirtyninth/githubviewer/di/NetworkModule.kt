@@ -3,7 +3,7 @@ package app.thirtyninth.githubviewer.di
 import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
 import app.thirtyninth.githubviewer.data.network.api.GitHubService
 import app.thirtyninth.githubviewer.data.network.interceptors.AcceptInterceptor
-import app.thirtyninth.githubviewer.data.network.interceptors.AuthAuthenticator
+import app.thirtyninth.githubviewer.data.network.interceptors.AuthInterceptor
 import app.thirtyninth.githubviewer.data.network.interceptors.TokenProvider
 import app.thirtyninth.githubviewer.data.repository.KeyValueStorage
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -11,6 +11,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -19,15 +20,17 @@ import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val BASE_URL = "https://api.github.com/"
 
     @Provides
+    @DelicateCoroutinesApi
     fun provideTokenProvider(keyValueStorage: KeyValueStorage): TokenProvider {
         return object : TokenProvider {
-            override val token: String?
+            override val token: String
                 get() = keyValueStorage.tokenStateFlow.value
         }
     }
@@ -37,18 +40,17 @@ object NetworkModule {
         AcceptInterceptor()
 
     @Provides
-    fun providesAuthenticator(tokenProvider: TokenProvider): AuthAuthenticator =
-        AuthAuthenticator(tokenProvider)
+    fun providesAuthInterceptor(tokenProvider: TokenProvider): AuthInterceptor =
+        AuthInterceptor(tokenProvider)
 
 
     @Provides
-    @Singleton
     fun provideOkHttpClient(
         acceptInterceptor: AcceptInterceptor,
-        authAuthenticator: AuthAuthenticator
+        authAuthenticator: AuthInterceptor
     ) = OkHttpClient.Builder()
-        .authenticator(authAuthenticator)
         .addInterceptor(acceptInterceptor)
+        .addInterceptor(authAuthenticator)
         .protocols(listOf(Protocol.HTTP_1_1))
         .callTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -56,7 +58,6 @@ object NetworkModule {
         .followRedirects(true)
         .followSslRedirects(true)
         .retryOnConnectionFailure(true)
-
         .build()
 
     @Provides

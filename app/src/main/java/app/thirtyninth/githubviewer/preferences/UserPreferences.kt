@@ -1,18 +1,15 @@
 package app.thirtyninth.githubviewer.preferences
 
-import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.Serializer
 import app.thirtyninth.githubviewer.ProtoSettings
 import app.thirtyninth.githubviewer.data.models.LoginData
-import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
-import java.io.InputStream
-import java.io.OutputStream
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class UserPreferences @Inject constructor(private val dataStore: DataStore<ProtoSettings>) :
     Preferences {
     override suspend fun getLoggedInState(): Flow<Boolean> {
@@ -44,7 +41,7 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
             it.toBuilder()
                 .setIsLoggedIn(true)
                 .setUserName(user.username)
-                .setUserToken("token " + user.token)
+                .setUserToken(user.token)
                 .build()
         }
     }
@@ -52,30 +49,10 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
     override suspend fun logout() {
         dataStore.updateData {
             it.toBuilder()
-                .setIsLoggedIn(false)
-                .setUserName("")
-                .setUserToken("token " + "")
+                .clear()
                 .build()
         }
     }
 
     val saved get() = dataStore.data.take(1)
-
-    //TODO FIX THIS???
-    @Suppress("BlockingMethodInNonBlockingContext")
-    object PreferencesSerializer : Serializer<ProtoSettings> {
-        override val defaultValue: ProtoSettings
-            get() = ProtoSettings.getDefaultInstance()
-
-        override suspend fun readFrom(input: InputStream): ProtoSettings {
-            return try {
-                ProtoSettings.parseFrom(input)
-            } catch (ex: InvalidProtocolBufferException) {
-                throw CorruptionException("Cannot read proto.", ex)
-            }
-        }
-
-        override suspend fun writeTo(t: ProtoSettings, output: OutputStream) = t.writeTo(output)
-
-    }
 }
