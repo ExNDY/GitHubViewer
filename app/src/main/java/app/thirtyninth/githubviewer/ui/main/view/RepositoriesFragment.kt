@@ -188,5 +188,4 @@ class RepositoriesFragment : BaseFragment() {
 
         return false
     }
-
 }
