@@ -66,7 +66,6 @@ class LoginFragment : BaseFragment() {
                 override fun afterTextChanged(p0: Editable?) {
                     viewModel.validateUserName(p0.toString())
                 }
-
             })
 
             accessToken.addTextChangedListener(object : TextWatcher {
@@ -81,7 +80,6 @@ class LoginFragment : BaseFragment() {
                 override fun afterTextChanged(p0: Editable?) {
                     viewModel.validateToken(p0.toString())
                 }
-
             })
 
             signInButton.setOnClickListener {

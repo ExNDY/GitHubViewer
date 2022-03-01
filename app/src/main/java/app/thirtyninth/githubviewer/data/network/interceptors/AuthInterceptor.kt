@@ -21,7 +21,6 @@ class AuthInterceptor @Inject constructor(
     }
 }
 
-
 interface TokenProvider {
     val token: String?
 }

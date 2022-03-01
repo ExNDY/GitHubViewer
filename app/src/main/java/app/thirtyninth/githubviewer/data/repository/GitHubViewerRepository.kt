@@ -40,7 +40,7 @@ class GitHubViewerRepository
                 when (code) {
                     304 -> {
                         return Result.Error(
-                            NetworkException(),
+                            NetworkException(error.string()),
                             NetworkExceptionType.NOT_MODIFIED
                         )
                     }
