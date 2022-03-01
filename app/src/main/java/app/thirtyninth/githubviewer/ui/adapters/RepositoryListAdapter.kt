@@ -13,6 +13,7 @@ import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonPrimitive
 
 class RepositoryListAdapter(
     // FIXME почему бы сразу не указать private val ?
@@ -21,7 +22,9 @@ class RepositoryListAdapter(
 ) : ListAdapter<GitHubRepositoryModel, RepositoryListAdapter.RepositoryListViewHolder>(
     RepositoryListDiffCallback()
 ) {
-    private val languageColors = colors
+    private val languageColors: Map<String, Color> = colors.mapValues { (_, colorString) ->
+        Color.parseColor(colorString.jsonPrimitive.content).let { Color.valueOf(it) }
+    }
 
     // FIXME для чего именно inner класом сделано?
     inner class RepositoryListViewHolder(
@@ -90,24 +93,24 @@ class RepositoryListAdapter(
     }
 
     // FIXME почему только на описание реакция обновления есть? ненадежно выглядит
-    override fun onBindViewHolder(
-        holder: RepositoryListViewHolder,
-        position: Int,
-        payloads: MutableList<Any>
-    ) {
-        if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads)
-        } else {
-            val bundle = payloads[0] as Bundle
-
-            for (key: String in bundle.keySet()) {
-                if (key == PAYLOAD_DESCRIPTION) {
-                    bundle.getString(PAYLOAD_DESCRIPTION)?.let { holder.bindDescription(it) }
-                }
-            }
-        }
-        super.onBindViewHolder(holder, position, payloads)
-    }
+//    override fun onBindViewHolder(
+//        holder: RepositoryListViewHolder,
+//        position: Int,
+//        payloads: MutableList<Any>
+//    ) {
+//        if (payloads.isEmpty()) {
+//            super.onBindViewHolder(holder, position, payloads)
+//        } else {
+//            val bundle = payloads[0] as Bundle
+//
+//            for (key: String in bundle.keySet()) {
+//                if (key == PAYLOAD_DESCRIPTION) {
+//                    bundle.getString(PAYLOAD_DESCRIPTION)?.let { holder.bindDescription(it) }
+//                }
+//            }
+//        }
+//        super.onBindViewHolder(holder, position, payloads)
+//    }
 
     override fun getItemCount(): Int = currentList.size
 }
@@ -120,20 +123,7 @@ private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositor
     override fun getChangePayload(
         oldItem: GitHubRepositoryModel,
         newItem: GitHubRepositoryModel
-    ): Any? {
-        if (newItem.name == oldItem.name) {
-            return if (newItem.description == oldItem.description) {
-                super.getChangePayload(oldItem, newItem)
-            } else {
-                val bundle = Bundle()
-
-                bundle.putString(PAYLOAD_DESCRIPTION, newItem.description)
-                bundle
-            }
-        }
-
-        return super.getChangePayload(oldItem, newItem)
-    }
+    ): Any? = null
 
     // FIXME почему сравнение по имени? у нас одинаковое имя может быть, надежности тут нет. вот ссылка - уникальна.
     //  а главное это id разумеется
