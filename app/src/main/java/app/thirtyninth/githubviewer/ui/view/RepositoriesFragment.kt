@@ -32,6 +32,8 @@ class RepositoriesFragment : BaseFragment() {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
+    // FIXME зачем сохранять адаптер? он после onDestroyView вообще будет не нужен и являться
+    //  будет утечкой памяти
     private lateinit var listAdapter: RepositoryListAdapter
 
     override fun onCreateView(
@@ -54,6 +56,9 @@ class RepositoriesFragment : BaseFragment() {
 
     private fun initApp() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            // FIXME вот эту логику в каждый экран таскать довольно неприятно. лучше сделать
+            //  централизованное управление авторизацией. У тебя есть активити, единая, а значит она
+            //  может в нужный момент всю навигацию сбросить до экрана входа
             viewModel.isLoggedIn
                 .onEach {
                     if (it) {
@@ -69,7 +74,9 @@ class RepositoriesFragment : BaseFragment() {
     private fun setupUIComponents() {
         val colors: JsonObject
 
+        // FIXME зачем тут скоуп? почему run?
         lifecycleScope.run {
+            // FIXME requireContext будет логичнее тогда
             colors =
                 context?.let { StorageUtil.jsonToLanguageColorList(it, "LanguageColors.json") }!!
         }
@@ -124,17 +131,19 @@ class RepositoriesFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
-            when(it){
-                -13->{
+            // FIXME как и в авторизации - ненадежно :(
+            when (it) {
+                -13 -> {
 
                 }
                 -1 -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
-                (401) ->{
+                (401) -> {
                     setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                } else ->{
-                    viewModel.errorMessage.onEach {msg ->
+                }
+                else -> {
+                    viewModel.errorMessage.onEach { msg ->
                         if (msg.isNotEmpty()) {
                             setErrorMessage(msg)
                         } else {
@@ -176,7 +185,7 @@ class RepositoriesFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.logout -> {
                 viewModel.logout()
                 findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())

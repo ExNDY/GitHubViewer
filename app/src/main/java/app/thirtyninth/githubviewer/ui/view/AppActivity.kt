@@ -19,18 +19,19 @@ class AppActivity : AppCompatActivity() {
 
         installSplashScreen()
 
+        // это можно на уровне темы сделать, это понадежнее будет - сразу система будет грузить верные ресурсы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         setContentView(R.layout.activity_app)
 
         setupActionBarWithNavController(
-            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container)as NavHostFragment).navController,
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container) as NavHostFragment).navController,
             AppBarConfiguration(setOf(R.id.repositoriesFragment, R.id.loginFragment))
         )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.action_bar_menu,menu)
+        menuInflater.inflate(R.menu.action_bar_menu, menu)
         return true
     }
 

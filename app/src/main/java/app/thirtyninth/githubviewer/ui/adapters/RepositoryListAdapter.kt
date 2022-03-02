@@ -13,13 +13,20 @@ import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonPrimitive
 
 class RepositoryListAdapter(
+    // FIXME почему бы сразу не указать private val ?
     colors: JsonObject,
     val onItemClicked: (GitHubRepositoryModel) -> Unit
-) : ListAdapter<GitHubRepositoryModel,RepositoryListAdapter.RepositoryListViewHolder>(RepositoryListDiffCallback()) {
-    private val languageColors = colors
+) : ListAdapter<GitHubRepositoryModel, RepositoryListAdapter.RepositoryListViewHolder>(
+    RepositoryListDiffCallback()
+) {
+    private val languageColors: Map<String, Color> = colors.mapValues { (_, colorString) ->
+        Color.parseColor(colorString.jsonPrimitive.content).let { Color.valueOf(it) }
+    }
 
+    // FIXME для чего именно inner класом сделано?
     inner class RepositoryListViewHolder(
         private val itemBinding: RepositoriesListItemBinding,
         onItemClicked: (Int) -> Unit
@@ -43,13 +50,14 @@ class RepositoryListAdapter(
         }
 
         private fun bindLanguage(language: String?) {
-            if (language.isNullOrEmpty()){
+            if (language.isNullOrEmpty()) {
                 itemBinding.language.visibility = View.GONE
             } else {
                 itemBinding.language.setTextColor(
                     Color.parseColor(
                         getHEX(language)
-                    ))
+                    )
+                )
 
                 itemBinding.language.text = language
             }
@@ -65,8 +73,9 @@ class RepositoryListAdapter(
 
         }
 
-        private fun getHEX(language: String):String{
-            return languageColors[language]?.let { Json.decodeFromJsonElement<String>(it) } ?: "#FFFFFF"
+        private fun getHEX(language: String): String {
+            return languageColors[language]?.let { Json.decodeFromJsonElement<String>(it) }
+                ?: "#FFFFFF"
         }
     }
 
@@ -83,50 +92,51 @@ class RepositoryListAdapter(
         holder.bind(currentList[position])
     }
 
-    override fun onBindViewHolder(
-        holder: RepositoryListViewHolder,
-        position: Int,
-        payloads: MutableList<Any>
-    ) {
-        if (payloads.isEmpty()){
-            super.onBindViewHolder(holder, position, payloads)
-        } else {
-            val bundle = payloads[0] as Bundle
-
-            for (key:String in bundle.keySet()){
-                if (key == PAYLOAD_DESCRIPTION){
-                    bundle.getString(PAYLOAD_DESCRIPTION)?.let { holder.bindDescription(it) }
-                }
-            }
-        }
-        super.onBindViewHolder(holder, position, payloads)
-    }
+    // FIXME почему только на описание реакция обновления есть? ненадежно выглядит
+//    override fun onBindViewHolder(
+//        holder: RepositoryListViewHolder,
+//        position: Int,
+//        payloads: MutableList<Any>
+//    ) {
+//        if (payloads.isEmpty()) {
+//            super.onBindViewHolder(holder, position, payloads)
+//        } else {
+//            val bundle = payloads[0] as Bundle
+//
+//            for (key: String in bundle.keySet()) {
+//                if (key == PAYLOAD_DESCRIPTION) {
+//                    bundle.getString(PAYLOAD_DESCRIPTION)?.let { holder.bindDescription(it) }
+//                }
+//            }
+//        }
+//        super.onBindViewHolder(holder, position, payloads)
+//    }
 
     override fun getItemCount(): Int = currentList.size
 }
 
 private const val PAYLOAD_DESCRIPTION = "PAYLOAD_DESCRIPTION"
 
-private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>(){
-    override fun getChangePayload(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Any? {
-        if (newItem.name == oldItem.name) {
-            return if (newItem.description == oldItem.description){
-                super.getChangePayload(oldItem, newItem)
-            } else {
-                val bundle = Bundle()
+// FIXME почему только на описание реакция обновления есть? ненадежно выглядит.
+//  в текущем случае надежнее вообще пейлоад не получать
+private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>() {
+    override fun getChangePayload(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Any? = null
 
-                bundle.putString(PAYLOAD_DESCRIPTION, newItem.description)
-                bundle
-            }
-        }
-
-        return super.getChangePayload(oldItem, newItem)
-    }
-
-    override fun areItemsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
+    // FIXME почему сравнение по имени? у нас одинаковое имя может быть, надежности тут нет. вот ссылка - уникальна.
+    //  а главное это id разумеется
+    override fun areItemsTheSame(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Boolean =
         oldItem.name == newItem.name
 
 
-    override fun areContentsTheSame(oldItem: GitHubRepositoryModel, newItem: GitHubRepositoryModel): Boolean =
+    override fun areContentsTheSame(
+        oldItem: GitHubRepositoryModel,
+        newItem: GitHubRepositoryModel
+    ): Boolean =
         oldItem == newItem
 }

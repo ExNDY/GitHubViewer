@@ -6,6 +6,7 @@ enum class UIState {
     SUCCESS,
     ERROR
 }
+
 enum class TokenState {
     CORRECT,
     INVALID,

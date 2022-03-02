@@ -1,8 +1,10 @@
+// FIXME должен использоваться Gradle Kotlin DSL
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    // FIXME какие преимущества дает protobuf? почему выбран именно он?
     id 'com.google.protobuf'
     id 'kotlin-android'
     id 'kotlinx-serialization'
@@ -49,11 +51,13 @@ android {
 
 dependencies {
     def retrofit_version = "2.9.0"
+    // FIXME не надо использовать альфа/бета версии - только стабильные брать
     def navigation_version = "2.5.0-alpha03"
     def hilt_version = '2.41'
     def datastore_version = "1.0.0"
 
     //Retrofit
+    // FIXME не надо использовать альфа/бета версии - только стабильные брать
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.4'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     //Kotlinx Serialization
@@ -67,11 +71,12 @@ dependencies {
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
     //DataStore
     implementation "androidx.datastore:datastore:$datastore_version"
-    implementation "com.google.protobuf:protobuf-javalite:3.11.0"
+    implementation "com.google.protobuf:protobuf-javalite:3.17.3"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     //ViewBindingDelegate
     implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.5.6'
     //SplashScreen
+    // FIXME не надо использовать альфа/бета версии - только стабильные брать
     implementation 'androidx.core:core-splashscreen:1.0.0-beta01'
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -87,7 +92,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.11.0"
+        artifact = "com.google.protobuf:protoc:3.17.3"
     }
 
     generateProtoTasks {

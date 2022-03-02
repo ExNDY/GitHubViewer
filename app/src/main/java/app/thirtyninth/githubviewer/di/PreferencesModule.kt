@@ -13,9 +13,18 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 import javax.inject.Singleton
 
+// FIXME у нас же ниже object - в нем и нужно было приватную константу положить. зачем на toplevel?
+//  в текущем виде после компиляции у нас получится 2 класса - PreferencesModule с статической функцией
+//  и PreferencesModuleKt с статическим полем. а можно было 1 классом PreferencesModule обойтись :)
 private const val PREFERENCES_NAME = "preferences"
 
 @Module
@@ -23,11 +32,11 @@ private const val PREFERENCES_NAME = "preferences"
 object PreferencesModule {
     @Provides
     @Singleton
-    fun provideSettings(@ApplicationContext context: Context):DataStore<ProtoSettings>{
+    fun provideSettings(@ApplicationContext context: Context): DataStore<ProtoSettings> {
         return DataStoreFactory.create(
             serializer = UserPreferences.PreferencesSerializer,
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = { context.dataStoreFile(PREFERENCES_NAME)},
+            produceFile = { context.dataStoreFile(PREFERENCES_NAME) },
             corruptionHandler = null
         )
     }
@@ -37,4 +46,10 @@ object PreferencesModule {
         fileName = "preferences.proto",
         serializer = PreferencesSerializer
     )*/
+}
+
+class KeyValueStorage @Inject constructor(dataStore: DataStore<ProtoSettings>) {
+    val tokenStateFlow: StateFlow<String?> = dataStore.data.map { it.userToken }
+        .stateIn(GlobalScope, SharingStarted.Eagerly, null)
+
 }

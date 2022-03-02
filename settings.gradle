@@ -1,3 +1,4 @@
+// FIXME должен использоваться Gradle Kotlin DSL
 pluginManagement {
     repositories {
         gradlePluginPortal()

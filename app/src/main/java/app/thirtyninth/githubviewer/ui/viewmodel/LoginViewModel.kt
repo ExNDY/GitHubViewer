@@ -47,6 +47,8 @@ class LoginViewModel @Inject constructor(
                     if (user.login.equals(username, true)) {
                         userPreferences.saveUser(LoginData(username, token))
 
+                        // FIXME как визуально должен выглядеть статус "успех"?
+                        //  в чем отличие от "нормального"?
                         _uiState.tryEmit(UIState.SUCCESS)
                     } else {
                         _uiState.tryEmit(UIState.NORMAL)
@@ -58,8 +60,11 @@ class LoginViewModel @Inject constructor(
                 }
             }
             is Result.Error -> {
-                val errorCode:Int = result.code ?: 0
+                val errorCode: Int = result.code ?: 0
 
+                // FIXME на своем аккаунте я ловлю ошибку
+                //  Error(exception=kotlinx.serialization.MissingFieldException: Field 'plan' is required for type with serial name 'app.thirtyninth.githubviewer.data.models.User', but it was missing, code=0)
+                //  какие есть мысли по исправлению?
                 _errorFlow.tryEmit(errorCode)
                 _uiState.tryEmit(UIState.NORMAL)
             }

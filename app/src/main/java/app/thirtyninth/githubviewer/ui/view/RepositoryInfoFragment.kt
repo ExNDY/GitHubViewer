@@ -3,7 +3,10 @@ package app.thirtyninth.githubviewer.ui.view
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +29,7 @@ import kotlinx.coroutines.flow.onEach
 class RepositoryInfoFragment : BaseFragment() {
     private val viewModel: RepositoryInfoViewModel by viewModels()
     private val binding: RepositoryInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
-    private val args:RepositoryInfoFragmentArgs by navArgs()
+    private val args: RepositoryInfoFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,13 +50,13 @@ class RepositoryInfoFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.logout -> {
                 viewModel.logout()
                 findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
                 return true
             }
-            android.R.id.home ->{
+            android.R.id.home -> {
                 findNavController().navigateUp()
                 return true
             }
@@ -86,24 +89,26 @@ class RepositoryInfoFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.errorFlow.onEach {
-            when(it){
-                -13->{
+            // FIXME как и в авторизации - ненадежно :(
+            when (it) {
+                -13 -> {
 
                 }
                 -1 -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
-                (401) ->{
+                (401) -> {
                     setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                } else ->{
-                viewModel.errorMessage.onEach {msg ->
-                    if (msg.isNotEmpty()) {
-                        setErrorMessage(msg)
-                    } else {
-                        setErrorMessage("")
+                }
+                else -> {
+                    viewModel.errorMessage.onEach { msg ->
+                        if (msg.isNotEmpty()) {
+                            setErrorMessage(msg)
+                        } else {
+                            setErrorMessage("")
+                        }
                     }
                 }
-            }
             }
         }.launchIn(lifecycleScope)
     }
@@ -116,8 +121,8 @@ class RepositoryInfoFragment : BaseFragment() {
 
     private fun bindRepositoryInfo(source: GitHubRepositoryModel) {
         with(binding) {
-            with(source.license?.spdxID){
-                if (this.isNullOrEmpty()){
+            with(source.license?.spdxID) {
+                if (this.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
                     licenseType.text = this
@@ -130,6 +135,8 @@ class RepositoryInfoFragment : BaseFragment() {
             watchersCount.text = source.watchersCount.toString()
             repositoryName.text = source.name
             repositoryDescription.text = source.description
+
+            // FIXME а где ридми?
 
             repositoryLinkButton.setOnClickListener {
                 if (source.htmlURL != null)

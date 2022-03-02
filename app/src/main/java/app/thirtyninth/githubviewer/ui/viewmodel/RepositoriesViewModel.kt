@@ -10,7 +10,15 @@ import app.thirtyninth.githubviewer.repository.Repository
 import app.thirtyninth.githubviewer.utils.UIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,6 +64,8 @@ class RepositoriesViewModel @Inject constructor(
 
                     getUserRepositoryList(token)
                 }
+            }.catch { exc ->
+                println(exc)
             }.collect()
         }
     }
@@ -64,7 +74,7 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList(token)
     }
 
-    fun logout() = viewModelScope.launch{
+    fun logout() = viewModelScope.launch {
         userPreferences.logout()
     }
 
@@ -85,9 +95,10 @@ class RepositoriesViewModel @Inject constructor(
                 }
             }
             is Result.Error -> {
-                var errorCode:Int = result.code ?:0
+                var errorCode: Int = result.code ?: 0
 
-                if (result.exception.message == ServerResponseConstants.SERVER_NOT_AVAILABLE){
+                // FIXME ненадежно, уже писал как надо делать
+                if (result.exception.message == ServerResponseConstants.SERVER_NOT_AVAILABLE) {
                     errorCode = -1
                 }
 
