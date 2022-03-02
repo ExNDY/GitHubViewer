@@ -70,10 +70,10 @@ class LoginViewModel @Inject constructor(
     }
 
     fun validateUserName(userName: String) = viewModelScope.launch {
-        _userNameValid.value = LoginUtils.validateUserName(userName)
+        _userNameValid.value = ValidationsUtil.validateUserName(userName)
     }
 
     fun validateToken(token: String) = viewModelScope.launch {
-        _authorisationTokenValid.value = LoginUtils.validateAuthorisationToken(token)
+        _authorisationTokenValid.value = ValidationsUtil.validateAuthorisationToken(token)
     }
 }

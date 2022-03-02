@@ -4,10 +4,13 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import app.thirtyninth.githubviewer.ProtoSettings
 import com.google.protobuf.InvalidProtocolBufferException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Singleton
 
+//TODO FIX THIS
 @Suppress("BlockingMethodInNonBlockingContext")
 @Singleton
 object PreferencesSerializer : Serializer<ProtoSettings> {

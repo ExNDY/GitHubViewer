@@ -80,7 +80,6 @@ dependencies {
 
     implementation (Dependencies.Google.material)
 
-
     testImplementation (Dependencies.Test.jUnit)
     androidTestImplementation (Dependencies.Test.extJUnit)
     androidTestImplementation (Dependencies.Test.espresso)

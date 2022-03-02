@@ -27,7 +27,6 @@ object Dependencies {
         private const val converterVersion = "0.8.0"
         const val converter =
             "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:$converterVersion"
-
     }
 
     object Test {
@@ -45,7 +44,7 @@ object Dependencies {
     }
 
     object Navigation {
-        private const val version = "2.5.0-alpha03"
+        private const val version = "2.4.1"
         const val fragment = "androidx.navigation:navigation-fragment-ktx:$version"
         const val uiKtx = "androidx.navigation:navigation-ui-ktx:$version"
 
