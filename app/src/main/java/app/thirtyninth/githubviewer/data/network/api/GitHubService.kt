@@ -1,6 +1,7 @@
 package app.thirtyninth.githubviewer.data.network.api
 
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.models.User
 import retrofit2.Response
 import retrofit2.http.GET
@@ -22,4 +23,10 @@ interface GitHubService {
         @Path("owner") username: String,
         @Path("repository") repository: String
     ): Response<GitHubRepositoryModel>
+
+    @GET("/repos/{owner}/{repository}/readme")
+    suspend fun getReadme(
+        @Path("owner") username: String,
+        @Path("repository") repository: String
+    ):Response<Readme>
 }

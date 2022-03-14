@@ -2,10 +2,8 @@ package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -33,13 +31,13 @@ class RepositoriesFragment : BaseFragment() {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
-    private lateinit var listAdapter: RepositoryListAdapter
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
+
         initApp()
 
         setHasOptionsMenu(true)
@@ -51,6 +49,7 @@ class RepositoriesFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupUIComponents()
+        setupToolbar()
     }
 
     private fun initApp() {
@@ -60,22 +59,40 @@ class RepositoriesFragment : BaseFragment() {
                     if (it) {
                         setupObservers()
                     } else {
-                        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
                         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
                     }
                 }.collect()
         }
     }
 
-    private fun setupUIComponents() {
-        val colors: JsonObject
+    private fun setupToolbar() {
+        with(binding) {
+            toolbar.inflateMenu(R.menu.action_bar_menu)
 
-        lifecycleScope.run {
-            colors =
-                context?.let { StorageUtil.jsonToLanguageColorList(it, "LanguageColors.json") }!!
+            toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.logout -> {
+                        viewModel.logout()
+                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+                    }
+                    else -> {
+
+                    }
+                }
+
+                true
+            }
+
+            toolbar.title = getString(R.string.fragment_name_repositories_list)
+        }
+    }
+
+    private fun setupUIComponents() {
+        val colors: JsonObject = requireContext().let {
+            StorageUtil.jsonToLanguageColorList(it, "LanguageColors.json")
         }
 
-        listAdapter = RepositoryListAdapter(
+        val listAdapter = RepositoryListAdapter(
             colors
         ) {
             findNavController().navigate(
@@ -126,15 +143,14 @@ class RepositoriesFragment : BaseFragment() {
 
         viewModel.errorFlow.onEach {
             when (it) {
-                NetworkExceptionType.NOT_MODIFIED -> {
-
-                }
                 NetworkExceptionType.SERVER_ERROR -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }
+
                 NetworkExceptionType.UNAUTHORIZED -> {
                     setErrorMessage(getString(R.string.request_error_401_authentication_error))
                 }
+
                 else -> {
                     viewModel.errorMessage.onEach { msg ->
                         if (msg.isNotEmpty()) {
@@ -175,17 +191,5 @@ class RepositoriesFragment : BaseFragment() {
         with(binding) {
             errorMessage.text = message
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.logout -> {
-                viewModel.logout()
-                findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
-                return true
-            }
-        }
-
-        return false
     }
 }

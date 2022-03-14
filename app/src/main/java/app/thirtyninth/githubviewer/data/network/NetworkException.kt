@@ -1,7 +1,11 @@
 package app.thirtyninth.githubviewer.data.network
 
-import okhttp3.ResponseBody
-import retrofit2.Response
+class NetworkException(message: String) : Exception()
 
-//TODO CustomException container
-class NetworkException(message:String): Exception()
+class NoInternetException : Exception()
+
+class UnauthorizedException: Exception()
+
+class NotFoundException: Exception()
+
+class UnexpectedException(cause: Exception): Exception(cause)

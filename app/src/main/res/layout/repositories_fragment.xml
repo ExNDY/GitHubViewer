@@ -7,20 +7,41 @@
     android:orientation="vertical"
     tools:background="@color/gray_blue">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="0dp"
+        android:layout_height="?actionBarSize"
+        android:orientation="vertical"
+        android:theme="@style/Theme.Design.NoActionBar"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?colorSurface"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:titleTextColor="@color/white"
+            tools:menu="@menu/action_bar_menu" />
+    </com.google.android.material.appbar.AppBarLayout>
+
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress_horizontal"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRepositoryList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="none"
         android:visibility="visible"
@@ -28,7 +49,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progress_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/appbar"
         tools:context=".ui.main.view.RepositoriesFragment"
         tools:itemCount="10"
         tools:listitem="@layout/repositories_list_item" />
@@ -43,7 +64,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progress_horizontal">
+        app:layout_constraintTop_toBottomOf="@id/appbar">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/error_img"

@@ -1,17 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.GitHubViewer" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.GitHubViewer" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/accent_github</item>
         <item name="colorPrimaryVariant">#2E79CF</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/gray_blue_dark</item>
+        <item name="backgroundColor">@color/gray_blue</item>
+        <item name="android:windowBackground">@color/gray_blue</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/gray_blue</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/gray_blue</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/gray_dark</item>
         <!-- Customize your theme here. -->
+        <item name="android:navigationBarColor">@color/gray_blue_dark</item>
     </style>
 
     <style name="TextField.LoginScreen" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">

@@ -1,4 +1,7 @@
-import com.google.protobuf.gradle.*
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.plugins
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
 
 plugins {
     id("com.android.application")
@@ -53,36 +56,36 @@ android {
 
 dependencies {
     //Retrofit
-    implementation (Dependencies.OkHttp.okHttp)
-    implementation (Dependencies.Retrofit.retrofit)
+    implementation(Dependencies.OkHttp.okHttp)
+    implementation(Dependencies.Retrofit.retrofit)
     //Kotlinx Serialization
-    implementation (Dependencies.Kotlin.serialization)
-    implementation (Dependencies.Kotlin.converter)
+    implementation(Dependencies.Kotlin.serialization)
+    implementation(Dependencies.Kotlin.converter)
     //navigation
-    implementation (Dependencies.Navigation.fragment)
-    implementation (Dependencies.Navigation.uiKtx)
-    implementation (Dependencies.Navigation.viewModel)
+    implementation(Dependencies.Navigation.fragment)
+    implementation(Dependencies.Navigation.uiKtx)
+    implementation(Dependencies.Navigation.viewModel)
     //Dagger.Hilt
-    implementation (Dependencies.Hilt.android)
-    kapt (Dependencies.Hilt.compiler)
+    implementation(Dependencies.Hilt.android)
+    kapt(Dependencies.Hilt.compiler)
     //DataStore
-    implementation (Dependencies.ProtoDataStore.dataStore)
-    implementation (Dependencies.ProtoDataStore.protobuf)
-    implementation (Dependencies.ProtoDataStore.preferences)
+    implementation(Dependencies.ProtoDataStore.dataStore)
+    implementation(Dependencies.ProtoDataStore.protobuf)
+    implementation(Dependencies.ProtoDataStore.preferences)
     //ViewBindingDelegate
-    implementation (Dependencies.ViewBindingDelegate.delegate)
+    implementation(Dependencies.ViewBindingDelegate.delegate)
     //SplashScreen
-    implementation (Dependencies.UI.splashScreen)
+    implementation(Dependencies.UI.splashScreen)
 
-    implementation (Dependencies.AndroidX.coreKtx)
-    implementation (Dependencies.AndroidX.appCompat)
-    implementation (Dependencies.AndroidX.constraintLayout)
+    implementation(Dependencies.AndroidX.coreKtx)
+    implementation(Dependencies.AndroidX.appCompat)
+    implementation(Dependencies.AndroidX.constraintLayout)
 
-    implementation (Dependencies.Google.material)
+    implementation(Dependencies.Google.material)
 
-    testImplementation (Dependencies.Test.jUnit)
-    androidTestImplementation (Dependencies.Test.extJUnit)
-    androidTestImplementation (Dependencies.Test.espresso)
+    testImplementation(Dependencies.Test.jUnit)
+    androidTestImplementation(Dependencies.Test.extJUnit)
+    androidTestImplementation(Dependencies.Test.espresso)
 }
 
 protobuf {
@@ -91,7 +94,7 @@ protobuf {
     }
     generateProtoTasks {
         all().forEach { task ->
-            task.plugins{
+            task.plugins {
                 create("java") {
                     option("lite")
                 }

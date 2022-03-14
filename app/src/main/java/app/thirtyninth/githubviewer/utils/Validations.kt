@@ -2,7 +2,7 @@ package app.thirtyninth.githubviewer.utils
 
 import java.util.regex.Pattern
 
-object ValidationsUtil {
+object Validations {
     private const val USERNAME_PATTERN = "^[a-zA-Z0-9_-]{0,38}$"
     private const val AUTHORIZATION_TOKEN_PATTERN = "^gh[pousr]_[a-zA-Z0-9]{0,40}$"
 

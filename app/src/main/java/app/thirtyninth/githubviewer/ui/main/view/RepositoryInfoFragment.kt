@@ -4,10 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -15,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.base.BaseFragment
@@ -36,8 +35,7 @@ class RepositoryInfoFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        (activity as AppCompatActivity?)!!.supportActionBar!!.title = args.repositoryName
-        (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        super.onCreateView(inflater, container, savedInstanceState)
 
         setHasOptionsMenu(true)
 
@@ -48,22 +46,33 @@ class RepositoryInfoFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupObservers()
+
+        setupToolbar(args.repositoryName)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.logout -> {
-                viewModel.logout()
-                findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
-                return true
-            }
-            android.R.id.home -> {
-                findNavController().navigateUp()
-                return true
-            }
-        }
+    private fun setupToolbar(title: String) {
+        with(binding) {
+            toolbar.inflateMenu(R.menu.action_bar_menu)
 
-        return false
+            toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.logout -> {
+                        viewModel.logout()
+                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+                    }
+                    else -> {
+
+                    }
+                }
+                true
+            }
+
+            toolbar.setNavigationOnClickListener {
+                findNavController().navigateUp()
+            }
+
+            toolbar.title = title
+        }
     }
 
     private fun setupObservers() {
@@ -89,14 +98,22 @@ class RepositoryInfoFragment : BaseFragment() {
             initUI(it)
         }.launchIn(lifecycleScope)
 
+        viewModel.readme.onEach {
+            initReadme(it)
+        }.launchIn(lifecycleScope)
+
         viewModel.errorFlow.onEach {
             when (it) {
                 NetworkExceptionType.NOT_FOUND -> {
                     setErrorMessage("Repository not found")
                 }
-                NetworkExceptionType.EMPTY_DATA -> {
-                    //placeholder ADD RESOURCES
+
+                NetworkExceptionType.SERVER_ERROR -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
+                }
+
+                NetworkExceptionType.UNAUTHORIZED -> {
+                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
                 }
                 else -> {
                     viewModel.errorMessage.onEach { msg ->
@@ -114,6 +131,19 @@ class RepositoryInfoFragment : BaseFragment() {
     private fun initUI(source: GitHubRepositoryModel?) {
         if (source != null) {
             bindRepositoryInfo(source)
+        }
+    }
+
+    private fun initReadme(source: Readme?){
+        if (source != null){
+            bindReadmeData(source)
+        }
+    }
+
+    private fun bindReadmeData(source: Readme){
+        with(binding){
+            readmeBlockHeader.text = source.name
+            readmePlaceholder.readmePlaceholder.text = source.download_url
         }
     }
 

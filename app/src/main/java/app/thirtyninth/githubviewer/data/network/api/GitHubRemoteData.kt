@@ -1,6 +1,7 @@
 package app.thirtyninth.githubviewer.data.network.api
 
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.models.User
 import retrofit2.Response
 import javax.inject.Inject
@@ -18,4 +19,9 @@ class GitHubRemoteData @Inject constructor(
         repository: String
     ): Response<GitHubRepositoryModel> =
         gitHubService.getRepositoryInfo(username, repository)
+
+    suspend fun getReadme(
+        username: String,
+        repository: String
+    ): Response<Readme> = gitHubService.getReadme(username, repository)
 }

@@ -1,13 +1,11 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -32,16 +30,15 @@ class LoginFragment : BaseFragment() {
     private val viewModel: LoginViewModel by viewModels()
     private val binding: LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
-    private var isCorrectUserName = false
-    private var isCorrectAccessToken = false
-    private var isLoadingState = false
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
+
         setHasOptionsMenu(false)
+
         return binding.root
     }
 
@@ -54,33 +51,13 @@ class LoginFragment : BaseFragment() {
 
     private fun setupUI() {
         with(binding) {
-            userLogin.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            userLogin.doAfterTextChanged {
+                viewModel.validateUserName(it.toString())
+            }
 
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    viewModel.validateUserName(p0.toString())
-                }
-            })
-
-            accessToken.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                    viewModel.validateToken(p0.toString())
-                }
-            })
+            accessToken.doAfterTextChanged {
+                viewModel.validateToken(it.toString())
+            }
 
             signInButton.setOnClickListener {
                 signIn(binding.userLogin.text.toString(), binding.accessToken.text.toString())
@@ -97,9 +74,6 @@ class LoginFragment : BaseFragment() {
                 UIState.LOADING -> {
                     setLoadingState()
                 }
-                UIState.SUCCESS -> {
-                    navigateToRepositoryList()
-                }
                 else -> {
 
                 }
@@ -107,60 +81,57 @@ class LoginFragment : BaseFragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.userNameValid.onEach {
-            isCorrectUserName = when (it) {
+            when (it) {
                 UsernameState.CORRECT -> {
                     setUsernameFieldError(null)
-                    true
                 }
                 UsernameState.INVALID -> {
                     setUsernameFieldError(getString(R.string.error_invalid_username))
-                    false
                 }
                 UsernameState.EMPTY -> {
                     setUsernameFieldError(getString(R.string.error_username_is_empty))
-                    false
                 }
             }
         }.launchIn(lifecycleScope)
 
         viewModel.authorisationTokenValid.onEach {
-            isCorrectAccessToken = when (it) {
+            when (it) {
                 TokenState.CORRECT -> {
                     setAccessTokenFieldError(null)
-                    true
                 }
                 TokenState.INVALID -> {
                     setAccessTokenFieldError(getString(R.string.error_invalid_token))
-                    false
                 }
                 TokenState.EMPTY -> {
                     setAccessTokenFieldError(getString(R.string.error_token_is_empty))
-                    false
                 }
             }
         }.launchIn(lifecycleScope)
 
+        viewModel.isLoggedInSuccess.onEach {
+            if (it){
+                navigateToRepositoryList()
+            }
+        }.launchIn(lifecycleScope)
+
         viewModel.errorFlow.onEach {
+            setNormalState()
+
             when (it) {
                 NetworkExceptionType.UNAUTHORIZED -> {
                     setAccessTokenFieldError(getString(R.string.request_error_401_authentication_error))
 
-                    lifecycleScope.run {
-                        delay(2000)
-                    }
+                    delay(2000)
 
                     setAccessTokenFieldError("")
                 }
-                NetworkExceptionType.NOT_MODIFIED -> {
-                    showToast("Status: 304 Not Modified")
-                }
+
                 NetworkExceptionType.SERVER_ERROR -> {
                     showToast(getString(R.string.request_error_connection_with_server))
                 }
                 else -> {
                     showToast("Something wrong. Please try later")
                 }
-
             }
         }.launchIn(lifecycleScope)
     }
@@ -174,8 +145,6 @@ class LoginFragment : BaseFragment() {
             signInButton.text = getString(R.string.sign_in)
             progressCircular.visibility = View.GONE
         }
-
-        isLoadingState = false
     }
 
     override fun setLoadingState() {
@@ -183,8 +152,6 @@ class LoginFragment : BaseFragment() {
             signInButton.text = ""
             progressCircular.visibility = View.VISIBLE
         }
-
-        isLoadingState = true
     }
 
     override fun setErrorState() {
@@ -195,37 +162,14 @@ class LoginFragment : BaseFragment() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onPause() {
-        super.onPause()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
-    }
-
     private fun signIn(username: String, token: String) {
-        if (!isLoadingState) {
-            if (!isCorrectUserName || !isCorrectAccessToken) {
-                if (!isCorrectUserName) {
-                    setUsernameFieldError(getString(R.string.error_username_is_empty))
-                }
-
-                if (!isCorrectAccessToken) {
-                    setAccessTokenFieldError(getString(R.string.error_token_is_empty))
-                }
-            } else if (isCorrectUserName && isCorrectAccessToken) {
-                viewModel.signInGitHubAndStoreLoginData(username, token)
-            }
-        }
+        viewModel.signInGitHubAndStoreLoginData(username, token)
     }
 
     private fun setUsernameFieldError(errorMessage: String?) {
         with(binding) {
             userLoginContainer.error = errorMessage
         }
-
     }
 
     private fun setAccessTokenFieldError(errorMessage: String?) {

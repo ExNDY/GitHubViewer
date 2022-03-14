@@ -51,11 +51,11 @@ object Dependencies {
         const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version"
     }
 
-    object Google{
+    object Google {
         const val material = "com.google.android.material:material:1.5.0"
     }
 
-    object UI{
+    object UI {
         const val splashScreen = "androidx.core:core-splashscreen:1.0.0-beta01"
     }
 

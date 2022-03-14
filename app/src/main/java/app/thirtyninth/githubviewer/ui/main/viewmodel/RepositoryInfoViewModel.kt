@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
-import app.thirtyninth.githubviewer.data.network.Result
+import app.thirtyninth.githubviewer.data.models.Readme
+import app.thirtyninth.githubviewer.data.network.*
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +29,12 @@ class RepositoryInfoViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val repositoryInfo: SharedFlow<GitHubRepositoryModel> = _repositoryInfo.asSharedFlow()
+
+    private val _readme = MutableSharedFlow<Readme?>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val readme: SharedFlow<Readme?> = _readme.asSharedFlow()
 
     private val _uiState = MutableStateFlow(UIState.NORMAL)
     val uiState: StateFlow<UIState> get() = _uiState
@@ -50,6 +57,27 @@ class RepositoryInfoViewModel @Inject constructor(
 
     fun loadRepositoryInfo() = viewModelScope.launch {
         getRepositoryInfo(currentUsername, currentRepositoryName)
+        getReadmeInfo(currentUsername, currentRepositoryName)
+    }
+
+    private fun getReadmeInfo(username: String, repositoryName: String) = viewModelScope.launch {
+        if (Variables.isNetworkConnected) {
+            when (val result = repository.getReadme(username, repositoryName)) {
+                is Result.Success -> {
+                    val readme = result.data
+
+                    if (readme != null) {
+                        _readme.tryEmit(readme)
+                    }
+                }
+
+                is Result.Error -> {
+                    _readme.tryEmit(null)
+                }
+            }
+        } else {
+            _readme.tryEmit(null)
+        }
     }
 
     private fun getRepositoryInfo(username: String, repositoryName: String) =
@@ -72,8 +100,31 @@ class RepositoryInfoViewModel @Inject constructor(
                     }
 
                     is Result.Error -> {
-                        _uiState.tryEmit(UIState.NORMAL)
-                        _errorFlow.tryEmit(result.type)
+                        _uiState.tryEmit(UIState.ERROR)
+
+                        when (result.exception) {
+                            is NoInternetException -> {
+                                _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
+                            }
+
+                            is UnexpectedException -> {
+                                _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
+                            }
+
+                            is UnauthorizedException -> {
+                                _errorFlow.tryEmit(NetworkExceptionType.UNAUTHORIZED)
+                            }
+
+                            is NotFoundException -> {
+                                //TODO ADD STATE FOR EXCEPTION
+                            }
+
+                            is HttpException ->{
+                                _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
+                                _errorMessage.tryEmit(result.exception.message())
+                            }
+                        }
+
                     }
                 }
             } else {

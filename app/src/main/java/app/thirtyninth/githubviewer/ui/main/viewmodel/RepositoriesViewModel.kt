@@ -3,8 +3,7 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
-import app.thirtyninth.githubviewer.data.network.Result
+import app.thirtyninth.githubviewer.data.network.*
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
@@ -13,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,8 +81,30 @@ class RepositoriesViewModel @Inject constructor(
                 }
 
                 is Result.Error -> {
-                    _uiState.tryEmit(UIState.NORMAL)
-                    _errorFlow.tryEmit(result.type)
+                    _uiState.tryEmit(UIState.ERROR)
+
+                    when (result.exception) {
+                        is NoInternetException -> {
+                            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
+                        }
+
+                        is UnexpectedException -> {
+                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
+                        }
+
+                        is UnauthorizedException -> {
+                            _errorFlow.tryEmit(NetworkExceptionType.UNAUTHORIZED)
+                        }
+
+                        is NotFoundException -> {
+                            //TODO ADD STATE FOR EXCEPTION
+                        }
+
+                        is HttpException ->{
+                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
+                            _errorMessage.tryEmit(result.exception.message())
+                        }
+                    }
                 }
             }
         } else {
