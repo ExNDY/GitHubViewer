@@ -31,11 +31,11 @@ class GitHubViewerRepository
         return enqueue(gitHub.getRepositoryInfo(username, repository))
     }
 
-    suspend fun getReadme(
+    suspend fun getReadmeData(
         username: String,
         repository: String
     ): Result<Readme?> {
-        return enqueue(gitHub.getReadme(username, repository))
+        return enqueue(gitHub.getReadmeData(username, repository))
     }
 
     private fun <T> enqueue(response: Response<T>): Result<T?> {

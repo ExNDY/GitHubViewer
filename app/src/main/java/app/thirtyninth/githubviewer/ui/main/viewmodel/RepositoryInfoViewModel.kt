@@ -36,6 +36,12 @@ class RepositoryInfoViewModel @Inject constructor(
     )
     val readme: SharedFlow<Readme?> = _readme.asSharedFlow()
 
+    private val _readmeFile = MutableSharedFlow<String>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val readmeFile: SharedFlow<String> = _readmeFile.asSharedFlow()
+
     private val _uiState = MutableStateFlow(UIState.NORMAL)
     val uiState: StateFlow<UIState> get() = _uiState
 
@@ -62,7 +68,7 @@ class RepositoryInfoViewModel @Inject constructor(
 
     private fun getReadmeInfo(username: String, repositoryName: String) = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
-            when (val result = repository.getReadme(username, repositoryName)) {
+            when (val result = repository.getReadmeData(username, repositoryName)) {
                 is Result.Success -> {
                     val readme = result.data
 
@@ -124,7 +130,6 @@ class RepositoryInfoViewModel @Inject constructor(
                                 _errorMessage.tryEmit(result.exception.message())
                             }
                         }
-
                     }
                 }
             } else {

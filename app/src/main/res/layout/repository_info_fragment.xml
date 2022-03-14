@@ -94,7 +94,7 @@
                 android:id="@+id/repository_readme_section_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:constraint_referenced_ids="readme_block_header, readme_placeholder" />
+                app:constraint_referenced_ids="readme_block_header" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/user_ui_group"
@@ -335,16 +335,6 @@
                 app:layout_constraintEnd_toStartOf="@id/content_end"
                 app:layout_constraintStart_toEndOf="@id/content_start"
                 app:layout_constraintTop_toBottomOf="@id/repository_description" />
-
-            <include
-                android:id="@+id/readme_placeholder"
-                layout="@layout/placeholder"
-                android:layout_width="0dp"
-                android:layout_height="560dp"
-                app:layout_constraintBottom_toTopOf="@id/content_bottom"
-                app:layout_constraintEnd_toStartOf="@id/content_end"
-                app:layout_constraintStart_toEndOf="@id/content_start"
-                app:layout_constraintTop_toBottomOf="@id/readme_block_header" />
 
             <LinearLayout
                 android:id="@+id/error_block"

@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
+import retrofit2.http.Url
 
 interface GitHubService {
 
@@ -25,8 +26,8 @@ interface GitHubService {
     ): Response<GitHubRepositoryModel>
 
     @GET("/repos/{owner}/{repository}/readme")
-    suspend fun getReadme(
+    suspend fun getReadmeData(
         @Path("owner") username: String,
         @Path("repository") repository: String
-    ):Response<Readme>
+    ): Response<Readme>
 }

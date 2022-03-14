@@ -20,8 +20,8 @@ class GitHubRemoteData @Inject constructor(
     ): Response<GitHubRepositoryModel> =
         gitHubService.getRepositoryInfo(username, repository)
 
-    suspend fun getReadme(
+    suspend fun getReadmeData(
         username: String,
         repository: String
-    ): Response<Readme> = gitHubService.getReadme(username, repository)
+    ): Response<Readme> = gitHubService.getReadmeData(username, repository)
 }

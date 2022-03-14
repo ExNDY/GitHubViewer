@@ -24,6 +24,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.io.File
 
 @AndroidEntryPoint
 class RepositoryInfoFragment : BaseFragment() {
@@ -102,6 +103,10 @@ class RepositoryInfoFragment : BaseFragment() {
             initReadme(it)
         }.launchIn(lifecycleScope)
 
+        viewModel.readmeFile.onEach {
+            addReadmeFile(it)
+        }.launchIn(lifecycleScope)
+
         viewModel.errorFlow.onEach {
             when (it) {
                 NetworkExceptionType.NOT_FOUND -> {
@@ -140,10 +145,18 @@ class RepositoryInfoFragment : BaseFragment() {
         }
     }
 
+    private fun addReadmeFile(source:String){
+        if (source.isNotEmpty()){
+            with(binding){
+                //markdownView.setMarkDownText(source)
+            }
+        }
+    }
+
     private fun bindReadmeData(source: Readme){
         with(binding){
             readmeBlockHeader.text = source.name
-            readmePlaceholder.readmePlaceholder.text = source.download_url
+
         }
     }
 
