@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
-import app.thirtyninth.githubviewer.ui.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.onEach
 
 
 @AndroidEntryPoint
-class LoginFragment : BaseFragment() {
+class LoginFragment : Fragment() {
     private val viewModel: LoginViewModel by viewModels()
     private val binding: LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -140,21 +140,21 @@ class LoginFragment : BaseFragment() {
         findNavController().navigate(LoginFragmentDirections.navigateToRepositoryList())
     }
 
-    override fun setNormalState() {
+    private fun setNormalState() {
         with(binding) {
             signInButton.text = getString(R.string.sign_in)
             progressCircular.visibility = View.GONE
         }
     }
 
-    override fun setLoadingState() {
+    private fun setLoadingState() {
         with(binding) {
             signInButton.text = ""
             progressCircular.visibility = View.VISIBLE
         }
     }
 
-    override fun setErrorState() {
+    private fun setErrorState() {
 
     }
 

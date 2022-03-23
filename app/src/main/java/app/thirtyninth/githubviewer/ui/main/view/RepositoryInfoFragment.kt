@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -16,7 +17,6 @@ import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
-import app.thirtyninth.githubviewer.ui.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel
 import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-class RepositoryInfoFragment : BaseFragment() {
+class RepositoryInfoFragment : Fragment() {
     private val viewModel: RepositoryInfoViewModel by viewModels()
     private val binding: RepositoryInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
     private val args: RepositoryInfoFragmentArgs by navArgs()
@@ -155,7 +155,6 @@ class RepositoryInfoFragment : BaseFragment() {
     private fun bindReadmeData(source: Readme){
         with(binding){
             readmeBlockHeader.text = source.name
-
         }
     }
 
@@ -191,7 +190,7 @@ class RepositoryInfoFragment : BaseFragment() {
         startActivity(browser)
     }
 
-    override fun setNormalState() {
+    private fun setNormalState() {
         with(binding) {
             errorBlock.visibility = View.GONE
             userUiGroup.visibility = View.VISIBLE
@@ -200,7 +199,7 @@ class RepositoryInfoFragment : BaseFragment() {
         }
     }
 
-    override fun setLoadingState() {
+    private fun setLoadingState() {
         with(binding) {
             progressBar.visibility = View.VISIBLE
             licenseSectionGroup.visibility = View.GONE
@@ -209,7 +208,7 @@ class RepositoryInfoFragment : BaseFragment() {
         }
     }
 
-    override fun setErrorState() {
+    private fun setErrorState() {
         with(binding) {
             userUiGroup.visibility = View.GONE
             errorBlock.visibility = View.VISIBLE

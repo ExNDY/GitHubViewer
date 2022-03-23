@@ -1,13 +1,14 @@
 package app.thirtyninth.githubviewer.data.network
 
+import okhttp3.HttpUrl
 import java.io.IOException
 
-class NetworkException(message: String) : Exception()
+open class NetworkException(cause: Throwable?) : RuntimeException(cause)
 
 class NoInternetException(cause: Exception) : IOException(cause)
 
-class UnauthorizedException: Exception()
+class UnauthorizedException(msg: String, url: HttpUrl) : NetworkException(null)
 
-class NotFoundException: Exception()
+class NotFoundException(msg: String, url: HttpUrl) : NetworkException(null)
 
-class UnexpectedException(cause: Exception): Exception(cause)
+class UnexpectedException(cause: Exception) : NetworkException(cause)

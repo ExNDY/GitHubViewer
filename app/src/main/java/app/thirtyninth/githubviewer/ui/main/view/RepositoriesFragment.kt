@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -15,7 +16,6 @@ import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
-import app.thirtyninth.githubviewer.ui.base.BaseFragment
 import app.thirtyninth.githubviewer.ui.interfaces.RecyclerViewActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.utils.StorageUtil
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.jsonPrimitive
 
 @AndroidEntryPoint
-class RepositoriesFragment : BaseFragment(), RecyclerViewActionListener {
+class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -171,14 +171,14 @@ class RepositoriesFragment : BaseFragment(), RecyclerViewActionListener {
         }.launchIn(lifecycleScope)
     }
 
-    override fun setNormalState() {
+    private fun setNormalState() {
         with(binding) {
             errorBlock.visibility = View.GONE
             progressHorizontal.visibility = View.GONE
         }
     }
 
-    override fun setLoadingState() {
+    private fun setLoadingState() {
         with(binding) {
             errorBlock.visibility = View.GONE
             progressHorizontal.visibility = View.VISIBLE
@@ -186,7 +186,7 @@ class RepositoriesFragment : BaseFragment(), RecyclerViewActionListener {
         }
     }
 
-    override fun setErrorState() {
+    private fun setErrorState() {
         with(binding) {
             progressHorizontal.visibility = View.GONE
             rvRepositoryList.visibility = View.GONE

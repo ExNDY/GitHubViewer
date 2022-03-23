@@ -3,7 +3,11 @@ package app.thirtyninth.githubviewer.data.repository
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.models.User
-import app.thirtyninth.githubviewer.data.network.*
+import app.thirtyninth.githubviewer.data.network.NoInternetException
+import app.thirtyninth.githubviewer.data.network.NotFoundException
+import app.thirtyninth.githubviewer.data.network.Result
+import app.thirtyninth.githubviewer.data.network.UnauthorizedException
+import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
 import retrofit2.HttpException
 import retrofit2.Response
@@ -41,11 +45,21 @@ class GitHubViewerRepository
     private fun <T> enqueue(response: Response<T>): Result<T?> {
         return try {
             if (response.code() == 401) {
-                Result.Error(UnauthorizedException())
+                Result.Error(
+                    UnauthorizedException(
+                        msg = response.raw().message,
+                        url = response.raw().request.url
+                    )
+                )
             }
 
             if (response.code() == 404) {
-                Result.Error(NotFoundException())
+                Result.Error(
+                    NotFoundException(
+                        msg = response.raw().message,
+                        url = response.raw().request.url
+                    )
+                )
             } else {
                 Result.Success(response.body())
             }

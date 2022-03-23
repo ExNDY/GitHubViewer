@@ -23,12 +23,8 @@ buildscript {
 
 allprojects {
     repositories {
-        gradlePluginPortal()
         google()
         mavenCentral()
-        maven {
-            setUrl("https://jitpack.io")
-        }
     }
 }
 
