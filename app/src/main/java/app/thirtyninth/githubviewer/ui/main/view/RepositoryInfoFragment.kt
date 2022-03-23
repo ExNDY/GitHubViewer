@@ -161,7 +161,7 @@ class RepositoryInfoFragment : BaseFragment() {
 
     private fun bindRepositoryInfo(source: GitHubRepositoryModel) {
         with(binding) {
-            with(source.license?.spdxID) {
+            with(source.license?.spdxId) {
                 if (this.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {

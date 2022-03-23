@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class User(
-    val login: String? = null
+    val login: String
 )

@@ -15,13 +15,13 @@ class GitHubRemoteData @Inject constructor(
         gitHubService.getUserRepositoryList()
 
     suspend fun getRepositoryInfo(
-        username: String,
+        owner: String,
         repository: String
     ): Response<GitHubRepositoryModel> =
-        gitHubService.getRepositoryInfo(username, repository)
+        gitHubService.getRepositoryInfo(owner, repository)
 
     suspend fun getReadmeData(
-        username: String,
+        owner: String,
         repository: String
-    ): Response<Readme> = gitHubService.getReadmeData(username, repository)
+    ): Response<Readme> = gitHubService.getReadmeData(owner, repository)
 }

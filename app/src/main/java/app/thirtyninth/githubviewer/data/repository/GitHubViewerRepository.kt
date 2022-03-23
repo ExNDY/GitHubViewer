@@ -25,17 +25,17 @@ class GitHubViewerRepository
     }
 
     suspend fun getRepositoryInfo(
-        username: String,
+        owner: String,
         repository: String
     ): Result<GitHubRepositoryModel?> {
-        return enqueue(gitHub.getRepositoryInfo(username, repository))
+        return enqueue(gitHub.getRepositoryInfo(owner, repository))
     }
 
     suspend fun getReadmeData(
-        username: String,
+        owner: String,
         repository: String
     ): Result<Readme?> {
-        return enqueue(gitHub.getReadmeData(username, repository))
+        return enqueue(gitHub.getReadmeData(owner, repository))
     }
 
     private fun <T> enqueue(response: Response<T>): Result<T?> {

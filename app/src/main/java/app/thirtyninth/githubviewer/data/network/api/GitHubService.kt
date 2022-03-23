@@ -21,13 +21,13 @@ interface GitHubService {
 
     @GET("repos/{owner}/{repository}")
     suspend fun getRepositoryInfo(
-        @Path("owner") username: String,
+        @Path("owner") owner: String,
         @Path("repository") repository: String
     ): Response<GitHubRepositoryModel>
 
     @GET("/repos/{owner}/{repository}/readme")
     suspend fun getReadmeData(
-        @Path("owner") username: String,
+        @Path("owner") owner: String,
         @Path("repository") repository: String
     ): Response<Readme>
 }
