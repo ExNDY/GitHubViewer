@@ -24,7 +24,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 
 @AndroidEntryPoint
 class RepositoryInfoFragment : BaseFragment() {

@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.base.BaseFragment
+import app.thirtyninth.githubviewer.ui.interfaces.RecyclerViewActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.utils.StorageUtil
 import app.thirtyninth.githubviewer.utils.UIState
@@ -24,10 +26,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @AndroidEntryPoint
-class RepositoriesFragment : BaseFragment() {
+class RepositoriesFragment : BaseFragment(), RecyclerViewActionListener {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -88,20 +90,17 @@ class RepositoriesFragment : BaseFragment() {
     }
 
     private fun setupUIComponents() {
-        val colors: JsonObject = requireContext().let {
-            StorageUtil.jsonToLanguageColorList(it, "LanguageColors.json")
+        val colors: Map<String, Color> = requireContext().let { context ->
+            val colorsJson = StorageUtil.jsonToLanguageColorList(context, "LanguageColors.json")
+
+            colorsJson.mapValues { (_, colorString) ->
+                Color.parseColor(colorString.jsonPrimitive.content).let {
+                    Color.valueOf(it)
+                }
+            }
         }
 
-        val listAdapter = RepositoryListAdapter(
-            colors
-        ) {
-            findNavController().navigate(
-                RepositoriesFragmentDirections.navigateToRepositoryInfo(
-                    it.owner?.login.toString(),
-                    it.name.toString()
-                )
-            )
-        }
+        val listAdapter = RepositoryListAdapter(colors, this)
 
         with(binding) {
             rvRepositoryList.apply {
@@ -114,6 +113,14 @@ class RepositoriesFragment : BaseFragment() {
                 viewModel.loadData()
             }
         }
+    }
+
+    private fun openRepositoryDetail(owner: String, repositoryName: String) {
+        findNavController().navigate(
+            RepositoriesFragmentDirections.navigateToRepositoryInfo(
+                owner, repositoryName
+            )
+        )
     }
 
     private fun setupObservers() {
@@ -191,5 +198,9 @@ class RepositoriesFragment : BaseFragment() {
         with(binding) {
             errorMessage.text = message
         }
+    }
+
+    override fun onClick(clickedPosition: Int, owner: String, repositoryName: String) {
+        openRepositoryDetail(owner, repositoryName)
     }
 }

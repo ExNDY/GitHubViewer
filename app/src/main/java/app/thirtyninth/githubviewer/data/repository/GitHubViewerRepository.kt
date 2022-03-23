@@ -59,7 +59,7 @@ class GitHubViewerRepository
         httpExceptionsMapper: (HttpException) -> Exception? = { null }
     ): Exception? {
         return when (remoteException) {
-            is IOException -> NoInternetException()
+            is IOException -> NoInternetException(remoteException)
             is HttpException -> httpExceptionsMapper(remoteException)
             else -> UnexpectedException(remoteException)
         }

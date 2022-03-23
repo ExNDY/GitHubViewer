@@ -4,87 +4,71 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
+import app.thirtyninth.githubviewer.ui.interfaces.RecyclerViewActionListener
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class RepositoryListAdapter(
-    colors: JsonObject,
-    val onItemClicked: (GitHubRepositoryModel) -> Unit
+    private val colors: Map<String, Color>,
+    private val listener:RecyclerViewActionListener
 ) : ListAdapter<GitHubRepositoryModel, RepositoryListAdapter.RepositoryListViewHolder>(
     RepositoryListDiffCallback()
 ) {
-    val languageColors: Map<String, Color> = colors.mapValues { (_, colorString) ->
-        Color.parseColor(colorString.jsonPrimitive.content).let {
-            Color.valueOf(it)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryListViewHolder {
+        val itemBinding =
+            RepositoriesListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
+        return RepositoryListViewHolder(itemBinding)
+    }
+
+    override fun onBindViewHolder(holder: RepositoryListViewHolder, position: Int) {
+        val item = currentList[position]
+        val languageColor = colors[item.language]
+
+        holder.bind(item, languageColor)
+        holder.container.setOnClickListener {
+            listener.onClick(position, item.owner?.login.toString(), item.name.toString())
         }
     }
 
-    //Inner class implementation for using initial external object with colors of languages
-    inner class RepositoryListViewHolder(
-        private val itemBinding: RepositoriesListItemBinding,
-        onItemClicked: (Int) -> Unit
-    ) :
+    class RepositoryListViewHolder(private val itemBinding: RepositoriesListItemBinding) :
         RecyclerView.ViewHolder(itemBinding.root) {
-        init {
-            itemView.setOnClickListener {
-                onItemClicked(bindingAdapterPosition)
-            }
-        }
+        val container = itemBinding.itemContainer
 
-        fun bind(repository: GitHubRepositoryModel) {
-            bindName(repository.name)
-
-            bindLanguage(repository.language)
-            bindDescription(repository.description)
+        fun bind(item:GitHubRepositoryModel, languageTextColor:Color?){
+            bindName(item.name)
+            bindLanguage(item.language, languageTextColor)
+            bindDescription(item.description?:"")
         }
 
         private fun bindName(name: String?) {
             itemBinding.repositoryName.text = name
         }
 
-        private fun bindLanguage(language: String?) {
-            if (language.isNullOrEmpty()) {
-                itemBinding.language.visibility = View.GONE
-            } else {
-                val languageTextColor = languageColors[language]
-
-                if (languageTextColor != null) {
-                    itemBinding.language.setTextColor(
-                        languageTextColor.toArgb()
-                    )
-                }
-
-                itemBinding.language.text = language
+        private fun bindLanguage(language: String?, languageTextColor: Color?) {
+            if (languageTextColor != null){
+                itemBinding.language.setTextColor(
+                    languageTextColor.toArgb()
+                )
             }
 
+            itemBinding.language.text = language
         }
 
         private fun bindDescription(description: String?) {
-            if (description.isNullOrEmpty()) {
+            if (description.isNullOrEmpty()){
                 itemBinding.repositoryDescription.visibility = View.GONE
-            } else {
+            } else{
                 itemBinding.repositoryDescription.text = description
             }
-
         }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryListViewHolder {
-        val itemBinding =
-            RepositoriesListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-
-        return RepositoryListViewHolder(itemBinding) {
-            onItemClicked(getItem(it))
-        }
-    }
-
-    override fun onBindViewHolder(holder: RepositoryListViewHolder, position: Int) {
-        holder.bind(currentList[position])
     }
 }
 

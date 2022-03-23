@@ -17,6 +17,7 @@ object PreferencesSerializer : Serializer<ProtoSettings> {
 
     override suspend fun readFrom(input: InputStream): ProtoSettings = withContext(Dispatchers.IO) {
         try {
+            @Suppress("BlockingMethodInNonBlockingContext")
             return@withContext parseFrom(input)
         } catch (ex: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", ex)
@@ -25,6 +26,7 @@ object PreferencesSerializer : Serializer<ProtoSettings> {
 
     override suspend fun writeTo(t: ProtoSettings, output: OutputStream) =
         withContext(Dispatchers.IO) {
+            @Suppress("BlockingMethodInNonBlockingContext")
             return@withContext t.writeTo(output)
         }
 
