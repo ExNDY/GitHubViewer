@@ -33,6 +33,14 @@ object NetworkModule {
         }
     }
 
+//    @Provides
+//    fun provideAuthTokenProvider(keyValueStorage: KeyValueStorage):TokenProvider{
+//        return object :TokenProvider{
+//            override val token: String
+//                get() = keyValueStorage.authToken
+//        }
+//    }
+
     @Provides
     fun providesAcceptInterceptor(): AcceptInterceptor =
         AcceptInterceptor()
