@@ -168,8 +168,8 @@ class RepositoriesFragment : Fragment(), ActionListener {
         openRepositoryDetail(owner, repositoryName)
     }
 
-    private fun mapExceptionToMessage(throwable: Throwable):String{
-        return when(throwable){
+    private fun mapExceptionToMessage(throwable: Throwable): String {
+        return when (throwable) {
             //TODO Накинуть ресурсов для обозначения ошибок
             is NoInternetException -> getString(R.string.request_error_connection_with_server)
             is UnauthorizedException -> getString(R.string.request_error_401_authentication_error)

@@ -84,6 +84,6 @@ class RepositoriesViewModel @Inject constructor(
         data class ShowToastAction(val message: String) : Action
         data class ShowErrorAction(val exception: Throwable) : Action
         object SetNormalStateAction : Action
-        object SetLoadingStateAction :Action
+        object SetLoadingStateAction : Action
     }
 }

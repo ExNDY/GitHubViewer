@@ -9,7 +9,6 @@ import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.TokenState
-import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.Validations
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
