@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
@@ -26,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.serialization.json.jsonPrimitive
 
 @AndroidEntryPoint
 class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
@@ -91,16 +91,10 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
 
     private fun setupUIComponents() {
         val colors: Map<String, Color> = requireContext().let { context ->
-            val colorsJson = StorageUtil.jsonToLanguageColorList(context, "LanguageColors.json")
-
-            colorsJson.mapValues { (_, colorString) ->
-                Color.parseColor(colorString.jsonPrimitive.content).let {
-                    Color.valueOf(it)
-                }
-            }
+            StorageUtil.fetchLanguageColorsMap(context, Constants.LANGUAGE_COLORS_JSON_PATH)
         }
 
-        val listAdapter = RepositoryListAdapter(colors, this)
+        val listAdapter = RepositoryListAdapter(colors, listener = this)
 
         with(binding) {
             rvRepositoryList.apply {
@@ -126,13 +120,12 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
     private fun setupObservers() {
         viewModel.repositoryList
             .onEach {
-                (binding.rvRepositoryList.adapter as RepositoryListAdapter).submitList(
-                    it
-                )
+                (binding.rvRepositoryList.adapter as RepositoryListAdapter)
+                    .submitList(it)
             }.launchIn(lifecycleScope)
 
-        viewModel.uiState.onEach {
-            when (it) {
+        viewModel.uiState.onEach { uiState ->
+            when (uiState) {
                 UIState.NORMAL -> {
                     setNormalState()
                 }
@@ -148,8 +141,8 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.errorFlow.onEach {
-            when (it) {
+        viewModel.errorFlow.onEach { type ->
+            when (type) {
                 NetworkExceptionType.SERVER_ERROR -> {
                     setErrorMessage(getString(R.string.request_error_connection_with_server))
                 }

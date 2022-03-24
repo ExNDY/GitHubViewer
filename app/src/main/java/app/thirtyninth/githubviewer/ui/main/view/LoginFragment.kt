@@ -154,10 +154,6 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun setErrorState() {
-
-    }
-
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
