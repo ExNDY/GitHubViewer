@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,13 +15,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
+import app.thirtyninth.githubviewer.data.network.NoInternetException
+import app.thirtyninth.githubviewer.data.network.NotFoundException
+import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
 import app.thirtyninth.githubviewer.utils.StorageUtil
-import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,7 +94,9 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
     private fun setupUIComponents() {
         val colors: Map<String, Color> = requireContext().let { context ->
-            StorageUtil.fetchLanguageColorsMap(context, Constants.LANGUAGE_COLORS_JSON_PATH)
+            StorageUtil.fetchLanguageColorsMap(
+                context, Constants.LANGUAGE_COLORS_JSON_PATH
+            )
         }
 
         val listAdapter = RepositoryListAdapter(colors, listener = this)
@@ -118,47 +123,15 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupObservers() {
+        viewModel.actions.onEach { action ->
+            handleAction(action)
+        }.launchIn(lifecycleScope)
+
         viewModel.repositoryList
             .onEach { repositoryList ->
                 (binding.rvRepositoryList.adapter as RepositoryListAdapter)
                     .submitList(repositoryList)
             }.launchIn(lifecycleScope)
-
-        viewModel.uiState.onEach { uiState ->
-            when (uiState) {
-                UIState.NORMAL -> {
-                    setNormalState()
-                }
-                UIState.LOADING -> {
-                    setLoadingState()
-                }
-                UIState.ERROR -> {
-                    setErrorState()
-                }
-            }
-        }.launchIn(lifecycleScope)
-
-        viewModel.errorFlow.onEach { type ->
-            when (type) {
-                NetworkExceptionType.SERVER_ERROR -> {
-                    setErrorMessage(getString(R.string.request_error_connection_with_server))
-                }
-
-                NetworkExceptionType.UNAUTHORIZED -> {
-                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                }
-
-                else -> {
-                    viewModel.errorMessage.onEach { msg ->
-                        if (msg.isNotEmpty()) {
-                            setErrorMessage(msg)
-                        } else {
-                            setErrorMessage("")
-                        }
-                    }
-                }
-            }
-        }.launchIn(lifecycleScope)
     }
 
     private fun setNormalState() {
@@ -176,21 +149,43 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
-    private fun setErrorState() {
+    private fun setErrorState(throwable: Throwable) {
+        val msg = mapExceptionToMessage(throwable)
+
         with(binding) {
+            errorBlock.visibility = View.VISIBLE
             progressHorizontal.visibility = View.GONE
             rvRepositoryList.visibility = View.GONE
-            errorBlock.visibility = View.VISIBLE
+            errorMessage.text = msg
         }
     }
 
-    private fun setErrorMessage(message: String) {
-        with(binding) {
-            errorMessage.text = message
-        }
+    private fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onClick(clickedPosition: Int, owner: String, repositoryName: String) {
         openRepositoryDetail(owner, repositoryName)
+    }
+
+    private fun mapExceptionToMessage(throwable: Throwable):String{
+        return when(throwable){
+            //TODO Накинуть ресурсов для обозначения ошибок
+            is NoInternetException -> getString(R.string.request_error_connection_with_server)
+            is UnauthorizedException -> getString(R.string.request_error_401_authentication_error)
+            is NotFoundException -> "TODO"
+            else -> {
+                ""
+            }
+        }
+    }
+
+    private fun handleAction(action: Action) {
+        when (action) {
+            is Action.ShowToastAction -> showToast(action.message)
+            is Action.ShowErrorAction -> setErrorState(action.exception)
+            Action.SetNormalStateAction -> setNormalState()
+            Action.SetLoadingStateAction -> setLoadingState()
+        }
     }
 }

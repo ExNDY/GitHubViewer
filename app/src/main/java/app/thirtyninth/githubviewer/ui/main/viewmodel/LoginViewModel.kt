@@ -3,15 +3,13 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData
-import app.thirtyninth.githubviewer.data.network.HttpCallException
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
+import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
+import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
-import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.Validations
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,20 +32,17 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UIState.NORMAL)
     val uiState: StateFlow<UIState> get() = _uiState.asStateFlow()
 
-    private val _errorFlow = MutableSharedFlow<NetworkExceptionType>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
-
     private val _loginValid = MutableStateFlow(LoginState.CORRECT)
     val loginValid: StateFlow<LoginState> get() = _loginValid
 
     private val _authorisationTokenValid = MutableStateFlow(TokenState.CORRECT)
     val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
 
-    private val _isLoggedInSuccess = MutableStateFlow(false)
-    val isLoggedInSuccess: StateFlow<Boolean> get() = _isLoggedInSuccess
+    private val _actions = MutableSharedFlow<Action>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
     fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
@@ -60,31 +55,22 @@ class LoginViewModel @Inject constructor(
                     if (owner.login.equals(login, true)) {
                         userPreferences.saveUser(LoginData(login, authToken))
 
-                        _isLoggedInSuccess.tryEmit(true)
+                        _uiState.tryEmit(UIState.NORMAL)
+                        _actions.tryEmit(Action.RouteSuccessAction)
                     } else {
                         _uiState.tryEmit(UIState.NORMAL)
                         _loginValid.tryEmit(LoginState.INVALID)
                     }
                 } else {
                     _uiState.tryEmit(UIState.NORMAL)
-                    _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                    _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
                 }
             }.onFailure { throwable ->
-                when (throwable) {
-                    is UnauthorizedException -> {
-
-                    }
-                    is NoInternetException -> {
-
-                    }
-                    is HttpCallException -> {
-
-                    }
-                }
+                _actions.tryEmit(Action.ShowErrorAction(throwable))
             }
         } else {
             _uiState.tryEmit(UIState.NORMAL)
-            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
+            _actions.tryEmit(Action.ShowErrorAction(NoInternetException()))
         }
     }
 
@@ -94,5 +80,12 @@ class LoginViewModel @Inject constructor(
 
     fun validateToken(authToken: String) = viewModelScope.launch {
         _authorisationTokenValid.value = Validations.validateAuthorisationToken(authToken)
+    }
+
+    sealed interface Action {
+        data class ShowToastAction(val message: String) : Action
+        data class SignInAction(val login: String, val authToken: String) : Action
+        data class ShowErrorAction(val exception: Throwable) : Action
+        object RouteSuccessAction : Action
     }
 }

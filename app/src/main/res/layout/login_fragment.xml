@@ -82,7 +82,7 @@
         app:passwordToggleEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/access_token"
+            android:id="@+id/auth_token"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:inputType="textPassword"

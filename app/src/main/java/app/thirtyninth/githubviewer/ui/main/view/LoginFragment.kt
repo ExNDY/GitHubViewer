@@ -11,16 +11,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
+import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel.Action
+import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
-import app.thirtyninth.githubviewer.utils.LoginState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -39,6 +38,8 @@ class LoginFragment : Fragment() {
 
         setHasOptionsMenu(false)
 
+
+
         return binding.root
     }
 
@@ -50,17 +51,24 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupUI() {
+        viewModel.actions.onEach { action ->
+            handleAction(action)
+        }.launchIn(lifecycleScope)
+
         with(binding) {
             userLogin.doAfterTextChanged {
                 viewModel.validateLogin(it.toString())
             }
 
-            accessToken.doAfterTextChanged {
+            authToken.doAfterTextChanged {
                 viewModel.validateToken(it.toString())
             }
 
             signInButton.setOnClickListener {
-                signIn(binding.userLogin.text.toString(), binding.accessToken.text.toString())
+                signIn(
+                    login = binding.userLogin.text.toString(),
+                    authToken = binding.authToken.text.toString()
+                )
             }
         }
     }
@@ -107,33 +115,6 @@ class LoginFragment : Fragment() {
                 }
             }
         }.launchIn(lifecycleScope)
-
-        viewModel.isLoggedInSuccess.onEach { isSuccess ->
-            if (isSuccess) {
-                navigateToRepositoryList()
-            }
-        }.launchIn(lifecycleScope)
-
-        viewModel.errorFlow.onEach { exceptionType ->
-            setNormalState()
-
-            when (exceptionType) {
-                NetworkExceptionType.UNAUTHORIZED -> {
-                    setAccessTokenFieldError(getString(R.string.request_error_401_authentication_error))
-
-                    delay(2000)
-
-                    setAccessTokenFieldError("")
-                }
-
-                NetworkExceptionType.SERVER_ERROR -> {
-                    showToast(getString(R.string.request_error_connection_with_server))
-                }
-                else -> {
-                    showToast("Something wrong. Please try later")
-                }
-            }
-        }.launchIn(lifecycleScope)
     }
 
     private fun navigateToRepositoryList() {
@@ -171,6 +152,20 @@ class LoginFragment : Fragment() {
     private fun setAccessTokenFieldError(errorMessage: String?) {
         with(binding) {
             accessTokenContainer.error = errorMessage
+        }
+    }
+
+    private fun handleAction(action: Action) {
+        when (action) {
+            Action.RouteSuccessAction -> navigateToRepositoryList()
+            is Action.SignInAction -> signIn(
+                login = action.login,
+                authToken = action.authToken
+            )
+            is Action.ShowToastAction -> showToast(action.message)
+            else -> {
+
+            }
         }
     }
 }
