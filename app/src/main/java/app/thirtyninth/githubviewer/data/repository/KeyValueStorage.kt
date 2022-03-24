@@ -2,6 +2,7 @@ package app.thirtyninth.githubviewer.data.repository
 
 import androidx.datastore.core.DataStore
 import app.thirtyninth.githubviewer.ProtoSettings
+import app.thirtyninth.githubviewer.preferences.PreferencesManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,11 +13,14 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class KeyValueStorage @Inject constructor(
-    dataStore: DataStore<ProtoSettings>
+    dataStore: DataStore<ProtoSettings>,
+    preferencesManager: PreferencesManager
 ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     val tokenStateFlow: StateFlow<String> = dataStore.data.map {
         it.userToken
     }.stateIn(scope, SharingStarted.Eagerly, "")
+
+    var authToken = preferencesManager.authToken
 }

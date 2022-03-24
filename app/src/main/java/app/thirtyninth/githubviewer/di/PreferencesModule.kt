@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import app.thirtyninth.githubviewer.ProtoSettings
+import app.thirtyninth.githubviewer.preferences.PreferencesManager
 import app.thirtyninth.githubviewer.preferences.PreferencesSerializer
 import dagger.Module
 import dagger.Provides
@@ -37,5 +38,10 @@ object PreferencesModule {
     @Singleton
     fun providePreferences(@ApplicationContext context: Context):SharedPreferences{
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    fun providePreferenceManager(sharedPreferences: SharedPreferences):PreferencesManager{
+        return PreferencesManager(sharedPreferences)
     }
 }

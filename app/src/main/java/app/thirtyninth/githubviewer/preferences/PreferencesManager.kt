@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PreferenceManager @Inject constructor(
+class PreferencesManager @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {
 
@@ -33,8 +33,8 @@ class PreferenceManager @Inject constructor(
         }
 
     companion object {
-        const val IS_LOGGED_IN_BOOLEAN = "isLoggedIn"
-        const val USERNAME = "username"
-        const val AUTH_TOKEN = "authToken"
+        private const val IS_LOGGED_IN_BOOLEAN = "isLoggedIn"
+        private const val USERNAME = "username"
+        private const val AUTH_TOKEN = "authToken"
     }
 }
