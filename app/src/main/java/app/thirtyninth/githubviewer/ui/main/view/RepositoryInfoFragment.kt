@@ -54,8 +54,8 @@ class RepositoryInfoFragment : Fragment() {
         with(binding) {
             toolbar.inflateMenu(R.menu.action_bar_menu)
 
-            toolbar.setOnMenuItemClickListener {
-                when (it.itemId) {
+            toolbar.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
                     R.id.logout -> {
                         viewModel.logout()
                         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
@@ -76,8 +76,8 @@ class RepositoryInfoFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.uiState.onEach {
-            when (it) {
+        viewModel.uiState.onEach { uiState ->
+            when (uiState) {
                 UIState.NORMAL -> {
                     setNormalState()
                 }
@@ -94,20 +94,20 @@ class RepositoryInfoFragment : Fragment() {
 
         }.launchIn(lifecycleScope)
 
-        viewModel.repositoryInfo.onEach {
-            initUI(it)
+        viewModel.repositoryInfo.onEach { repository ->
+            initUI(repository)
         }.launchIn(lifecycleScope)
 
-        viewModel.readme.onEach {
-            initReadme(it)
+        viewModel.readme.onEach { readme ->
+            initReadme(readme)
         }.launchIn(lifecycleScope)
 
-        viewModel.readmeFile.onEach {
-            addReadmeFile(it)
+        viewModel.readmeFile.onEach { readmeFile ->
+            addReadmeFile(readmeFile)
         }.launchIn(lifecycleScope)
 
-        viewModel.errorFlow.onEach {
-            when (it) {
+        viewModel.errorFlow.onEach { exceptionType ->
+            when (exceptionType) {
                 NetworkExceptionType.NOT_FOUND -> {
                     setErrorMessage("Repository not found")
                 }

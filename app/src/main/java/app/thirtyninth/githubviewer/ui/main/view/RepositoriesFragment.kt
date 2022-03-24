@@ -57,8 +57,8 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
     private fun initApp() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.isLoggedIn
-                .onEach {
-                    if (it) {
+                .onEach { isLoggedIn ->
+                    if (isLoggedIn) {
                         setupObservers()
                     } else {
                         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
@@ -71,8 +71,8 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
         with(binding) {
             toolbar.inflateMenu(R.menu.action_bar_menu)
 
-            toolbar.setOnMenuItemClickListener {
-                when (it.itemId) {
+            toolbar.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
                     R.id.logout -> {
                         viewModel.logout()
                         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
@@ -119,9 +119,9 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
 
     private fun setupObservers() {
         viewModel.repositoryList
-            .onEach {
+            .onEach { repositoryList ->
                 (binding.rvRepositoryList.adapter as RepositoryListAdapter)
-                    .submitList(it)
+                    .submitList(repositoryList)
             }.launchIn(lifecycleScope)
 
         viewModel.uiState.onEach { uiState ->

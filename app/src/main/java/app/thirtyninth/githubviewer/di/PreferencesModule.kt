@@ -1,6 +1,7 @@
 package app.thirtyninth.githubviewer.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
@@ -30,5 +31,11 @@ object PreferencesModule {
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { context.dataStoreFile(PREFERENCES_NAME) }
         )
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferences(@ApplicationContext context: Context):SharedPreferences{
+        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     }
 }

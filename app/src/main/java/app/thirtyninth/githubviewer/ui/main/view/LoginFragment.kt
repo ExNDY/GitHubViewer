@@ -66,8 +66,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.uiState.onEach {
-            when (it) {
+        viewModel.uiState.onEach { uiState ->
+            when (uiState) {
                 UIState.NORMAL -> {
                     setNormalState()
                 }
@@ -80,8 +80,8 @@ class LoginFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.userNameValid.onEach {
-            when (it) {
+        viewModel.userNameValid.onEach { state ->
+            when (state) {
                 UsernameState.CORRECT -> {
                     setUsernameFieldError(null)
                 }
@@ -94,8 +94,8 @@ class LoginFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.authorisationTokenValid.onEach {
-            when (it) {
+        viewModel.authorisationTokenValid.onEach { state ->
+            when (state) {
                 TokenState.CORRECT -> {
                     setAccessTokenFieldError(null)
                 }
@@ -108,16 +108,16 @@ class LoginFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.isLoggedInSuccess.onEach {
-            if (it){
+        viewModel.isLoggedInSuccess.onEach { isSuccess ->
+            if (isSuccess){
                 navigateToRepositoryList()
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.errorFlow.onEach {
+        viewModel.errorFlow.onEach { exceptionType ->
             setNormalState()
 
-            when (it) {
+            when (exceptionType) {
                 NetworkExceptionType.UNAUTHORIZED -> {
                     setAccessTokenFieldError(getString(R.string.request_error_401_authentication_error))
 
