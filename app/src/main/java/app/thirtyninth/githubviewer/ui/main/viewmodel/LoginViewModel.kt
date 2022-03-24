@@ -3,12 +3,10 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData
+import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.NotFoundException
-import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
-import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.TokenState
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,49 +53,33 @@ class LoginViewModel @Inject constructor(
         if (Variables.isNetworkConnected) {
             _uiState.tryEmit(UIState.LOADING)
 
-            when (val result = repository.getUserInfo("token $token")) {
-                is Result.Success -> {
-                    val user = result.data
+            val userDataResult = repository.getUserInfo("token $token")
 
-                    if (user != null) {
-                        if (user.login.equals(username, true)) {
-                            userPreferences.saveUser(LoginData(username, token))
+            userDataResult.onSuccess { owner ->
+                if (owner != null) {
+                    if (owner.login.equals(username, true)) {
+                        userPreferences.saveUser(LoginData(username, token))
 
-                            _isLoggedInSuccess.tryEmit(true)
-                        } else {
-                            _uiState.tryEmit(UIState.NORMAL)
-                            _userNameValid.tryEmit(UsernameState.INVALID)
-                        }
+                        _isLoggedInSuccess.tryEmit(true)
                     } else {
                         _uiState.tryEmit(UIState.NORMAL)
-                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                        _userNameValid.tryEmit(UsernameState.INVALID)
                     }
+                } else {
+                    _uiState.tryEmit(UIState.NORMAL)
+                    _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
                 }
-                is Result.Error -> {
-                    _uiState.tryEmit(UIState.ERROR)
+            }.onFailure { throwable ->
+                when (throwable) {
+                    is UnauthorizedException -> {
 
-                    when (result.exception) {
-                        is NoInternetException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
-                        }
-
-                        is UnexpectedException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                        }
-
-                        is UnauthorizedException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.UNAUTHORIZED)
-                        }
-
-                        is NotFoundException -> {
-                            //TODO ADD STATE FOR EXCEPTION
-                        }
-
-                        is HttpException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                        }
                     }
+                    is NoInternetException -> {
 
+                    }
+                    is HttpCallException -> {
+
+                    }
                 }
             }
         } else {

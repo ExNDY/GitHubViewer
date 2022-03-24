@@ -3,12 +3,10 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.NotFoundException
-import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
-import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
@@ -24,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,49 +75,32 @@ class RepositoriesViewModel @Inject constructor(
         if (Variables.isNetworkConnected) {
             _uiState.tryEmit(UIState.LOADING)
 
-            when (val result = repository.getRepositoryList()) {
-                is Result.Success -> {
-                    val repoList = result.data
+            val repositoryListResult = repository.getRepositoryList()
 
-                    if (repoList != null) {
-                        _repositoryList.tryEmit(repoList)
-                        _uiState.tryEmit(UIState.NORMAL)
-                    } else {
-                        _uiState.tryEmit(UIState.ERROR)
-                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
-                        _errorMessage.tryEmit("Error: Data is empty")
-                    }
-                }
-
-                is Result.Error -> {
+            repositoryListResult.onSuccess { list ->
+                if (list != null) {
+                    _repositoryList.tryEmit(list)
+                    _uiState.tryEmit(UIState.NORMAL)
+                } else {
                     _uiState.tryEmit(UIState.ERROR)
+                    _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                    _errorMessage.tryEmit("Error: Data is empty")
+                }
+            }.onFailure { throwable ->
+                when (throwable) {
+                    is UnauthorizedException -> {
 
-                    when (result.exception) {
-                        is NoInternetException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
-                        }
+                    }
+                    is NoInternetException -> {
 
-                        is UnexpectedException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                        }
+                    }
+                    is HttpCallException -> {
 
-                        is UnauthorizedException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.UNAUTHORIZED)
-                        }
-
-                        is NotFoundException -> {
-                            //TODO ADD STATE FOR EXCEPTION
-                        }
-
-                        is HttpException -> {
-                            _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                            _errorMessage.tryEmit(result.exception.message())
-                        }
                     }
                 }
             }
         } else {
-            _uiState.tryEmit(UIState.ERROR)
+            _uiState.tryEmit(UIState.NORMAL)
             _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
         }
     }

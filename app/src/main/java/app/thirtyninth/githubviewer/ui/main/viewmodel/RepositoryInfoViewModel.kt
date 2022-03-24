@@ -5,12 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.Readme
+import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.NotFoundException
-import app.thirtyninth.githubviewer.data.network.Result
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
-import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
@@ -24,7 +22,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,7 +61,7 @@ class RepositoryInfoViewModel @Inject constructor(
     )
     val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
-    private val currentUsername: String = state.get<String>("username").toString()
+    private val currentOwner: String = state.get<String>("username").toString()
     private val currentRepositoryName: String = state.get<String>("repository_name").toString()
 
     init {
@@ -72,23 +69,29 @@ class RepositoryInfoViewModel @Inject constructor(
     }
 
     fun loadRepositoryInfo() = viewModelScope.launch {
-        getRepositoryInfo(currentUsername, currentRepositoryName)
-        getReadmeInfo(currentUsername, currentRepositoryName)
+        getRepositoryInfo(currentOwner, currentRepositoryName)
+        getReadmeInfo(currentOwner, currentRepositoryName)
     }
 
-    private fun getReadmeInfo(username: String, repositoryName: String) = viewModelScope.launch {
+    private fun getReadmeInfo(owner: String, repositoryName: String) = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
-            when (val result = repository.getReadmeData(username, repositoryName)) {
-                is Result.Success -> {
-                    val readme = result.data
+            val readmeData = repository.getReadmeData(owner, repositoryName)
 
-                    if (readme != null) {
-                        _readme.tryEmit(readme)
-                    }
+            readmeData.onSuccess { readme ->
+                if (readme != null) {
+                    _readme.tryEmit(readme)
                 }
+            }.onFailure { throwable ->
+                when (throwable) {
+                    is UnauthorizedException -> {
 
-                is Result.Error -> {
-                    _readme.tryEmit(null)
+                    }
+                    is NoInternetException -> {
+
+                    }
+                    is HttpCallException -> {
+
+                    }
                 }
             }
         } else {
@@ -96,54 +99,37 @@ class RepositoryInfoViewModel @Inject constructor(
         }
     }
 
-    private fun getRepositoryInfo(username: String, repositoryName: String) =
+    private fun getRepositoryInfo(owner: String, repositoryName: String) =
         viewModelScope.launch {
             if (Variables.isNetworkConnected) {
                 _uiState.tryEmit(UIState.LOADING)
 
-                when (val result = repository.getRepositoryInfo(username, repositoryName)) {
-                    is Result.Success -> {
-                        val repo = result.data
+                val repositoryDetail = repository.getRepositoryInfo(owner, repositoryName)
 
-                        if (repo != null) {
-                            _repositoryInfo.tryEmit(repo)
-                            _uiState.tryEmit(UIState.NORMAL)
-                        } else {
-                            _uiState.tryEmit(UIState.ERROR)
-                            _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
-                            _errorMessage.tryEmit("Error: Data is empty")
-                        }
-                    }
-
-                    is Result.Error -> {
+                repositoryDetail.onSuccess { repo ->
+                    if (repo != null) {
+                        _repositoryInfo.tryEmit(repo)
+                        _uiState.tryEmit(UIState.NORMAL)
+                    } else {
                         _uiState.tryEmit(UIState.ERROR)
+                        _errorFlow.tryEmit(NetworkExceptionType.EMPTY_DATA)
+                        _errorMessage.tryEmit("Error: Data is empty")
+                    }
+                }.onFailure { throwable ->
+                    when (throwable) {
+                        is UnauthorizedException -> {
 
-                        when (result.exception) {
-                            is NoInternetException -> {
-                                _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
-                            }
+                        }
+                        is NoInternetException -> {
 
-                            is UnexpectedException -> {
-                                _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                            }
+                        }
+                        is HttpCallException -> {
 
-                            is UnauthorizedException -> {
-                                _errorFlow.tryEmit(NetworkExceptionType.UNAUTHORIZED)
-                            }
-
-                            is NotFoundException -> {
-                                //TODO ADD STATE FOR EXCEPTION
-                            }
-
-                            is HttpException -> {
-                                _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
-                                _errorMessage.tryEmit(result.exception.message())
-                            }
                         }
                     }
                 }
             } else {
-                _uiState.tryEmit(UIState.ERROR)
+                _uiState.tryEmit(UIState.NORMAL)
                 _errorFlow.tryEmit(NetworkExceptionType.SERVER_ERROR)
             }
         }

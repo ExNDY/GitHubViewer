@@ -14,7 +14,7 @@ data class GitHubRepositoryModel(
     val language: String? = null,
     val license: License? = null,
     val name: String? = null,
-    val owner: Organization? = null,
+    val owner: Owner? = null,
     val private: Boolean? = false,
     @SerialName("stargazers_count")
     val stargazersCount: Int? = 0,
@@ -30,6 +30,6 @@ data class License(
 )
 
 @Serializable
-data class Organization(
+data class Owner(
     val login: String,
 )

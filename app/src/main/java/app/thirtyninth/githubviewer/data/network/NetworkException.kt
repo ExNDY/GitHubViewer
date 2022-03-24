@@ -10,8 +10,10 @@ open class NetworkException : RuntimeException {
 
 class NoInternetException(cause: Throwable) : IOException(cause)
 
-class UnauthorizedException(msg: String, url: HttpUrl) : NetworkException()
+class UnauthorizedException(code: Int, request: String, url: HttpUrl) : NetworkException()
 
-class NotFoundException(msg: String, url: HttpUrl) : NetworkException()
+class NotFoundException(code: Int, request: String, url: HttpUrl) : NetworkException()
+
+class HttpCallException(cause: Throwable) : NetworkException(cause)
 
 class UnexpectedException(cause: Throwable) : NetworkException(cause)

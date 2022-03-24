@@ -39,7 +39,7 @@ class RepositoryListAdapter(
 
     class RepositoryListViewHolder(
         private val itemBinding: RepositoriesListItemBinding
-        ) : RecyclerView.ViewHolder(itemBinding.root) {
+    ) : RecyclerView.ViewHolder(itemBinding.root) {
 
         val container = itemBinding.itemContainer
 
