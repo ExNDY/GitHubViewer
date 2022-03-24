@@ -3,7 +3,6 @@ package app.thirtyninth.githubviewer.extentions
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import com.google.android.material.textfield.TextInputEditText
 
 fun EditText.doAfterTextChanged(afterTextChanged: (String) -> Unit) {
     this.addTextChangedListener(object : TextWatcher {

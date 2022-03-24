@@ -87,9 +87,6 @@ class RepositoryInfoFragment : Fragment() {
                 UIState.ERROR -> {
                     setErrorState()
                 }
-                else -> {
-
-                }
             }
 
         }.launchIn(lifecycleScope)
@@ -138,22 +135,22 @@ class RepositoryInfoFragment : Fragment() {
         }
     }
 
-    private fun initReadme(source: Readme?){
-        if (source != null){
+    private fun initReadme(source: Readme?) {
+        if (source != null) {
             bindReadmeData(source)
         }
     }
 
-    private fun addReadmeFile(source:String){
-        if (source.isNotEmpty()){
-            with(binding){
+    private fun addReadmeFile(source: String) {
+        if (source.isNotEmpty()) {
+            with(binding) {
                 //markdownView.setMarkDownText(source)
             }
         }
     }
 
-    private fun bindReadmeData(source: Readme){
-        with(binding){
+    private fun bindReadmeData(source: Readme) {
+        with(binding) {
             readmeBlockHeader.text = source.name
         }
     }

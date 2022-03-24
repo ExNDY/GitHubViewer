@@ -3,14 +3,26 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
-import app.thirtyninth.githubviewer.data.network.*
+import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
+import app.thirtyninth.githubviewer.data.network.NoInternetException
+import app.thirtyninth.githubviewer.data.network.NotFoundException
+import app.thirtyninth.githubviewer.data.network.Result
+import app.thirtyninth.githubviewer.data.network.UnauthorizedException
+import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.UIState
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -100,7 +112,7 @@ class RepositoriesViewModel @Inject constructor(
                             //TODO ADD STATE FOR EXCEPTION
                         }
 
-                        is HttpException ->{
+                        is HttpException -> {
                             _errorFlow.tryEmit(NetworkExceptionType.NOT_DETERMINED)
                             _errorMessage.tryEmit(result.exception.message())
                         }

@@ -36,12 +36,12 @@ object PreferencesModule {
 
     @Provides
     @Singleton
-    fun providePreferences(@ApplicationContext context: Context):SharedPreferences{
+    fun providePreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     }
 
     @Provides
-    fun providePreferenceManager(sharedPreferences: SharedPreferences):PreferencesManager{
+    fun providePreferenceManager(sharedPreferences: SharedPreferences): PreferencesManager {
         return PreferencesManager(sharedPreferences)
     }
 }

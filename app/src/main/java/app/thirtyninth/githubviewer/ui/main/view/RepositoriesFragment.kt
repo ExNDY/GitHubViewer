@@ -17,7 +17,7 @@ import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
-import app.thirtyninth.githubviewer.ui.interfaces.RecyclerViewActionListener
+import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.utils.StorageUtil
 import app.thirtyninth.githubviewer.utils.UIState
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
+class RepositoriesFragment : Fragment(), ActionListener {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -134,9 +134,6 @@ class RepositoriesFragment : Fragment(), RecyclerViewActionListener {
                 }
                 UIState.ERROR -> {
                     setErrorState()
-                }
-                else -> {
-
                 }
             }
         }.launchIn(lifecycleScope)

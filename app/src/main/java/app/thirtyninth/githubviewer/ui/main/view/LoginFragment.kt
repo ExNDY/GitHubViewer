@@ -109,7 +109,7 @@ class LoginFragment : Fragment() {
         }.launchIn(lifecycleScope)
 
         viewModel.isLoggedInSuccess.onEach { isSuccess ->
-            if (isSuccess){
+            if (isSuccess) {
                 navigateToRepositoryList()
             }
         }.launchIn(lifecycleScope)
