@@ -12,7 +12,7 @@ enum class TokenState {
     EMPTY
 }
 
-enum class UsernameState {
+enum class LoginState {
     CORRECT,
     INVALID,
     EMPTY

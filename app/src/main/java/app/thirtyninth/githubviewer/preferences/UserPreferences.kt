@@ -36,8 +36,8 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
         dataStore.updateData {
             it.toBuilder()
                 .setIsLoggedIn(true)
-                .setUserName(user.username)
-                .setUserToken(user.token)
+                .setUserName(user.login)
+                .setUserToken(user.authToken)
                 .build()
         }
     }

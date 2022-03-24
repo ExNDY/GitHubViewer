@@ -61,7 +61,7 @@ class RepositoryInfoViewModel @Inject constructor(
     )
     val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
-    private val currentOwner: String = state.get<String>("username").toString()
+    private val currentOwner: String = state.get<String>("login").toString()
     private val currentRepositoryName: String = state.get<String>("repository_name").toString()
 
     init {

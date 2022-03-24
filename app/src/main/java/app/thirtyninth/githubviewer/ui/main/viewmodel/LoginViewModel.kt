@@ -11,7 +11,7 @@ import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
-import app.thirtyninth.githubviewer.utils.UsernameState
+import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.Validations
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,8 +40,8 @@ class LoginViewModel @Inject constructor(
     )
     val errorFlow: SharedFlow<NetworkExceptionType> = _errorFlow.asSharedFlow()
 
-    private val _userNameValid = MutableStateFlow(UsernameState.CORRECT)
-    val userNameValid: StateFlow<UsernameState> get() = _userNameValid
+    private val _loginValid = MutableStateFlow(LoginState.CORRECT)
+    val loginValid: StateFlow<LoginState> get() = _loginValid
 
     private val _authorisationTokenValid = MutableStateFlow(TokenState.CORRECT)
     val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
@@ -49,21 +49,21 @@ class LoginViewModel @Inject constructor(
     private val _isLoggedInSuccess = MutableStateFlow(false)
     val isLoggedInSuccess: StateFlow<Boolean> get() = _isLoggedInSuccess
 
-    fun signInGitHubAndStoreLoginData(username: String, token: String) = viewModelScope.launch {
+    fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
             _uiState.tryEmit(UIState.LOADING)
 
-            val userDataResult = repository.getUserInfo("token $token")
+            val userDataResult = repository.getUserInfo("token $authToken")
 
             userDataResult.onSuccess { owner ->
                 if (owner != null) {
-                    if (owner.login.equals(username, true)) {
-                        userPreferences.saveUser(LoginData(username, token))
+                    if (owner.login.equals(login, true)) {
+                        userPreferences.saveUser(LoginData(login, authToken))
 
                         _isLoggedInSuccess.tryEmit(true)
                     } else {
                         _uiState.tryEmit(UIState.NORMAL)
-                        _userNameValid.tryEmit(UsernameState.INVALID)
+                        _loginValid.tryEmit(LoginState.INVALID)
                     }
                 } else {
                     _uiState.tryEmit(UIState.NORMAL)
@@ -88,11 +88,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun validateUserName(userName: String) = viewModelScope.launch {
-        _userNameValid.value = Validations.validateUserName(userName)
+    fun validateLogin(login: String) = viewModelScope.launch {
+        _loginValid.value = Validations.validateLogin(login)
     }
 
-    fun validateToken(token: String) = viewModelScope.launch {
-        _authorisationTokenValid.value = Validations.validateAuthorisationToken(token)
+    fun validateToken(authToken: String) = viewModelScope.launch {
+        _authorisationTokenValid.value = Validations.validateAuthorisationToken(authToken)
     }
 }

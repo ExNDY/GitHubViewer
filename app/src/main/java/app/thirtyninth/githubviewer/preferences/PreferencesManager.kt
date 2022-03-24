@@ -18,10 +18,10 @@ class PreferencesManager @Inject constructor(
             prefEditor.commit()
         }
 
-    var username: String
-        get() = sharedPreferences.getString(USERNAME, "") ?: ""
+    var login: String
+        get() = sharedPreferences.getString(LOGIN, "") ?: ""
         set(value) {
-            prefEditor.putString(USERNAME, value)
+            prefEditor.putString(LOGIN, value)
             prefEditor.commit()
         }
 
@@ -34,7 +34,7 @@ class PreferencesManager @Inject constructor(
 
     companion object {
         private const val IS_LOGGED_IN_BOOLEAN = "isLoggedIn"
-        private const val USERNAME = "username"
+        private const val LOGIN = "login"
         private const val AUTH_TOKEN = "authToken"
     }
 }

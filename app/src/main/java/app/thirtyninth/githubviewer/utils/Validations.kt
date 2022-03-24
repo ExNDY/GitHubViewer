@@ -3,20 +3,20 @@ package app.thirtyninth.githubviewer.utils
 import java.util.regex.Pattern
 
 object Validations {
-    private const val USERNAME_PATTERN = "^[a-zA-Z0-9_-]{0,38}$"
+    private const val LOGIN_PATTERN = "^[a-zA-Z0-9_-]{0,38}$"
     private const val AUTHORIZATION_TOKEN_PATTERN = "^gh[pousr]_[a-zA-Z0-9]{0,40}$"
 
-    fun validateUserName(userName: String): UsernameState {
-        if (userName.isEmpty()) return UsernameState.EMPTY
+    fun validateLogin(login: String): LoginState {
+        if (login.isEmpty()) return LoginState.EMPTY
 
-        val matcher = Pattern.compile(USERNAME_PATTERN).matcher(userName)
-        return if (matcher.matches()) UsernameState.CORRECT else UsernameState.INVALID
+        val matcher = Pattern.compile(LOGIN_PATTERN).matcher(login)
+        return if (matcher.matches()) LoginState.CORRECT else LoginState.INVALID
     }
 
-    fun validateAuthorisationToken(token: String): TokenState {
-        if (token.isEmpty()) return TokenState.EMPTY
+    fun validateAuthorisationToken(authToken: String): TokenState {
+        if (authToken.isEmpty()) return TokenState.EMPTY
 
-        val matcher = Pattern.compile(AUTHORIZATION_TOKEN_PATTERN).matcher(token)
+        val matcher = Pattern.compile(AUTHORIZATION_TOKEN_PATTERN).matcher(authToken)
 
         return if (matcher.matches()) TokenState.CORRECT else TokenState.INVALID
     }

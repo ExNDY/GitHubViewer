@@ -37,7 +37,7 @@
         android:name="app.thirtyninth.githubviewer.ui.main.view.RepositoryInfoFragment"
         tools:layout="@layout/repository_info_fragment">
         <argument
-            android:name="username"
+            android:name="login"
             app:argType="string" />
         <argument
             android:name="repository_name"

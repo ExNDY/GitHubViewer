@@ -16,7 +16,7 @@ import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.utils.TokenState
 import app.thirtyninth.githubviewer.utils.UIState
-import app.thirtyninth.githubviewer.utils.UsernameState
+import app.thirtyninth.githubviewer.utils.LoginState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,7 +52,7 @@ class LoginFragment : Fragment() {
     private fun setupUI() {
         with(binding) {
             userLogin.doAfterTextChanged {
-                viewModel.validateUserName(it.toString())
+                viewModel.validateLogin(it.toString())
             }
 
             accessToken.doAfterTextChanged {
@@ -80,15 +80,15 @@ class LoginFragment : Fragment() {
             }
         }.launchIn(lifecycleScope)
 
-        viewModel.userNameValid.onEach { state ->
+        viewModel.loginValid.onEach { state ->
             when (state) {
-                UsernameState.CORRECT -> {
+                LoginState.CORRECT -> {
                     setUsernameFieldError(null)
                 }
-                UsernameState.INVALID -> {
+                LoginState.INVALID -> {
                     setUsernameFieldError(getString(R.string.error_invalid_username))
                 }
-                UsernameState.EMPTY -> {
+                LoginState.EMPTY -> {
                     setUsernameFieldError(getString(R.string.error_username_is_empty))
                 }
             }
@@ -158,8 +158,8 @@ class LoginFragment : Fragment() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun signIn(username: String, token: String) {
-        viewModel.signInGitHubAndStoreLoginData(username, token)
+    private fun signIn(login: String, authToken: String) {
+        viewModel.signInGitHubAndStoreLoginData(login, authToken)
     }
 
     private fun setUsernameFieldError(errorMessage: String?) {
