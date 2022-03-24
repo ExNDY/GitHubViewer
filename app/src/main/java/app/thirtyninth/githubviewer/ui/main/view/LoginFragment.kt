@@ -16,7 +16,6 @@ import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel.Action
 import app.thirtyninth.githubviewer.utils.LoginState
 import app.thirtyninth.githubviewer.utils.TokenState
-import app.thirtyninth.githubviewer.utils.UIState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,20 +73,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.uiState.onEach { uiState ->
-            when (uiState) {
-                UIState.NORMAL -> {
-                    setNormalState()
-                }
-                UIState.LOADING -> {
-                    setLoadingState()
-                }
-                else -> {
-
-                }
-            }
-        }.launchIn(lifecycleScope)
-
         viewModel.loginValid.onEach { state ->
             when (state) {
                 LoginState.CORRECT -> {
@@ -157,12 +142,17 @@ class LoginFragment : Fragment() {
 
     private fun handleAction(action: Action) {
         when (action) {
-            Action.RouteSuccessAction -> navigateToRepositoryList()
+            Action.RouteSuccessAction -> {
+                setNormalState()
+                navigateToRepositoryList()
+            }
             is Action.SignInAction -> signIn(
                 login = action.login,
                 authToken = action.authToken
             )
             is Action.ShowToastAction -> showToast(action.message)
+            Action.SetNormalStateAction -> setNormalState()
+            Action.SetLoadingStateAction -> setLoadingState()
             else -> {
 
             }

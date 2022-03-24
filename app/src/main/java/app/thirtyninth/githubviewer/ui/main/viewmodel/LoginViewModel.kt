@@ -29,9 +29,6 @@ class LoginViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(UIState.NORMAL)
-    val uiState: StateFlow<UIState> get() = _uiState.asStateFlow()
-
     private val _loginValid = MutableStateFlow(LoginState.CORRECT)
     val loginValid: StateFlow<LoginState> get() = _loginValid
 
@@ -46,7 +43,7 @@ class LoginViewModel @Inject constructor(
 
     fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
         if (Variables.isNetworkConnected) {
-            _uiState.tryEmit(UIState.LOADING)
+            _actions.tryEmit(Action.SetLoadingStateAction)
 
             val userDataResult = repository.getUserInfo("token $authToken")
 
@@ -55,21 +52,18 @@ class LoginViewModel @Inject constructor(
                     if (owner.login.equals(login, true)) {
                         userPreferences.saveUser(LoginData(login, authToken))
 
-                        _uiState.tryEmit(UIState.NORMAL)
                         _actions.tryEmit(Action.RouteSuccessAction)
                     } else {
-                        _uiState.tryEmit(UIState.NORMAL)
+                        _actions.tryEmit(Action.SetNormalStateAction)
                         _loginValid.tryEmit(LoginState.INVALID)
                     }
                 } else {
-                    _uiState.tryEmit(UIState.NORMAL)
                     _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
                 }
             }.onFailure { throwable ->
                 _actions.tryEmit(Action.ShowErrorAction(throwable))
             }
         } else {
-            _uiState.tryEmit(UIState.NORMAL)
             _actions.tryEmit(Action.ShowErrorAction(NoInternetException()))
         }
     }
@@ -87,5 +81,7 @@ class LoginViewModel @Inject constructor(
         data class SignInAction(val login: String, val authToken: String) : Action
         data class ShowErrorAction(val exception: Throwable) : Action
         object RouteSuccessAction : Action
+        object SetNormalStateAction : Action
+        object SetLoadingStateAction : Action
     }
 }
