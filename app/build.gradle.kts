@@ -76,6 +76,9 @@ dependencies {
     implementation(Dependencies.ViewBindingDelegate.delegate)
     //SplashScreen
     implementation(Dependencies.UI.splashScreen)
+    //Markwon-Markdown
+    implementation(Dependencies.UI.markwon)
+    implementation(Dependencies.UI.markwonRecycler)
 
     implementation(Dependencies.AndroidX.coreKtx)
     implementation(Dependencies.AndroidX.appCompat)

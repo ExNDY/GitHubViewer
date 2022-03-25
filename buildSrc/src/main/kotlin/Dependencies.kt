@@ -56,7 +56,11 @@ object Dependencies {
     }
 
     object UI {
+        private const val markwonVersion = "4.9.6"
+
         const val splashScreen = "androidx.core:core-splashscreen:1.0.0-beta01"
+        const val markwon = "implementation io.noties.markwon:core:${markwonVersion}"
+        const val markwonRecycler = "implementation io.noties.markwon:recycler:${markwonVersion}"
     }
 
     object AndroidX {
