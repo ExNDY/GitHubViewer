@@ -6,31 +6,12 @@ import javax.inject.Singleton
 
 @Singleton
 class PreferencesManager @Inject constructor(
-    private val sharedPreferences: SharedPreferences
+    sharedPreferences: SharedPreferences
 ) {
+    val isLoggedIn:Boolean by BooleanPreference(sharedPreferences, IS_LOGGED_IN_BOOLEAN)
+    val login:String? by StringPreference(sharedPreferences, LOGIN)
+    val authToken:String? by StringPreference(sharedPreferences, AUTH_TOKEN)
 
-    private val prefEditor = sharedPreferences.edit()
-
-    var isLoggedIn: Boolean
-        get() = sharedPreferences.getBoolean(IS_LOGGED_IN_BOOLEAN, false)
-        set(value) {
-            prefEditor.putBoolean(IS_LOGGED_IN_BOOLEAN, value)
-            prefEditor.commit()
-        }
-
-    var login: String
-        get() = sharedPreferences.getString(LOGIN, "") ?: ""
-        set(value) {
-            prefEditor.putString(LOGIN, value)
-            prefEditor.commit()
-        }
-
-    var authToken: String
-        get() = sharedPreferences.getString(AUTH_TOKEN, "") ?: ""
-        set(value) {
-            prefEditor.putString(AUTH_TOKEN, value)
-            prefEditor.commit()
-        }
 
     companion object {
         private const val IS_LOGGED_IN_BOOLEAN = "isLoggedIn"
