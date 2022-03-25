@@ -14,11 +14,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel.Action
+import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel
+import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.Action
 import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -27,10 +27,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-class RepositoryInfoFragment : Fragment() {
-    private val viewModel: RepositoryInfoViewModel by viewModels()
+class DetailInfoFragment : Fragment() {
+    private val viewModel: DetailInfoViewModel by viewModels()
     private val binding: RepositoryInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
-    private val args: RepositoryInfoFragmentArgs by navArgs()
+    private val args: DetailInfoFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,7 +91,7 @@ class RepositoryInfoFragment : Fragment() {
         }.launchIn(lifecycleScope)
     }
 
-    private fun initUI(source: GitHubRepositoryModel?) {
+    private fun initUI(source: GitHubRepository?) {
         if (source != null) {
             bindRepositoryInfo(source)
         }
@@ -117,7 +117,7 @@ class RepositoryInfoFragment : Fragment() {
         }
     }
 
-    private fun bindRepositoryInfo(source: GitHubRepositoryModel) {
+    private fun bindRepositoryInfo(source: GitHubRepository) {
         with(binding) {
             with(source.license?.spdxId) {
                 if (this.isNullOrEmpty()) {

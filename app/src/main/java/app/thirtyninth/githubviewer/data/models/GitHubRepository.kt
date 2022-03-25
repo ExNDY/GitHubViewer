@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GitHubRepositoryModel(
+data class GitHubRepository(
     val description: String?,
     @SerialName("forks_count")
     val forksCount: Int? = 0,

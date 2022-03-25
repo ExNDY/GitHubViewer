@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesListItemBinding
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 
 class RepositoryListAdapter(
     private val colors: Map<String, Color>,
     private val listener: ActionListener
-) : ListAdapter<GitHubRepositoryModel, RepositoryListAdapter.RepositoryListViewHolder>(
+) : ListAdapter<GitHubRepository, RepositoryListAdapter.RepositoryListViewHolder>(
     RepositoryListDiffCallback()
 ) {
 
@@ -42,7 +42,7 @@ class RepositoryListAdapter(
 
         val container = itemBinding.itemContainer
 
-        fun bind(item: GitHubRepositoryModel, languageTextColor: Color?) {
+        fun bind(item: GitHubRepository, languageTextColor: Color?) {
             bindName(item.name)
             bindLanguage(item.language, languageTextColor)
             bindDescription(item.description)
@@ -68,17 +68,17 @@ class RepositoryListAdapter(
     }
 }
 
-private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepositoryModel>() {
+private class RepositoryListDiffCallback : DiffUtil.ItemCallback<GitHubRepository>() {
     override fun areItemsTheSame(
-        oldItem: GitHubRepositoryModel,
-        newItem: GitHubRepositoryModel
+        oldItem: GitHubRepository,
+        newItem: GitHubRepository
     ): Boolean =
         oldItem.id == newItem.id
 
 
     override fun areContentsTheSame(
-        oldItem: GitHubRepositoryModel,
-        newItem: GitHubRepositoryModel
+        oldItem: GitHubRepository,
+        newItem: GitHubRepository
     ): Boolean =
         oldItem == newItem
 }

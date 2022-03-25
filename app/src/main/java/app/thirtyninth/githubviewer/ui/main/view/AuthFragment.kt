@@ -10,11 +10,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
+import app.thirtyninth.githubviewer.databinding.AuthFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
 import app.thirtyninth.githubviewer.ui.interfaces.Validation
-import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
-import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel.Action
+import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel
+import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.Action
 import app.thirtyninth.githubviewer.utils.mapValidation
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -24,9 +24,9 @@ import kotlinx.coroutines.flow.onEach
 
 
 @AndroidEntryPoint
-class LoginFragment : Fragment() {
-    private val viewModel: LoginViewModel by viewModels()
-    private val binding: LoginFragmentBinding by viewBinding(CreateMethod.INFLATE)
+class AuthFragment : Fragment() {
+    private val viewModel: AuthViewModel by viewModels()
+    private val binding: AuthFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,7 +81,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToRepositoryList() {
-        findNavController().navigate(LoginFragmentDirections.navigateToRepositoryList())
+        findNavController().navigate(AuthFragmentDirections.navigateToRepositoryList())
     }
 
     private fun setNormalState() {

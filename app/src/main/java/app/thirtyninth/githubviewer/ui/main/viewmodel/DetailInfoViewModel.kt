@@ -3,11 +3,11 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
+import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,17 +19,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RepositoryInfoViewModel @Inject constructor(
-    private val repository: GitHubViewerRepository,
+class DetailInfoViewModel @Inject constructor(
+    private val repository: AppRepository,
     private val userPreferences: UserPreferences,
     state: SavedStateHandle
 ) : ViewModel() {
 
-    private val _repositoryInfo = MutableSharedFlow<GitHubRepositoryModel>(
+    private val _repositoryInfo = MutableSharedFlow<GitHubRepository>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val repositoryInfo: SharedFlow<GitHubRepositoryModel> = _repositoryInfo.asSharedFlow()
+    val repositoryInfo: SharedFlow<GitHubRepository> = _repositoryInfo.asSharedFlow()
 
     private val _readme = MutableSharedFlow<Readme?>(
         replay = 1,

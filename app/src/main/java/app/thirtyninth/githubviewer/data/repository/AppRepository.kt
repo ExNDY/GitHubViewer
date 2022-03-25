@@ -1,6 +1,6 @@
 package app.thirtyninth.githubviewer.data.repository
 
-import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Owner
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GitHubViewerRepository
+class AppRepository
 @Inject constructor(
     private val gitHub: GitHubRemoteData
 ) {
@@ -17,14 +17,14 @@ class GitHubViewerRepository
         return gitHub.getUser(token)
     }
 
-    suspend fun getRepositoryList(): Result<List<GitHubRepositoryModel>?> {
+    suspend fun getRepositoryList(): Result<List<GitHubRepository>?> {
         return gitHub.getUserRepositoryList()
     }
 
     suspend fun getRepositoryInfo(
         owner: String,
         repository: String
-    ): Result<GitHubRepositoryModel?> {
+    ): Result<GitHubRepository?> {
         return gitHub.getRepositoryDetail(owner, repository)
     }
 

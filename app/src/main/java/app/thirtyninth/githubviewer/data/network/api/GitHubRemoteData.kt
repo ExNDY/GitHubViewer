@@ -1,6 +1,6 @@
 package app.thirtyninth.githubviewer.data.network.api
 
-import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Owner
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.HttpCallException
@@ -25,7 +25,7 @@ class GitHubRemoteData @Inject constructor(
         }
     }
 
-    suspend fun getUserRepositoryList(): Result<List<GitHubRepositoryModel>?> {
+    suspend fun getUserRepositoryList(): Result<List<GitHubRepository>?> {
         return try {
             enqueue(gitHubService.getUserRepositoryList())
         } catch (e: Exception) {
@@ -36,7 +36,7 @@ class GitHubRemoteData @Inject constructor(
     suspend fun getRepositoryDetail(
         owner: String,
         repository: String
-    ): Result<GitHubRepositoryModel?> {
+    ): Result<GitHubRepository?> {
         return try {
             enqueue(gitHubService.getRepositoryDetail(owner, repository))
         } catch (e: Exception) {

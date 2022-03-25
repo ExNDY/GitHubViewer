@@ -6,7 +6,7 @@ import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
-import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
+import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.ui.interfaces.Validation
 import app.thirtyninth.githubviewer.utils.Validations
@@ -22,8 +22,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val repository: GitHubViewerRepository,
+class AuthViewModel @Inject constructor(
+    private val repository: AppRepository,
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
