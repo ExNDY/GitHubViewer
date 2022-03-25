@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -58,8 +59,7 @@ class DetailInfoFragment : Fragment() {
             toolbar.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.logout -> {
-                        viewModel.logout()
-                        routeToLoginScreen()
+                        logout()
                     }
                 }
                 true
@@ -149,6 +149,15 @@ class DetailInfoFragment : Fragment() {
         startActivity(browser)
     }
 
+    private fun logout() = AlertDialog.Builder(context)
+        .setTitle(getString(R.string.logout_dialog_title))
+        .setMessage(getString(R.string.logout_dialog_message))
+        .setPositiveButton(getString(R.string.logout_dialog_positive)) { _, _ ->
+            viewModel.logout()
+        }
+        .setNegativeButton(getString(R.string.logout_dialog_negative), null)
+        .show()
+
     private fun setNormalState() {
         with(binding) {
             errorBlock.visibility = View.GONE
@@ -182,7 +191,7 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun routeToLoginScreen() {
+    private fun routeToAuthScreen() {
         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
@@ -194,6 +203,7 @@ class DetailInfoFragment : Fragment() {
         when (action) {
             is Action.ShowToastAction -> showToast(action.message)
             is Action.ShowErrorAction -> setErrorState(action.exception)
+            is Action.RouteToAuthScreen -> routeToAuthScreen()
             Action.SetNormalStateAction -> setNormalState()
             Action.SetLoadingStateAction -> setLoadingState()
         }

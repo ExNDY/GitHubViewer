@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -61,7 +62,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
             viewModel.isLoggedIn
                 .onEach { isLoggedIn ->
                     if (!isLoggedIn) {
-                        routeToLoginScreen()
+                        routeToAuthScreen()
                     }
                 }.collect()
         }
@@ -74,8 +75,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
             toolbar.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.logout -> {
-                        viewModel.logout()
-
+                        logout()
                     }
                 }
 
@@ -108,7 +108,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
-    private fun routeToLoginScreen() {
+    private fun routeToAuthScreen() {
         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
@@ -158,6 +158,15 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
+    private fun logout() = AlertDialog.Builder(context)
+        .setTitle(getString(R.string.logout_dialog_title))
+        .setMessage(getString(R.string.logout_dialog_message))
+        .setPositiveButton(getString(R.string.logout_dialog_positive)) { _, _ ->
+            viewModel.logout()
+        }
+        .setNegativeButton(getString(R.string.logout_dialog_negative), null)
+        .show()
+
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
@@ -172,6 +181,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
             is Action.ShowErrorAction -> setErrorState(action.exception)
             Action.SetNormalStateAction -> setNormalState()
             Action.SetLoadingStateAction -> setLoadingState()
+            Action.RouteToAuthScreen -> routeToAuthScreen()
         }
     }
 }

@@ -102,6 +102,7 @@ class DetailInfoViewModel @Inject constructor(
 
     fun logout() = viewModelScope.launch {
         userPreferences.logout()
+        _actions.tryEmit(Action.RouteToAuthScreen)
     }
 
     sealed interface Action {
@@ -109,5 +110,6 @@ class DetailInfoViewModel @Inject constructor(
         data class ShowErrorAction(val exception: Throwable) : Action
         object SetNormalStateAction : Action
         object SetLoadingStateAction : Action
+        object RouteToAuthScreen:Action
     }
 }

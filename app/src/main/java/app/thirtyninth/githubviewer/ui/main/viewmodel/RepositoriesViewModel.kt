@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.viewmodel
 
+import android.app.AlertDialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
@@ -57,6 +58,7 @@ class RepositoriesViewModel @Inject constructor(
 
     fun logout() = viewModelScope.launch {
         userPreferences.logout()
+        _actions.tryEmit(Action.RouteToAuthScreen)
     }
 
     private fun getUserRepositoryList() = viewModelScope.launch {
@@ -85,5 +87,6 @@ class RepositoriesViewModel @Inject constructor(
         data class ShowErrorAction(val exception: Throwable) : Action
         object SetNormalStateAction : Action
         object SetLoadingStateAction : Action
+        object RouteToAuthScreen: Action
     }
 }
