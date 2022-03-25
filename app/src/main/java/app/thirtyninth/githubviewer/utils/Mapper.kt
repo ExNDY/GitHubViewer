@@ -26,8 +26,8 @@ fun mapExceptionToStringMessage(throwable: Throwable, resources: Resources): Str
     }
 }
 
-fun mapValidation(status: Validation, resources: Resources):String?{
-    return when(status){
+fun mapValidation(status: Validation, resources: Resources): String? {
+    return when (status) {
         is Validation.Correct -> null
         is Validation.Incorrect -> resources.getString(R.string.field_error_message_incorrect)
         is Validation.Empty -> resources.getString(R.string.field_error_message_is_empty)

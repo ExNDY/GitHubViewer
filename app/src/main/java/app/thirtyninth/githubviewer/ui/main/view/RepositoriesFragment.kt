@@ -108,7 +108,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
-    private fun routeToLoginScreen(){
+    private fun routeToLoginScreen() {
         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 

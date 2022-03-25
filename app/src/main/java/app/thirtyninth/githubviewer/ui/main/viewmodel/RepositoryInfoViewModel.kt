@@ -71,7 +71,7 @@ class RepositoryInfoViewModel @Inject constructor(
                     _readme.tryEmit(readme)
                 }
             }.onFailure { throwable ->
-               _actions.tryEmit(Action.ShowErrorAction(throwable))
+                _actions.tryEmit(Action.ShowErrorAction(throwable))
             }
         } else {
             _readme.tryEmit(null)

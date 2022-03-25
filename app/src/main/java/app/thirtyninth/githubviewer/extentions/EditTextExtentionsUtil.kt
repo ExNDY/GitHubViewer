@@ -29,7 +29,7 @@ fun EditText.bindTextTwoWayFlow(
 
             stateFlow.tryEmit(str)
 
-            if (str.isNotEmpty()){
+            if (str.isNotEmpty()) {
                 afterTextChanged.invoke()
             }
         }

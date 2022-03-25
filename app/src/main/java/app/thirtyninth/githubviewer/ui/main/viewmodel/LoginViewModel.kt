@@ -39,7 +39,8 @@ class LoginViewModel @Inject constructor(
     val authTokenErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
     val loginErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
 
-    private fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
+    private fun signInGitHubAndStoreLoginData(login: String, authToken: String) =
+        viewModelScope.launch {
             if (Variables.isNetworkConnected) {
                 _actions.tryEmit(Action.SetLoadingStateAction)
 
@@ -64,7 +65,7 @@ class LoginViewModel @Inject constructor(
                 }.onFailure { throwable ->
                     _actions.tryEmit(Action.SetNormalStateAction)
 
-                    if  (throwable is UnauthorizedException){
+                    if (throwable is UnauthorizedException) {
                         //TODO Найти решение покрасивее
                         authTokenErrorStatus.tryEmit(Validation.Incorrect)
                         delay(3000)
