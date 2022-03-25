@@ -5,18 +5,18 @@ import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
+import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.utils.LoginState
-import app.thirtyninth.githubviewer.utils.TokenState
+import app.thirtyninth.githubviewer.ui.interfaces.FieldValidation
 import app.thirtyninth.githubviewer.utils.Validations
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,56 +27,71 @@ class LoginViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _loginValid = MutableStateFlow(LoginState.CORRECT)
-    val loginValid: StateFlow<LoginState> get() = _loginValid
-
-    private val _authorisationTokenValid = MutableStateFlow(TokenState.CORRECT)
-    val authorisationTokenValid: StateFlow<TokenState> get() = _authorisationTokenValid
-
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
-        if (Variables.isNetworkConnected) {
-            _actions.tryEmit(Action.SetLoadingStateAction)
+    val loginFlow = MutableStateFlow<String?>(null)
+    val authTokenFlow = MutableStateFlow<String?>(null)
 
-            val userDataResult = repository.getUserInfo("token $authToken")
+    val authTokenErrorStatus = MutableStateFlow<FieldValidation>(FieldValidation.Correct)
+    val loginErrorStatus = MutableStateFlow<FieldValidation>(FieldValidation.Correct)
 
-            userDataResult.onSuccess { owner ->
-                if (owner != null) {
-                    if (owner.login.equals(login, true)) {
-                        userPreferences.saveUser(LoginData(login, authToken))
+    private fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
+            if (Variables.isNetworkConnected) {
+                _actions.tryEmit(Action.SetLoadingStateAction)
 
-                        _actions.tryEmit(Action.RouteSuccessAction)
+                val userDataResult = repository.getUserInfo("token $authToken")
+
+                userDataResult.onSuccess { owner ->
+                    if (owner != null) {
+                        if (owner.login.equals(login, true)) {
+                            userPreferences.saveUser(LoginData(login, authToken))
+
+                            _actions.tryEmit(Action.RouteSuccessAction)
+                        } else {
+                            _actions.tryEmit(Action.SetNormalStateAction)
+                            //TODO Найти решение покрасивее
+                            loginErrorStatus.tryEmit(FieldValidation.Incorrect)
+                            delay(3000)
+                            loginErrorStatus.tryEmit(FieldValidation.Correct)
+                        }
                     } else {
-                        _actions.tryEmit(Action.SetNormalStateAction)
-                        _loginValid.tryEmit(LoginState.INVALID)
+                        _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
                     }
-                } else {
-                    _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
+                }.onFailure { throwable ->
+                    _actions.tryEmit(Action.SetNormalStateAction)
+
+                    if  (throwable is UnauthorizedException){
+                        //TODO Найти решение покрасивее
+                        authTokenErrorStatus.tryEmit(FieldValidation.Incorrect)
+                        delay(3000)
+                        authTokenErrorStatus.tryEmit(FieldValidation.Correct)
+                    } else {
+                        _actions.tryEmit(Action.ShowErrorAction(throwable))
+                    }
                 }
-            }.onFailure { throwable ->
-                _actions.tryEmit(Action.ShowErrorAction(throwable))
+            } else {
+                _actions.tryEmit(Action.ShowErrorAction(NoInternetException()))
             }
-        } else {
-            _actions.tryEmit(Action.ShowErrorAction(NoInternetException()))
         }
+
+    fun signInButtonPressed() {
+        signInGitHubAndStoreLoginData(loginFlow.value.toString(), authTokenFlow.value.toString())
     }
 
-    fun validateLogin(login: String) = viewModelScope.launch {
-        _loginValid.value = Validations.validateLogin(login)
+    fun validateLogin() = viewModelScope.launch {
+        loginErrorStatus.tryEmit(Validations.validateLogin(loginFlow.value.toString()))
     }
 
-    fun validateToken(authToken: String) = viewModelScope.launch {
-        _authorisationTokenValid.value = Validations.validateAuthorisationToken(authToken)
+    fun validateToken() = viewModelScope.launch {
+        authTokenErrorStatus.tryEmit(Validations.validateAuthorisationToken(authTokenFlow.value.toString()))
     }
 
     sealed interface Action {
         data class ShowToastAction(val message: String) : Action
-        data class SignInAction(val login: String, val authToken: String) : Action
         data class ShowErrorAction(val exception: Throwable) : Action
         object RouteSuccessAction : Action
         object SetNormalStateAction : Action

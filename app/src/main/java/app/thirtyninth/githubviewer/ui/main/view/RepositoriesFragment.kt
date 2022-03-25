@@ -53,16 +53,15 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
         setupUIComponents()
         setupToolbar()
+        setupObservers()
     }
 
     private fun initApp() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.isLoggedIn
                 .onEach { isLoggedIn ->
-                    if (isLoggedIn) {
-                        setupObservers()
-                    } else {
-                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+                    if (!isLoggedIn) {
+                        routeToLoginScreen()
                     }
                 }.collect()
         }
@@ -76,9 +75,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
                 when (menuItem.itemId) {
                     R.id.logout -> {
                         viewModel.logout()
-                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
-                    }
-                    else -> {
 
                     }
                 }
@@ -110,6 +106,10 @@ class RepositoriesFragment : Fragment(), ActionListener {
                 viewModel.loadData()
             }
         }
+    }
+
+    private fun routeToLoginScreen(){
+        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
     private fun openRepositoryDetail(owner: String, repositoryName: String) {

@@ -46,7 +46,7 @@ class RepositoryListAdapter(
         fun bind(item: GitHubRepositoryModel, languageTextColor: Color?) {
             bindName(item.name)
             bindLanguage(item.language, languageTextColor)
-            bindDescription(item.description ?: "")
+            bindDescription(item.description)
         }
 
         private fun bindName(name: String?) {
@@ -64,11 +64,7 @@ class RepositoryListAdapter(
         }
 
         private fun bindDescription(description: String?) {
-            if (description.isNullOrEmpty()) {
-                itemBinding.repositoryDescription.visibility = View.GONE
-            } else {
-                itemBinding.repositoryDescription.text = description
-            }
+            itemBinding.repositoryDescription.text = description
         }
     }
 }

@@ -18,9 +18,9 @@ class KeyValueStorage @Inject constructor(
 ) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    val tokenStateFlow: StateFlow<String> = dataStore.data.map {
+    val tokenStateFlow: StateFlow<String?> = dataStore.data.map {
         it.userToken
-    }.stateIn(scope, SharingStarted.Eagerly, "")
+    }.stateIn(scope, SharingStarted.Eagerly, null)
 
     var authToken = preferencesManager.authToken
 }

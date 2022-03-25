@@ -13,9 +13,12 @@ class NoInternetException : IOException {
     constructor(cause: Throwable) : super(cause)
 }
 
-class EmptyDataException() : NetworkException()
+class EmptyDataException : NetworkException()
 
-class UnauthorizedException(code: Int, request: String, url: HttpUrl) : NetworkException()
+class UnauthorizedException : NetworkException {
+    constructor() : super()
+    constructor(code: Int, request: String, url: HttpUrl) : super()
+}
 
 class NotFoundException(code: Int, request: String, url: HttpUrl) : NetworkException()
 

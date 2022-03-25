@@ -5,17 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
+import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
+import app.thirtyninth.githubviewer.ui.interfaces.FieldValidation
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel.Action
-import app.thirtyninth.githubviewer.utils.LoginState
-import app.thirtyninth.githubviewer.utils.TokenState
+import app.thirtyninth.githubviewer.utils.mapFieldVaildiation
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,8 +37,6 @@ class LoginFragment : Fragment() {
 
         setHasOptionsMenu(false)
 
-
-
         return binding.root
     }
 
@@ -55,50 +53,30 @@ class LoginFragment : Fragment() {
         }.launchIn(lifecycleScope)
 
         with(binding) {
-            userLogin.doAfterTextChanged {
-                viewModel.validateLogin(it.toString())
-            }
-
-            authToken.doAfterTextChanged {
-                viewModel.validateToken(it.toString())
-            }
+            userLogin.bindTextTwoWayFlow(
+                stateFlow = viewModel.loginFlow,
+                lifecycleScope = lifecycleScope,
+                afterTextChanged = { viewModel.validateLogin() }
+            )
+            authToken.bindTextTwoWayFlow(
+                stateFlow = viewModel.authTokenFlow,
+                lifecycleScope = lifecycleScope,
+                afterTextChanged = { viewModel.validateToken() }
+            )
 
             signInButton.setOnClickListener {
-                signIn(
-                    login = binding.userLogin.text.toString(),
-                    authToken = binding.authToken.text.toString()
-                )
+                viewModel.signInButtonPressed()
             }
         }
     }
 
     private fun setupObservers() {
-        viewModel.loginValid.onEach { state ->
-            when (state) {
-                LoginState.CORRECT -> {
-                    setUsernameFieldError(null)
-                }
-                LoginState.INVALID -> {
-                    setUsernameFieldError(getString(R.string.error_invalid_username))
-                }
-                LoginState.EMPTY -> {
-                    setUsernameFieldError(getString(R.string.error_username_is_empty))
-                }
-            }
+        viewModel.authTokenErrorStatus.onEach { status ->
+            setAuthTokenErrorMessage(status)
         }.launchIn(lifecycleScope)
 
-        viewModel.authorisationTokenValid.onEach { state ->
-            when (state) {
-                TokenState.CORRECT -> {
-                    setAccessTokenFieldError(null)
-                }
-                TokenState.INVALID -> {
-                    setAccessTokenFieldError(getString(R.string.error_invalid_token))
-                }
-                TokenState.EMPTY -> {
-                    setAccessTokenFieldError(getString(R.string.error_token_is_empty))
-                }
-            }
+        viewModel.loginErrorStatus.onEach { status ->
+            setLoginErrorMessage(status)
         }.launchIn(lifecycleScope)
     }
 
@@ -124,19 +102,19 @@ class LoginFragment : Fragment() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun signIn(login: String, authToken: String) {
-        viewModel.signInGitHubAndStoreLoginData(login, authToken)
-    }
+    private fun setLoginErrorMessage(status: FieldValidation) {
+        val message = mapFieldVaildiation(status, requireContext().resources)
 
-    private fun setUsernameFieldError(errorMessage: String?) {
         with(binding) {
-            userLoginContainer.error = errorMessage
+            userLoginContainer.error = message
         }
     }
 
-    private fun setAccessTokenFieldError(errorMessage: String?) {
+    private fun setAuthTokenErrorMessage(status: FieldValidation) {
+        val message = mapFieldVaildiation(status, requireContext().resources)
+
         with(binding) {
-            accessTokenContainer.error = errorMessage
+            accessTokenContainer.error = message
         }
     }
 
@@ -146,16 +124,10 @@ class LoginFragment : Fragment() {
                 setNormalState()
                 navigateToRepositoryList()
             }
-            is Action.SignInAction -> signIn(
-                login = action.login,
-                authToken = action.authToken
-            )
             is Action.ShowToastAction -> showToast(action.message)
+            is Action.ShowErrorAction -> {}
             Action.SetNormalStateAction -> setNormalState()
             Action.SetLoadingStateAction -> setLoadingState()
-            else -> {
-
-            }
         }
     }
 }

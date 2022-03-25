@@ -34,6 +34,9 @@
     <string name="exception_message_unauthorized">Error:  Authentication token was rejected. Please sign in to the app again</string>
     <string name="exception_message_unexpected">Error: Oops! Something happened, but we will definitely deal with this problem, but then: </string>
 
+    <string name="field_error_message_incorrect">Error: Invalid value of field</string>
+    <string name="field_error_message_is_empty">Error: Field is empty</string>
+
     <string name="zero_value">0</string>
     <string name="repo_info_license_type_not_specified">Not specified</string>
     <string name="placeholder">PLACEHOLDER</string>

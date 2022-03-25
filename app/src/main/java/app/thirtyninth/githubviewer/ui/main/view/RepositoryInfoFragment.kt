@@ -59,10 +59,7 @@ class RepositoryInfoFragment : Fragment() {
                 when (menuItem.itemId) {
                     R.id.logout -> {
                         viewModel.logout()
-                        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
-                    }
-                    else -> {
-
+                        routeToLoginScreen()
                     }
                 }
                 true
@@ -183,6 +180,10 @@ class RepositoryInfoFragment : Fragment() {
                 viewModel.loadRepositoryInfo()
             }
         }
+    }
+
+    private fun routeToLoginScreen(){
+        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
     private fun showToast(message: String) {

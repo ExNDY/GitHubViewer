@@ -9,6 +9,7 @@ import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
+import app.thirtyninth.githubviewer.ui.interfaces.FieldValidation
 
 fun mapExceptionToStringMessage(throwable: Throwable, resources: Resources): String {
     return when (throwable) {
@@ -22,5 +23,13 @@ fun mapExceptionToStringMessage(throwable: Throwable, resources: Resources): Str
         else -> {
             throwable.message.toString()
         }
+    }
+}
+
+fun mapFieldVaildiation(status: FieldValidation, resources: Resources):String?{
+    return when(status){
+        is FieldValidation.Correct -> null
+        is FieldValidation.Incorrect -> resources.getString(R.string.field_error_message_incorrect)
+        is FieldValidation.Empty -> resources.getString(R.string.field_error_message_is_empty)
     }
 }

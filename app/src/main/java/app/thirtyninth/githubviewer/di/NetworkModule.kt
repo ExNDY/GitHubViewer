@@ -28,7 +28,7 @@ object NetworkModule {
     @DelicateCoroutinesApi
     fun provideTokenProvider(keyValueStorage: KeyValueStorage): TokenProvider {
         return object : TokenProvider {
-            override val token: String
+            override val token: String?
                 get() = keyValueStorage.tokenStateFlow.value
         }
     }
