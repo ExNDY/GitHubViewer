@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,10 +16,10 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.Readme
-import app.thirtyninth.githubviewer.data.network.NetworkExceptionType
 import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel
-import app.thirtyninth.githubviewer.utils.UIState
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoryInfoViewModel.Action
+import app.thirtyninth.githubviewer.utils.mapExceptionToMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -76,19 +77,8 @@ class RepositoryInfoFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.uiState.onEach { uiState ->
-            when (uiState) {
-                UIState.NORMAL -> {
-                    setNormalState()
-                }
-                UIState.LOADING -> {
-                    setLoadingState()
-                }
-                UIState.ERROR -> {
-                    setErrorState()
-                }
-            }
-
+        viewModel.actions.onEach { action ->
+            handleAction(action)
         }.launchIn(lifecycleScope)
 
         viewModel.repositoryInfo.onEach { repository ->
@@ -101,31 +91,6 @@ class RepositoryInfoFragment : Fragment() {
 
         viewModel.readmeFile.onEach { readmeFile ->
             addReadmeFile(readmeFile)
-        }.launchIn(lifecycleScope)
-
-        viewModel.errorFlow.onEach { exceptionType ->
-            when (exceptionType) {
-                NetworkExceptionType.NOT_FOUND -> {
-                    setErrorMessage("Repository not found")
-                }
-
-                NetworkExceptionType.SERVER_ERROR -> {
-                    setErrorMessage(getString(R.string.request_error_connection_with_server))
-                }
-
-                NetworkExceptionType.UNAUTHORIZED -> {
-                    setErrorMessage(getString(R.string.request_error_401_authentication_error))
-                }
-                else -> {
-                    viewModel.errorMessage.onEach { msg ->
-                        if (msg.isNotEmpty()) {
-                            setErrorMessage(msg)
-                        } else {
-                            setErrorMessage("")
-                        }
-                    }
-                }
-            }
         }.launchIn(lifecycleScope)
     }
 
@@ -205,21 +170,30 @@ class RepositoryInfoFragment : Fragment() {
         }
     }
 
-    private fun setErrorState() {
+    private fun setErrorState(throwable: Throwable) {
+        val message = mapExceptionToMessage(throwable, requireContext().resources)
+
         with(binding) {
             userUiGroup.visibility = View.GONE
             errorBlock.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
-
+            errorMessage.text = message
             reloadDataButton.setOnClickListener {
                 viewModel.loadRepositoryInfo()
             }
         }
     }
 
-    private fun setErrorMessage(message: String) {
-        with(binding) {
-            errorMessage.text = message
+    private fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleAction(action: Action) {
+        when (action) {
+            is Action.ShowToastAction -> showToast(action.message)
+            is Action.ShowErrorAction -> setErrorState(action.exception)
+            Action.SetNormalStateAction -> setNormalState()
+            Action.SetLoadingStateAction -> setLoadingState()
         }
     }
 }

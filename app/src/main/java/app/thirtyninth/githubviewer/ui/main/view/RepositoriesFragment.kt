@@ -15,15 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
-import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.NotFoundException
-import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
 import app.thirtyninth.githubviewer.utils.StorageUtil
+import app.thirtyninth.githubviewer.utils.mapExceptionToMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -150,13 +148,13 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setErrorState(throwable: Throwable) {
-        val msg = mapExceptionToMessage(throwable)
+        val message = mapExceptionToMessage(throwable, requireContext().resources)
 
         with(binding) {
             errorBlock.visibility = View.VISIBLE
             progressHorizontal.visibility = View.GONE
             rvRepositoryList.visibility = View.GONE
-            errorMessage.text = msg
+            errorMessage.text = message
         }
     }
 
@@ -166,18 +164,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
     override fun onClick(clickedPosition: Int, owner: String, repositoryName: String) {
         openRepositoryDetail(owner, repositoryName)
-    }
-
-    private fun mapExceptionToMessage(throwable: Throwable): String {
-        return when (throwable) {
-            //TODO Накинуть ресурсов для обозначения ошибок
-            is NoInternetException -> getString(R.string.request_error_connection_with_server)
-            is UnauthorizedException -> getString(R.string.request_error_401_authentication_error)
-            is NotFoundException -> "TODO"
-            else -> {
-                ""
-            }
-        }
     }
 
     private fun handleAction(action: Action) {
