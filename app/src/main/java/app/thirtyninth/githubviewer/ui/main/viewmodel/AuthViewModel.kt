@@ -36,6 +36,7 @@ class AuthViewModel @Inject constructor(
     val loginFlow = MutableStateFlow<String?>(null)
     val authTokenFlow = MutableStateFlow<String?>(null)
 
+    //FIXME Переделать на StateFlow
     val authTokenErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
     val loginErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
 

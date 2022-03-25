@@ -53,6 +53,7 @@ class RepositoryListAdapter(
         }
 
         private fun bindLanguage(language: String?, languageTextColor: Color?) {
+            //FIXME Переделать биндинг цвета
             if (languageTextColor != null) {
                 itemBinding.language.setTextColor(
                     languageTextColor.toArgb()
