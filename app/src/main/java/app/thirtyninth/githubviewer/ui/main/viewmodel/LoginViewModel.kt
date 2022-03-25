@@ -8,7 +8,7 @@ import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.ui.interfaces.FieldValidation
+import app.thirtyninth.githubviewer.ui.interfaces.Validation
 import app.thirtyninth.githubviewer.utils.Validations
 import app.thirtyninth.githubviewer.utils.Variables
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +36,8 @@ class LoginViewModel @Inject constructor(
     val loginFlow = MutableStateFlow<String?>(null)
     val authTokenFlow = MutableStateFlow<String?>(null)
 
-    val authTokenErrorStatus = MutableStateFlow<FieldValidation>(FieldValidation.Correct)
-    val loginErrorStatus = MutableStateFlow<FieldValidation>(FieldValidation.Correct)
+    val authTokenErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
+    val loginErrorStatus = MutableStateFlow<Validation>(Validation.Correct)
 
     private fun signInGitHubAndStoreLoginData(login: String, authToken: String) = viewModelScope.launch {
             if (Variables.isNetworkConnected) {
@@ -54,9 +54,9 @@ class LoginViewModel @Inject constructor(
                         } else {
                             _actions.tryEmit(Action.SetNormalStateAction)
                             //TODO Найти решение покрасивее
-                            loginErrorStatus.tryEmit(FieldValidation.Incorrect)
+                            loginErrorStatus.tryEmit(Validation.Incorrect)
                             delay(3000)
-                            loginErrorStatus.tryEmit(FieldValidation.Correct)
+                            loginErrorStatus.tryEmit(Validation.Correct)
                         }
                     } else {
                         _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
@@ -66,9 +66,9 @@ class LoginViewModel @Inject constructor(
 
                     if  (throwable is UnauthorizedException){
                         //TODO Найти решение покрасивее
-                        authTokenErrorStatus.tryEmit(FieldValidation.Incorrect)
+                        authTokenErrorStatus.tryEmit(Validation.Incorrect)
                         delay(3000)
-                        authTokenErrorStatus.tryEmit(FieldValidation.Correct)
+                        authTokenErrorStatus.tryEmit(Validation.Correct)
                     } else {
                         _actions.tryEmit(Action.ShowErrorAction(throwable))
                     }

@@ -12,10 +12,10 @@ import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.LoginFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
-import app.thirtyninth.githubviewer.ui.interfaces.FieldValidation
+import app.thirtyninth.githubviewer.ui.interfaces.Validation
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.LoginViewModel.Action
-import app.thirtyninth.githubviewer.utils.mapFieldVaildiation
+import app.thirtyninth.githubviewer.utils.mapValidation
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -102,16 +102,16 @@ class LoginFragment : Fragment() {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun setLoginErrorMessage(status: FieldValidation) {
-        val message = mapFieldVaildiation(status, requireContext().resources)
+    private fun setLoginErrorMessage(status: Validation) {
+        val message = mapValidation(status, requireContext().resources)
 
         with(binding) {
             userLoginContainer.error = message
         }
     }
 
-    private fun setAuthTokenErrorMessage(status: FieldValidation) {
-        val message = mapFieldVaildiation(status, requireContext().resources)
+    private fun setAuthTokenErrorMessage(status: Validation) {
+        val message = mapValidation(status, requireContext().resources)
 
         with(binding) {
             accessTokenContainer.error = message
