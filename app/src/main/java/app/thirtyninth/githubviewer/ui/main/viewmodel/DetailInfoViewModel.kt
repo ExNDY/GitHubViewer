@@ -110,6 +110,6 @@ class DetailInfoViewModel @Inject constructor(
         data class ShowErrorAction(val exception: Throwable) : Action
         object SetNormalStateAction : Action
         object SetLoadingStateAction : Action
-        object RouteToAuthScreen:Action
+        object RouteToAuthScreen : Action
     }
 }

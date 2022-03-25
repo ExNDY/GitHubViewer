@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.ui.main.viewmodel
 
-import android.app.AlertDialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
@@ -43,6 +42,7 @@ class RepositoriesViewModel @Inject constructor(
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
     init {
+        //TODO Двойная обработка, найти способ изящнее
         viewModelScope.launch {
             userPreferences.getLoggedInState().onEach {
                 _isLoggedIn.tryEmit(it)
@@ -87,6 +87,6 @@ class RepositoriesViewModel @Inject constructor(
         data class ShowErrorAction(val exception: Throwable) : Action
         object SetNormalStateAction : Action
         object SetLoadingStateAction : Action
-        object RouteToAuthScreen: Action
+        object RouteToAuthScreen : Action
     }
 }
