@@ -6,9 +6,7 @@ import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepositoryModel
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
-import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
-import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.GitHubViewerRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.Variables
@@ -73,17 +71,7 @@ class RepositoryInfoViewModel @Inject constructor(
                     _readme.tryEmit(readme)
                 }
             }.onFailure { throwable ->
-                when (throwable) {
-                    is UnauthorizedException -> {
-
-                    }
-                    is NoInternetException -> {
-
-                    }
-                    is HttpCallException -> {
-
-                    }
-                }
+               _actions.tryEmit(Action.ShowErrorAction(throwable))
             }
         } else {
             _readme.tryEmit(null)

@@ -21,7 +21,7 @@ import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
 import app.thirtyninth.githubviewer.utils.StorageUtil
-import app.thirtyninth.githubviewer.utils.mapExceptionToMessage
+import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -148,7 +148,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setErrorState(throwable: Throwable) {
-        val message = mapExceptionToMessage(throwable, requireContext().resources)
+        val message = mapExceptionToStringMessage(throwable, requireContext().resources)
 
         with(binding) {
             errorBlock.visibility = View.VISIBLE

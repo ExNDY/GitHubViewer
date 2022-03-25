@@ -26,10 +26,13 @@
     <string name="repo_info_watchers">watchers</string>
     <string name="repo_info_repository_description">desc</string>
 
-    <string name="request_error_connection_with_server">Error: Server is not available. Please, check your internet connection and try again</string>
-    <string name="request_error_304_no_new_data">Error: No new data</string>
-    <string name="request_error_401_authentication_error">Error: Authentication token was rejected</string>
-    <string name="request_error_403_request_been_refused">Error: The request has been refused</string>
+    <string name="exception_message_empty_data">Error: Received data is empty, try again or update authentication data</string>
+    <string name="exception_message_http_call">Error: Oops, something happened while requesting the data server, please try again later</string>
+    <string name="exception_message_network">Error: Oops, something happened while connecting to the data server, please try again later</string>
+    <string name="exception_message_no_internet">Error: No internet connection, please check your phone settings and try again</string>
+    <string name="exception_message_not_found">Error: Resource not found, try again or check links to it</string>
+    <string name="exception_message_unauthorized">Error:  Authentication token was rejected. Please sign in to the app again</string>
+    <string name="exception_message_unexpected">Error: Oops! Something happened, but we will definitely deal with this problem, but then: </string>
 
     <string name="zero_value">0</string>
     <string name="repo_info_license_type_not_specified">Not specified</string>
