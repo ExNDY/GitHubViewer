@@ -3,18 +3,16 @@ package app.thirtyninth.githubviewer.extentions
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 fun EditText.bindTextTwoWayFlow(
-    stateFlow: MutableStateFlow<String?>,
-    lifecycleScope: LifecycleCoroutineScope,
-    afterTextChanged: () -> Job
+    mutableStateFlow: MutableStateFlow<String>,
+    scope: CoroutineScope
 ) {
     this.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -27,18 +25,14 @@ fun EditText.bindTextTwoWayFlow(
         override fun afterTextChanged(p0: Editable?) {
             val str = p0.toString()
 
-            stateFlow.tryEmit(str)
-
-            if (str.isNotEmpty()) {
-                afterTextChanged.invoke()
-            }
+            mutableStateFlow.value = str
         }
     })
 
-    stateFlow.onEach { text ->
+    mutableStateFlow.onEach { text ->
         if (this.text.toString() == text) return@onEach
         this.setText(text)
-    }.launchIn(lifecycleScope)
+    }.launchIn(scope)
 }
 
 fun EditText.bindTextTwoWayLiveData(livedata: MutableLiveData<String>, lifecycle: LifecycleOwner) {

@@ -5,6 +5,5 @@ option java_multiple_files = true;
 
 message ProtoSettings {
   bool isLoggedIn = 1;
-  string user_name = 2;
-  string user_token = 3;
+  string authToken = 2;
 }

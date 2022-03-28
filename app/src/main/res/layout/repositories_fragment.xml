@@ -54,44 +54,13 @@
         tools:itemCount="10"
         tools:listitem="@layout/repositories_list_item" />
 
-    <LinearLayout
+    <include
+        layout="@layout/error_layout"
         android:id="@+id/error_block"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/error_img"
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            android:src="@drawable/ic_icons_db_error" />
-
-        <TextView
-            android:id="@+id/error_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textColor="@color/gray_light"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:text="Error: NO DATA" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/try_button"
-            android:layout_width="124dp"
-            android:layout_height="56dp"
-            android:backgroundTint="@color/accent_github"
-            android:text="@string/try_again"
-            android:textAppearance="@style/LoginScreen.SignIn.TextStyle"
-            android:textColor="@color/white"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-
+        app:layout_constraintTop_toBottomOf="@id/appbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

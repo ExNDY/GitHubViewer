@@ -35,13 +35,15 @@
     <fragment
         android:id="@+id/repositoryInfoFragment"
         android:name="app.thirtyninth.githubviewer.ui.main.view.DetailInfoFragment"
-        tools:layout="@layout/repository_info_fragment">
+        tools:layout="@layout/detail_info_fragment">
         <argument
-            android:name="login"
-            app:argType="string" />
+            android:name="owner"
+            app:argType="string"
+            app:nullable="false"/>
         <argument
             android:name="repository_name"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="false"/>
     </fragment>
     <action
         android:id="@+id/navigate_toLoginScreen"

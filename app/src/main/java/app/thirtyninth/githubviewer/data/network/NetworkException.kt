@@ -8,17 +8,11 @@ open class NetworkException : RuntimeException {
     constructor(cause: Throwable) : super(cause)
 }
 
-class NoInternetException : IOException {
-    constructor() : super()
-    constructor(cause: Throwable) : super(cause)
-}
+class NoInternetException(cause: Throwable) : IOException(cause)
 
 class EmptyDataException : NetworkException()
 
-class UnauthorizedException : NetworkException {
-    constructor() : super()
-    constructor(code: Int, request: String, url: HttpUrl) : super()
-}
+class UnauthorizedException(code: Int, request: String, url: HttpUrl) : NetworkException()
 
 class NotFoundException(code: Int, request: String, url: HttpUrl) : NetworkException()
 

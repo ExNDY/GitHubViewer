@@ -3,6 +3,7 @@ package app.thirtyninth.githubviewer.data.network.api
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Owner
 import app.thirtyninth.githubviewer.data.models.Readme
+import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.NotFoundException
@@ -14,18 +15,19 @@ import java.io.IOException
 import javax.inject.Inject
 
 class GitHubRemoteData @Inject constructor(
-    private val gitHubService: GitHubService
+    private val gitHubService: GitHubService,
+    private val downloadService: DownloadService
 ) {
 
-    suspend fun getUser(token: String): Result<Owner?> {
+    suspend fun getUser(authToken: String): Result<Owner> {
         return try {
-            enqueue(gitHubService.getUser(token))
+            enqueue(gitHubService.getUser("token $authToken"))
         } catch (e: Exception) {
             Result.failure(mapToDomainException(e))
         }
     }
 
-    suspend fun getUserRepositoryList(): Result<List<GitHubRepository>?> {
+    suspend fun getUserRepositoryList(): Result<List<GitHubRepository>> {
         return try {
             enqueue(gitHubService.getUserRepositoryList())
         } catch (e: Exception) {
@@ -36,7 +38,7 @@ class GitHubRemoteData @Inject constructor(
     suspend fun getRepositoryDetail(
         owner: String,
         repository: String
-    ): Result<GitHubRepository?> {
+    ): Result<GitHubRepository> {
         return try {
             enqueue(gitHubService.getRepositoryDetail(owner, repository))
         } catch (e: Exception) {
@@ -47,7 +49,7 @@ class GitHubRemoteData @Inject constructor(
     suspend fun getReadmeData(
         owner: String,
         repository: String
-    ): Result<Readme?> {
+    ): Result<Readme> {
         return try {
             enqueue(gitHubService.getReadmeData(owner, repository))
         } catch (e: Exception) {
@@ -55,7 +57,11 @@ class GitHubRemoteData @Inject constructor(
         }
     }
 
-    private fun <T> enqueue(response: Response<T>): Result<T?> {
+//    suspend fun fetchReadme(url:String):Result<ResponseBody?>{
+//        downloadService.downloadReadme(url)
+//    }
+
+    private fun <T> enqueue(response: Response<T>): Result<T> {
         try {
             when (response.code()) {
                 401 -> {
@@ -77,7 +83,14 @@ class GitHubRemoteData @Inject constructor(
                     )
                 }
                 else -> {
-                    return Result.success(response.body())
+                    val responseBody = response.body()
+
+                    return if (responseBody==null){
+                        Result.failure(EmptyDataException())
+                    } else {
+                        Result.success(responseBody)
+                    }
+
                 }
             }
         } catch (exception: Exception) {

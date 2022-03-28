@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -7,30 +8,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
-import app.thirtyninth.githubviewer.databinding.RepositoryInfoFragmentBinding
+import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.Action
-import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
+import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.DetailInfoScreenState
+import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.ReadmeState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import io.noties.markwon.Markwon
+import io.noties.markwon.recycler.MarkwonAdapter
+import io.noties.markwon.recycler.SimpleEntry
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.commonmark.node.FencedCodeBlock
 
+//TODO rewrite logic and naming
 @AndroidEntryPoint
 class DetailInfoFragment : Fragment() {
     private val viewModel: DetailInfoViewModel by viewModels()
-    private val binding: RepositoryInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
+    private val binding: DetailInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
     private val args: DetailInfoFragmentArgs by navArgs()
 
     override fun onCreateView(
@@ -74,73 +82,65 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.actions.onEach { action ->
+        viewModel.state.onEach { state ->
+            handleState(state)
+        }.launchIn(lifecycleScope)
+
+        viewModel.readmeState.onEach { state ->
+            handleReadmeState(state)
+        }.launchIn(lifecycleScope)
+
+        viewModel.action.onEach { action ->
             handleAction(action)
         }.launchIn(lifecycleScope)
-
-        viewModel.repositoryInfo.onEach { repository ->
-            initUI(repository)
-        }.launchIn(lifecycleScope)
-
-        viewModel.readme.onEach { readme ->
-            initReadme(readme)
-        }.launchIn(lifecycleScope)
-
-        viewModel.readmeFile.onEach { readmeFile ->
-            addReadmeFile(readmeFile)
-        }.launchIn(lifecycleScope)
     }
 
-    private fun initUI(source: GitHubRepository?) {
-        if (source != null) {
-            bindRepositoryInfo(source)
-        }
-    }
-
-    private fun initReadme(source: Readme?) {
-        if (source != null) {
-            bindReadmeData(source)
-        }
-    }
-
-    private fun addReadmeFile(source: String) {
-        if (source.isNotEmpty()) {
-            with(binding) {
-                //markdownView.setMarkDownText(source)
-            }
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun bindReadmeData(source: Readme) {
+        val markwon = Markwon.builder(requireContext()).build()
+
+        val markwonAdapter = MarkwonAdapter.builderTextViewIsRoot(R.layout.markdown_default_layout)
+            .include(FencedCodeBlock::class.java, SimpleEntry.create(R.layout.markdown_view_layout, R.id.code_text_view))
+            .build()
+
         with(binding) {
+            markdown.apply {
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                adapter = markwonAdapter
+            }
             readmeBlockHeader.text = source.name
         }
+
+        //FIXME
+        markwonAdapter.setMarkdown(markwon, source.download_url)
+        markwonAdapter.notifyDataSetChanged()
     }
 
     private fun bindRepositoryInfo(source: GitHubRepository) {
         with(binding) {
-            with(source.license?.spdxId) {
-                if (this.isNullOrEmpty()) {
+            source.license?.spdxId.also { spdxId ->
+                if (spdxId.isNullOrEmpty()){
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
-                    licenseType.text = this
+                    licenseType.text = spdxId
                 }
             }
 
-            repositoryLinkButton.text = source.htmlURL?.substring(8, source.htmlURL.length) ?: ""
+            repositoryLinkButton.text = source.htmlURL?.substring(8, source.htmlURL.length).orEmpty()
             starsCount.text = source.stargazersCount.toString()
             forksCount.text = source.forksCount.toString()
             watchersCount.text = source.watchersCount.toString()
             repositoryName.text = source.name
-            repositoryDescription.text = source.description
 
             repositoryLinkButton.setOnClickListener {
-                if (source.htmlURL != null)
+                if (source.htmlURL != null){
                     openInBrowser(source.htmlURL)
+                }
             }
         }
     }
 
+    //TODO Учесть замечания и сделать учитывая тонкости API 30lvl
     private fun openInBrowser(url: String) {
         val browser: Intent =
             Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
@@ -158,15 +158,6 @@ class DetailInfoFragment : Fragment() {
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
 
-    private fun setNormalState() {
-        with(binding) {
-            errorBlock.visibility = View.GONE
-            userUiGroup.visibility = View.VISIBLE
-
-            progressBar.visibility = View.GONE
-        }
-    }
-
     private fun setLoadingState() {
         with(binding) {
             progressBar.visibility = View.VISIBLE
@@ -176,17 +167,27 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun setErrorState(throwable: Throwable) {
-        val message = mapExceptionToStringMessage(throwable, requireContext().resources)
+    private fun setLoadedState(gitHubRepo:GitHubRepository, readmeState: ReadmeState){
+        with(binding) {
+            errorBlock.visibility = View.GONE
+            userUiGroup.visibility = View.VISIBLE
 
+            progressBar.visibility = View.GONE
+        }
+
+        bindRepositoryInfo(gitHubRepo)
+        handleReadmeState(readmeState)
+    }
+
+    private fun setErrorState(error:String){
         with(binding) {
             userUiGroup.visibility = View.GONE
             errorBlock.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
-            errorMessage.text = message
+            errorMessage.text = error
 
             reloadDataButton.setOnClickListener {
-                viewModel.loadRepositoryInfo()
+                viewModel.retryButtonClicked()
             }
         }
     }
@@ -195,17 +196,27 @@ class DetailInfoFragment : Fragment() {
         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
     private fun handleAction(action: Action) {
         when (action) {
-            is Action.ShowToastAction -> showToast(action.message)
-            is Action.ShowErrorAction -> setErrorState(action.exception)
             is Action.RouteToAuthScreen -> routeToAuthScreen()
-            Action.SetNormalStateAction -> setNormalState()
-            Action.SetLoadingStateAction -> setLoadingState()
+        }
+    }
+
+    private fun handleState(state:DetailInfoScreenState){
+        when(state){
+            DetailInfoScreenState.Loading -> setLoadingState()
+            is DetailInfoScreenState.Loaded -> setLoadedState(state.githubRepo, state.readmeState)
+            is DetailInfoScreenState.Error -> setErrorState(state.error.getString(requireContext()))
+        }
+    }
+
+    //TODO Реализовать ридми
+    private fun handleReadmeState(state:ReadmeState){
+        when(state){
+            ReadmeState.Loading ->{}
+            is ReadmeState.Loaded ->{}
+            is ReadmeState.Error ->{}
+            is ReadmeState.Empty ->{}
         }
     }
 }

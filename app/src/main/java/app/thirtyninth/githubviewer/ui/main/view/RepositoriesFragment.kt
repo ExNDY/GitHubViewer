@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -16,13 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.RepositoriesListScreenState
 import app.thirtyninth.githubviewer.utils.StorageUtil
-import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,7 +54,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
         setupUIComponents()
         setupToolbar()
-        setupObservers()
     }
 
     private fun initApp() {
@@ -87,13 +86,13 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupUIComponents() {
-        val colors: Map<String, Color> = requireContext().let { context ->
-            StorageUtil.fetchLanguageColorsMap(
-                context, Constants.LANGUAGE_COLORS_JSON_PATH
-            )
-        }
+        val colors: Map<String, Color> = StorageUtil.fetchLanguageColorsMap(
+            requireContext(), Constants.LANGUAGE_COLORS_JSON_PATH
+        )
 
         val listAdapter = RepositoryListAdapter(colors, listener = this)
+
+        setupObservers(listAdapter)
 
         with(binding) {
             rvRepositoryList.apply {
@@ -102,7 +101,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
                 adapter = listAdapter
             }
 
-            tryButton.setOnClickListener {
+            errorBlock.retryButton.setOnClickListener {
                 viewModel.loadData()
             }
         }
@@ -120,67 +119,71 @@ class RepositoriesFragment : Fragment(), ActionListener {
         )
     }
 
-    private fun setupObservers() {
+    private fun setupObservers(adapter: RepositoryListAdapter) {
         viewModel.actions.onEach { action ->
             handleAction(action)
         }.launchIn(lifecycleScope)
 
-        viewModel.repositoryList
-            .onEach { repositoryList ->
-                (binding.rvRepositoryList.adapter as RepositoryListAdapter)
-                    .submitList(repositoryList)
-            }.launchIn(lifecycleScope)
-    }
-
-    private fun setNormalState() {
-        with(binding) {
-            errorBlock.visibility = View.GONE
-            progressHorizontal.visibility = View.GONE
-        }
+        viewModel.state.onEach { state ->
+            handleState(state, adapter)
+        }.launchIn(lifecycleScope)
     }
 
     private fun setLoadingState() {
         with(binding) {
-            errorBlock.visibility = View.GONE
+            errorBlock.errorContainer.visibility = View.GONE
             progressHorizontal.visibility = View.VISIBLE
             rvRepositoryList.visibility = View.VISIBLE
         }
     }
 
-    private fun setErrorState(throwable: Throwable) {
-        val message = mapExceptionToStringMessage(throwable, requireContext().resources)
-
+    private fun setLoadedState(list: List<GitHubRepository>, adapter: RepositoryListAdapter) {
         with(binding) {
-            errorBlock.visibility = View.VISIBLE
+            errorBlock.errorContainer.visibility = View.GONE
+            progressHorizontal.visibility = View.GONE
+        }
+
+        adapter.submitList(list)
+    }
+
+    private fun setErrorState(title:String, message: String) {
+        with(binding) {
             progressHorizontal.visibility = View.GONE
             rvRepositoryList.visibility = View.GONE
-            errorMessage.text = message
+            errorBlock.errorContainer.visibility = View.VISIBLE
+
+            errorBlock.errorMessage.text = message
         }
+    }
+
+    private fun setEmptyState() {
+        //TODO
     }
 
     private fun logout() = AlertDialog.Builder(context)
         .setTitle(getString(R.string.logout_dialog_title))
         .setMessage(getString(R.string.logout_dialog_message))
         .setPositiveButton(getString(R.string.logout_dialog_positive)) { _, _ ->
-            viewModel.logout()
+            viewModel.onLogoutClicked()
         }
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
 
     override fun onClick(clickedPosition: Int, owner: String, repositoryName: String) {
         openRepositoryDetail(owner, repositoryName)
     }
 
+    private fun handleState(state: RepositoriesListScreenState, adapter: RepositoryListAdapter) {
+        when (state) {
+            RepositoriesListScreenState.Loading -> setLoadingState()
+            is RepositoriesListScreenState.Loaded -> setLoadedState(state.repos, adapter)
+            is RepositoriesListScreenState.Error -> setErrorState("Title", state.error.getString(requireContext()))
+            is RepositoriesListScreenState.Empty -> setEmptyState()
+        }
+    }
+
     private fun handleAction(action: Action) {
         when (action) {
-            is Action.ShowToastAction -> showToast(action.message)
-            is Action.ShowErrorAction -> setErrorState(action.exception)
-            Action.SetNormalStateAction -> setNormalState()
-            Action.SetLoadingStateAction -> setLoadingState()
             Action.RouteToAuthScreen -> routeToAuthScreen()
         }
     }

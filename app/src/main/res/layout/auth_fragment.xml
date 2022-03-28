@@ -42,43 +42,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/user_login_container"
-        style="@style/TextField.LoginScreen"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
-        android:hint="@string/username"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintEnd_toEndOf="@id/content_end"
-        app:layout_constraintStart_toStartOf="@id/content_start"
-        app:layout_constraintTop_toBottomOf="@id/logo"
-        app:layout_constraintVertical_bias="0"
-        app:layout_goneMarginBottom="80dp"
-        app:layout_goneMarginTop="208dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/user_login"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:inputType="textPersonName"
-            android:maxLines="1"
-            android:textColor="@color/white" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/access_token_container"
         style="@style/TextField.LoginScreen"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
         android:hint="@string/personal_access_token"
         app:endIconMode="password_toggle"
         app:endIconTint="@color/black"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@+id/sign_in_container"
         app:layout_constraintEnd_toEndOf="@id/content_end"
         app:layout_constraintStart_toStartOf="@id/content_start"
-        app:layout_constraintTop_toBottomOf="@+id/user_login_container"
-        app:layout_constraintVertical_bias="0"
+        app:layout_constraintTop_toBottomOf="@+id/logo"
         app:passwordToggleEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText

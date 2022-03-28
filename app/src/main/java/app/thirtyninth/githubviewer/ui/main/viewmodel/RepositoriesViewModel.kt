@@ -3,11 +3,10 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
-import app.thirtyninth.githubviewer.data.network.EmptyDataException
-import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.utils.Variables
+import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
+import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,12 +23,6 @@ class RepositoriesViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _repositoryList = MutableSharedFlow<List<GitHubRepository>>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val repositoryList: SharedFlow<List<GitHubRepository>> = _repositoryList.asSharedFlow()
-
     private val _isLoggedIn = MutableSharedFlow<Boolean>(
         replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
@@ -41,8 +34,14 @@ class RepositoriesViewModel @Inject constructor(
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
+    private val _state = MutableSharedFlow<RepositoriesListScreenState>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val state: SharedFlow<RepositoriesListScreenState> = _state.asSharedFlow()
+
     init {
-        //TODO Двойная обработка, найти способ изящнее
+        //TODO Унести логику в активити
         viewModelScope.launch {
             userPreferences.getLoggedInState().onEach {
                 _isLoggedIn.tryEmit(it)
@@ -56,37 +55,35 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList()
     }
 
-    fun logout() = viewModelScope.launch {
+    fun onLogoutClicked(){
+        logout()
+    }
+
+    private fun logout() = viewModelScope.launch {
         userPreferences.logout()
         _actions.tryEmit(Action.RouteToAuthScreen)
     }
 
     private fun getUserRepositoryList() = viewModelScope.launch {
-        if (Variables.isNetworkConnected) {
-            _actions.tryEmit(Action.SetLoadingStateAction)
+        _state.tryEmit(RepositoriesListScreenState.Loading)
 
-            val repositoryListResult = repository.getRepositoryList()
+        val repositoryListResult = repository.getRepositoryList()
 
-            repositoryListResult.onSuccess { list ->
-                if (list != null) {
-                    _repositoryList.tryEmit(list)
-                    _actions.tryEmit(Action.SetNormalStateAction)
-                } else {
-                    _actions.tryEmit(Action.ShowErrorAction(EmptyDataException()))
-                }
-            }.onFailure { throwable ->
-                _actions.tryEmit(Action.ShowErrorAction(throwable))
-            }
-        } else {
-            _actions.tryEmit(Action.ShowErrorAction(NoInternetException()))
+        repositoryListResult.onSuccess { list ->
+            _state.tryEmit(RepositoriesListScreenState.Loaded(list))
+        }.onFailure { throwable ->
+            _state.tryEmit(RepositoriesListScreenState.Error(mapExceptionToStringMessage(throwable)))
         }
     }
 
+    sealed interface RepositoriesListScreenState{
+        object Loading : RepositoriesListScreenState
+        data class Loaded(val repos: List<GitHubRepository>) : RepositoriesListScreenState
+        data class Error(val error:LocalizeString) : RepositoriesListScreenState
+        object Empty : RepositoriesListScreenState
+    }
+
     sealed interface Action {
-        data class ShowToastAction(val message: String) : Action
-        data class ShowErrorAction(val exception: Throwable) : Action
-        object SetNormalStateAction : Action
-        object SetLoadingStateAction : Action
         object RouteToAuthScreen : Action
     }
 }

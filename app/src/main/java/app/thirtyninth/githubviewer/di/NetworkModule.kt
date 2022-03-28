@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.di
 
+import app.thirtyninth.githubviewer.data.network.api.DownloadService
 import app.thirtyninth.githubviewer.data.network.api.GitHubRemoteData
 import app.thirtyninth.githubviewer.data.network.api.GitHubService
 import app.thirtyninth.githubviewer.data.network.interceptors.AcceptInterceptor
@@ -11,7 +12,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -25,7 +25,6 @@ object NetworkModule {
     private const val BASE_URL = "https://api.github.com/"
 
     @Provides
-    @DelicateCoroutinesApi
     fun provideTokenProvider(keyValueStorage: KeyValueStorage): TokenProvider {
         return object : TokenProvider {
             override val token: String?
@@ -78,6 +77,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGitHubHelper(gitHubService: GitHubService): GitHubRemoteData =
-        GitHubRemoteData(gitHubService)
+    fun provideDownloadService(retrofit: Retrofit):DownloadService =
+        retrofit.create(DownloadService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideGitHubHelper(gitHubService: GitHubService, downloadService: DownloadService): GitHubRemoteData =
+        GitHubRemoteData(gitHubService, downloadService)
 }

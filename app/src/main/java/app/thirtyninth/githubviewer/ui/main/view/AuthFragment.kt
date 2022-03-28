@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,10 +11,9 @@ import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.AuthFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
-import app.thirtyninth.githubviewer.ui.interfaces.Validation
 import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.Action
-import app.thirtyninth.githubviewer.utils.mapValidation
+import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.AuthScreenState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,39 +46,33 @@ class AuthFragment : Fragment() {
     }
 
     private fun setupUI() {
-        viewModel.actions.onEach { action ->
-            handleAction(action)
-        }.launchIn(lifecycleScope)
-
         with(binding) {
-            userLogin.bindTextTwoWayFlow(
-                stateFlow = viewModel.loginFlow,
-                lifecycleScope = lifecycleScope,
-                afterTextChanged = { viewModel.validateLogin() }
-            )
             authToken.bindTextTwoWayFlow(
-                stateFlow = viewModel.authTokenFlow,
-                lifecycleScope = lifecycleScope,
-                afterTextChanged = { viewModel.validateToken() }
+                mutableStateFlow = viewModel.authTokenFlow,
+                scope = lifecycleScope
             )
 
             signInButton.setOnClickListener {
-                viewModel.signInButtonPressed()
+                viewModel.onSignInButtonPressed()
             }
         }
     }
 
     private fun setupObservers() {
-        viewModel.authTokenErrorStatus.onEach { status ->
-            setAuthTokenErrorMessage(status)
+        viewModel.state.onEach { state ->
+            handleState(state)
         }.launchIn(lifecycleScope)
 
-        viewModel.loginErrorStatus.onEach { status ->
-            setLoginErrorMessage(status)
+        viewModel.actions.onEach { action ->
+            handleAction(action)
         }.launchIn(lifecycleScope)
+
+//        viewModel.authTokenValidation.onEach { status ->
+//            setAuthTokenErrorMessage(status)
+//        }
     }
 
-    private fun navigateToRepositoryList() {
+    private fun routeToRepositoriesList() {
         findNavController().navigate(AuthFragmentDirections.navigateToRepositoryList())
     }
 
@@ -98,36 +90,24 @@ class AuthFragment : Fragment() {
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun setLoginErrorMessage(status: Validation) {
-        val message = mapValidation(status, requireContext().resources)
-
+    private fun setAuthTokenErrorMessage(errorMessage:String) {
         with(binding) {
-            userLoginContainer.error = message
-        }
-    }
-
-    private fun setAuthTokenErrorMessage(status: Validation) {
-        val message = mapValidation(status, requireContext().resources)
-
-        with(binding) {
-            accessTokenContainer.error = message
+            accessTokenContainer.error = errorMessage
         }
     }
 
     private fun handleAction(action: Action) {
         when (action) {
-            Action.RouteSuccessAction -> {
-                setNormalState()
-                navigateToRepositoryList()
-            }
-            is Action.ShowToastAction -> showToast(action.message)
-            is Action.ShowErrorAction -> {}
-            Action.SetNormalStateAction -> setNormalState()
-            Action.SetLoadingStateAction -> setLoadingState()
+            Action.RouteToRepositoryList -> routeToRepositoriesList()
+            is Action.ShowError -> {}
+        }
+    }
+
+    private fun handleState(state: AuthScreenState) {
+        when (state) {
+            AuthScreenState.Idle -> setLoadingState()
+            AuthScreenState.Loaded -> setNormalState()
+            is AuthScreenState.InvalidAuthTokenInput -> setAuthTokenErrorMessage(state.reason.getString(requireContext()))
         }
     }
 }

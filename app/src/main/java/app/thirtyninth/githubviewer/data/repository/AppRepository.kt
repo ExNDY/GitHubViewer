@@ -13,25 +13,25 @@ class AppRepository
     private val gitHub: GitHubRemoteData
 ) {
 
-    suspend fun getUserInfo(token: String): Result<Owner?> {
+    suspend fun getUserInfo(token: String): Result<Owner> {
         return gitHub.getUser(token)
     }
 
-    suspend fun getRepositoryList(): Result<List<GitHubRepository>?> {
+    suspend fun getRepositoryList(): Result<List<GitHubRepository>> {
         return gitHub.getUserRepositoryList()
     }
 
     suspend fun getRepositoryInfo(
         owner: String,
         repository: String
-    ): Result<GitHubRepository?> {
+    ): Result<GitHubRepository> {
         return gitHub.getRepositoryDetail(owner, repository)
     }
 
     suspend fun getReadmeData(
         owner: String,
         repository: String
-    ): Result<Readme?> {
+    ): Result<Readme> {
         return gitHub.getReadmeData(owner, repository)
     }
 }

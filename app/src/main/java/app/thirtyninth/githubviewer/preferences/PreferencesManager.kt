@@ -8,17 +8,10 @@ import javax.inject.Singleton
 class PreferencesManager @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {
-    val isLoggedIn: Boolean by BooleanPreference(sharedPreferences, IS_LOGGED_IN_BOOLEAN)
-    val login: String? by StringPreference(sharedPreferences, LOGIN)
-    val authToken: String? by StringPreference(sharedPreferences, AUTH_TOKEN)
+    var isLoggedIn: Boolean by BooleanPreference(sharedPreferences, "isLoggedIn")
+    var authToken: String? by StringPreference(sharedPreferences, "authToken")
 
     fun clear(){
         sharedPreferences.edit().clear().apply()
-    }
-
-    companion object {
-        private const val IS_LOGGED_IN_BOOLEAN = "isLoggedIn"
-        private const val LOGIN = "login"
-        private const val AUTH_TOKEN = "authToken"
     }
 }

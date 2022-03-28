@@ -19,25 +19,19 @@ class UserPreferences @Inject constructor(private val dataStore: DataStore<Proto
 
     override suspend fun getAuthenticationToken(): Flow<String?> {
         return dataStore.data
-            .map { it.userToken }
-    }
-
-    override suspend fun getUserName(): Flow<String?> {
-        return dataStore.data
-            .map { it.userName }
+            .map { it.authToken }
     }
 
     override suspend fun getLoginData(): Flow<LoginData?> {
         return dataStore.data
-            .map { LoginData(it.userName, it.userToken) }
+            .map { LoginData(it.authToken) }
     }
 
     override suspend fun saveUser(user: LoginData) {
         dataStore.updateData {
             it.toBuilder()
                 .setIsLoggedIn(true)
-                .setUserName(user.login)
-                .setUserToken(user.authToken)
+                .setAuthToken(user.authToken)
                 .build()
         }
     }
