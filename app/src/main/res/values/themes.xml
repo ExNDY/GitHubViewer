@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.GitHubViewer" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/accent_github</item>
+        <item name="android:colorPrimary">@color/accent_github</item>
         <item name="colorPrimaryVariant">#2E79CF</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSurface">@color/gray_blue_dark</item>
