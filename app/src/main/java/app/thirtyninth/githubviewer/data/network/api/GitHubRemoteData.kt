@@ -85,7 +85,7 @@ class GitHubRemoteData @Inject constructor(
                 else -> {
                     val responseBody = response.body()
 
-                    return if (responseBody==null){
+                    return if (responseBody == null) {
                         Result.failure(EmptyDataException())
                     } else {
                         Result.success(responseBody)

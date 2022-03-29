@@ -77,11 +77,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideDownloadService(retrofit: Retrofit):DownloadService =
+    fun provideDownloadService(retrofit: Retrofit): DownloadService =
         retrofit.create(DownloadService::class.java)
 
     @Provides
     @Singleton
-    fun provideGitHubHelper(gitHubService: GitHubService, downloadService: DownloadService): GitHubRemoteData =
+    fun provideGitHubHelper(
+        gitHubService: GitHubService,
+        downloadService: DownloadService
+    ): GitHubRemoteData =
         GitHubRemoteData(gitHubService, downloadService)
 }

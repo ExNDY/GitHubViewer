@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
@@ -95,13 +96,13 @@ class RepositoriesFragment : Fragment(), ActionListener {
         setupObservers(listAdapter)
 
         with(binding) {
-            rvRepositoryList.apply {
+            repositoryList.apply {
                 setHasFixedSize(true)
                 addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
                 adapter = listAdapter
             }
 
-            errorBlock.retryButton.setOnClickListener {
+            blockError.retryButton.setOnClickListener {
                 viewModel.loadData()
             }
         }
@@ -131,28 +132,41 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
     private fun setLoadingState() {
         with(binding) {
-            errorBlock.errorContainer.visibility = View.GONE
-            progressHorizontal.visibility = View.VISIBLE
-            rvRepositoryList.visibility = View.VISIBLE
+            blockError.container.visibility = View.GONE
+            repositoryList.visibility = View.VISIBLE
+            blockLoading.container.visibility = View.VISIBLE
         }
     }
 
     private fun setLoadedState(list: List<GitHubRepository>, adapter: RepositoryListAdapter) {
         with(binding) {
-            errorBlock.errorContainer.visibility = View.GONE
-            progressHorizontal.visibility = View.GONE
+            blockLoading.container.visibility = View.GONE
+            blockError.container.visibility = View.GONE
+            repositoryList.visibility = View.VISIBLE
         }
 
         adapter.submitList(list)
     }
 
-    private fun setErrorState(title:String, message: String) {
-        with(binding) {
-            progressHorizontal.visibility = View.GONE
-            rvRepositoryList.visibility = View.GONE
-            errorBlock.errorContainer.visibility = View.VISIBLE
+    private fun setErrorState(exceptionBundle: ExceptionBundle) {
+        val title = exceptionBundle.title.getString(requireContext())
+        val message = exceptionBundle.message.getString(requireContext())
+        val imageId = exceptionBundle.imageResId
+        val titleColor = exceptionBundle.titleColor
 
-            errorBlock.errorMessage.text = message
+        with(binding) {
+            repositoryList.visibility = View.GONE
+            blockLoading.container.visibility = View.GONE
+            blockError.container.visibility = View.VISIBLE
+
+            blockError.errorTitle.setTextColor(titleColor)
+            blockError.errorTitle.text = title
+            blockError.errorMessage.text = message
+            blockError.errorImg.setImageResource(imageId)
+
+            blockError.retryButton.setOnClickListener {
+                viewModel.onRetryClicked()
+            }
         }
     }
 
@@ -177,7 +191,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
         when (state) {
             RepositoriesListScreenState.Loading -> setLoadingState()
             is RepositoriesListScreenState.Loaded -> setLoadedState(state.repos, adapter)
-            is RepositoriesListScreenState.Error -> setErrorState("Title", state.error.getString(requireContext()))
+            is RepositoriesListScreenState.Error -> setErrorState(state.exceptionBundle)
             is RepositoriesListScreenState.Empty -> setEmptyState()
         }
     }

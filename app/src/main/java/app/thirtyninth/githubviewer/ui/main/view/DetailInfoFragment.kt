@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
@@ -100,7 +101,10 @@ class DetailInfoFragment : Fragment() {
         val markwon = Markwon.builder(requireContext()).build()
 
         val markwonAdapter = MarkwonAdapter.builderTextViewIsRoot(R.layout.markdown_default_layout)
-            .include(FencedCodeBlock::class.java, SimpleEntry.create(R.layout.markdown_view_layout, R.id.code_text_view))
+            .include(
+                FencedCodeBlock::class.java,
+                SimpleEntry.create(R.layout.markdown_view_layout, R.id.code_text_view)
+            )
             .build()
 
         with(binding) {
@@ -119,21 +123,22 @@ class DetailInfoFragment : Fragment() {
     private fun bindRepositoryInfo(source: GitHubRepository) {
         with(binding) {
             source.license?.spdxId.also { spdxId ->
-                if (spdxId.isNullOrEmpty()){
+                if (spdxId.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
                     licenseType.text = spdxId
                 }
             }
 
-            repositoryLinkButton.text = source.htmlURL?.substring(8, source.htmlURL.length).orEmpty()
+            repositoryLinkButton.text =
+                source.htmlURL?.substring(8, source.htmlURL.length).orEmpty()
             starsCount.text = source.stargazersCount.toString()
             forksCount.text = source.forksCount.toString()
             watchersCount.text = source.watchersCount.toString()
             repositoryName.text = source.name
 
             repositoryLinkButton.setOnClickListener {
-                if (source.htmlURL != null){
+                if (source.htmlURL != null) {
                     openInBrowser(source.htmlURL)
                 }
             }
@@ -160,33 +165,40 @@ class DetailInfoFragment : Fragment() {
 
     private fun setLoadingState() {
         with(binding) {
-            progressBar.visibility = View.VISIBLE
-            licenseSectionGroup.visibility = View.GONE
-            statsSectionGroup.visibility = View.GONE
-            repositoryInfoSectionGroup.visibility = View.GONE
+            blockData.visibility = View.GONE
+            blockError.container.visibility = View.GONE
+            blockLoading.container.visibility = View.VISIBLE
         }
     }
 
-    private fun setLoadedState(gitHubRepo:GitHubRepository, readmeState: ReadmeState){
+    private fun setLoadedState(gitHubRepo: GitHubRepository, readmeState: ReadmeState) {
         with(binding) {
-            errorBlock.visibility = View.GONE
-            userUiGroup.visibility = View.VISIBLE
-
-            progressBar.visibility = View.GONE
+            blockLoading.container.visibility = View.GONE
+            blockError.container.visibility = View.GONE
+            blockData.visibility = View.VISIBLE
         }
 
         bindRepositoryInfo(gitHubRepo)
         handleReadmeState(readmeState)
     }
 
-    private fun setErrorState(error:String){
-        with(binding) {
-            userUiGroup.visibility = View.GONE
-            errorBlock.visibility = View.VISIBLE
-            progressBar.visibility = View.GONE
-            errorMessage.text = error
+    private fun setErrorState(exceptionBundle: ExceptionBundle) {
+        val title = exceptionBundle.title.getString(requireContext())
+        val message = exceptionBundle.message.getString(requireContext())
+        val imageId = exceptionBundle.imageResId
+        val titleColor = exceptionBundle.titleColor
 
-            reloadDataButton.setOnClickListener {
+        with(binding) {
+            blockData.visibility = View.GONE
+            blockLoading.container.visibility = View.GONE
+            blockError.container.visibility = View.VISIBLE
+
+            blockError.errorTitle.setTextColor(titleColor)
+            blockError.errorTitle.text = title
+            blockError.errorMessage.text = message
+            blockError.errorImg.setImageResource(imageId)
+
+            blockError.retryButton.setOnClickListener {
                 viewModel.retryButtonClicked()
             }
         }
@@ -202,21 +214,21 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleState(state:DetailInfoScreenState){
-        when(state){
+    private fun handleState(state: DetailInfoScreenState) {
+        when (state) {
             DetailInfoScreenState.Loading -> setLoadingState()
             is DetailInfoScreenState.Loaded -> setLoadedState(state.githubRepo, state.readmeState)
-            is DetailInfoScreenState.Error -> setErrorState(state.error.getString(requireContext()))
+            is DetailInfoScreenState.Error -> setErrorState(state.exceptionBundle)
         }
     }
 
     //TODO Реализовать ридми
-    private fun handleReadmeState(state:ReadmeState){
-        when(state){
-            ReadmeState.Loading ->{}
-            is ReadmeState.Loaded ->{}
-            is ReadmeState.Error ->{}
-            is ReadmeState.Empty ->{}
+    private fun handleReadmeState(state: ReadmeState) {
+        when (state) {
+            ReadmeState.Loading -> {}
+            is ReadmeState.Loaded -> {}
+            is ReadmeState.Error -> {}
+            is ReadmeState.Empty -> {}
         }
     }
 }

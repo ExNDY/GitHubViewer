@@ -90,7 +90,7 @@ class AuthFragment : Fragment() {
         }
     }
 
-    private fun setAuthTokenErrorMessage(errorMessage:String) {
+    private fun setAuthTokenErrorMessage(errorMessage: String) {
         with(binding) {
             accessTokenContainer.error = errorMessage
         }
@@ -107,7 +107,11 @@ class AuthFragment : Fragment() {
         when (state) {
             AuthScreenState.Idle -> setLoadingState()
             AuthScreenState.Loaded -> setNormalState()
-            is AuthScreenState.InvalidAuthTokenInput -> setAuthTokenErrorMessage(state.reason.getString(requireContext()))
+            is AuthScreenState.InvalidAuthTokenInput -> setAuthTokenErrorMessage(
+                state.reason.getString(
+                    requireContext()
+                )
+            )
         }
     }
 }

@@ -26,13 +26,21 @@
     <string name="repo_info_watchers">watchers</string>
     <string name="repo_info_repository_description">desc</string>
 
-    <string name="exception_message_empty_data">Error: Received data is empty, try again or update authentication data</string>
-    <string name="exception_message_http_call">Error: Oops, something happened while requesting the data server, please try again later</string>
-    <string name="exception_message_network">Error: Oops, something happened while connecting to the data server, please try again later</string>
-    <string name="exception_message_no_internet">Error: No internet connection, please check your phone settings and try again</string>
-    <string name="exception_message_not_found">Error: Resource not found, try again or check links to it</string>
-    <string name="exception_message_unauthorized">Error:  Authentication token was rejected. Please sign in to the app again</string>
-    <string name="exception_message_unexpected">Error: Oops! Something happened, but we will definitely deal with this problem, but then: </string>
+    <string name="exception_title_empty_data">Empty</string>
+    <string name="exception_title_http_call">Http call error</string>
+    <string name="exception_title_network">Network error</string>
+    <string name="exception_title_no_internet">Connection error</string>
+    <string name="exception_title_not_found">Not found error</string>
+    <string name="exception_title_unauthorized">Unauthorized exception</string>
+    <string name="exception_title_unexpected">Something error</string>
+
+    <string name="exception_message_empty_data">Received data is empty, try again or update authentication data</string>
+    <string name="exception_message_http_call">Oops, something happened while requesting the data server, please try again later</string>
+    <string name="exception_message_network">Oops, something happened while connecting to the data server, please try again later</string>
+    <string name="exception_message_no_internet">No internet connection, please check your phone settings and try again</string>
+    <string name="exception_message_not_found">Resource not found, try again or check links to it</string>
+    <string name="exception_message_unauthorized">Authentication token was rejected. Please sign in to the app again</string>
+    <string name="exception_message_unexpected">Oops! Something happened, but we will definitely deal with this problem, but then: </string>
 
     <string name="field_error_message_incorrect">Invalid token</string>
     <string name="field_error_message_is_empty">Field is empty</string>

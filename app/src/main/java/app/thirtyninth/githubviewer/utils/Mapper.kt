@@ -1,6 +1,7 @@
 package app.thirtyninth.githubviewer.utils
 
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
 import app.thirtyninth.githubviewer.data.network.HttpCallException
 import app.thirtyninth.githubviewer.data.network.NetworkException
@@ -8,20 +9,61 @@ import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
+import app.thirtyninth.githubviewer.ui.interfaces.LocalizeDrawable
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
 import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 
-fun mapExceptionToStringMessage(throwable: Throwable): LocalizeString {
+fun mapExceptionToBundle(throwable: Throwable): ExceptionBundle {
     return when (throwable) {
-        is EmptyDataException -> LocalizeString.Resource(R.string.exception_message_empty_data)
-        is HttpCallException -> LocalizeString.Resource(R.string.exception_message_http_call)
-        is NetworkException -> LocalizeString.Resource(R.string.exception_message_network)
-        is NoInternetException -> LocalizeString.Resource(R.string.exception_message_no_internet)
-        is NotFoundException -> LocalizeString.Resource(R.string.exception_message_not_found)
-        is UnauthorizedException -> LocalizeString.Resource(R.string.exception_message_unauthorized)
-        is UnexpectedException -> LocalizeString.Resource(R.string.exception_message_unexpected)
+        is EmptyDataException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_empty_data),
+            LocalizeString.Resource(R.string.exception_message_empty_data),
+            R.drawable.img_empty,
+            R.color.exceptionEmptyColor
+        )
+        is HttpCallException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_http_call),
+            LocalizeString.Resource(R.string.exception_message_http_call),
+            R.drawable.img_error,
+            R.color.exceptionColor
+        )
+        is NetworkException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_network),
+            LocalizeString.Resource(R.string.exception_message_network),
+            R.drawable.img_no_internet,
+            R.color.exceptionColor
+        )
+        is NoInternetException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_no_internet),
+            LocalizeString.Resource(R.string.exception_message_no_internet),
+            R.drawable.img_no_internet,
+            R.color.exceptionColor
+        )
+        is NotFoundException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_not_found),
+            LocalizeString.Resource(R.string.exception_message_not_found),
+            R.drawable.img_error,
+            R.color.exceptionColor
+        )
+        is UnauthorizedException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_unauthorized),
+            LocalizeString.Resource(R.string.exception_message_unauthorized),
+            R.drawable.img_error,
+            R.color.exceptionColor
+        )
+        is UnexpectedException -> ExceptionBundle(
+            LocalizeString.Resource(R.string.exception_title_unexpected),
+            LocalizeString.Resource(R.string.exception_message_unexpected),
+            R.drawable.img_error,
+            R.color.exceptionColor
+        )
         else -> {
-            LocalizeString.Raw(throwable.message.toString())
+            ExceptionBundle(
+                LocalizeString.Resource(R.string.exception_title_unexpected),
+                LocalizeString.Raw(throwable.message.toString()),
+                R.drawable.img_error,
+                R.color.exceptionColor
+            )
         }
     }
 }
@@ -29,10 +71,7 @@ fun mapExceptionToStringMessage(throwable: Throwable): LocalizeString {
 fun mapTokenValidation(status: ValidationResult): LocalizeString {
     return when (status) {
         is ValidationResult.Correct -> LocalizeString.Raw("")
-        is ValidationResult.Incorrect -> {
-            val msg = LocalizeString.Resource(R.string.field_error_message_incorrect)
-            msg
-        }
+        is ValidationResult.Incorrect -> LocalizeString.Resource(R.string.field_error_message_incorrect)
         is ValidationResult.Empty -> LocalizeString.Resource(R.string.field_error_message_is_empty)
     }
 }

@@ -2,11 +2,11 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
-import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
+import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,7 +55,11 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList()
     }
 
-    fun onLogoutClicked(){
+    fun onRetryClicked(){
+        loadData()
+    }
+
+    fun onLogoutClicked() {
         logout()
     }
 
@@ -72,14 +76,14 @@ class RepositoriesViewModel @Inject constructor(
         repositoryListResult.onSuccess { list ->
             _state.tryEmit(RepositoriesListScreenState.Loaded(list))
         }.onFailure { throwable ->
-            _state.tryEmit(RepositoriesListScreenState.Error(mapExceptionToStringMessage(throwable)))
+            _state.tryEmit(RepositoriesListScreenState.Error(mapExceptionToBundle(throwable)))
         }
     }
 
-    sealed interface RepositoriesListScreenState{
+    sealed interface RepositoriesListScreenState {
         object Loading : RepositoriesListScreenState
         data class Loaded(val repos: List<GitHubRepository>) : RepositoriesListScreenState
-        data class Error(val error:LocalizeString) : RepositoriesListScreenState
+        data class Error(val exceptionBundle: ExceptionBundle) : RepositoriesListScreenState
         object Empty : RepositoriesListScreenState
     }
 

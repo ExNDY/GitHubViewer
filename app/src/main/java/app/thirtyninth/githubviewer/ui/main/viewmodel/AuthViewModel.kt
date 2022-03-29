@@ -2,6 +2,7 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
@@ -9,7 +10,7 @@ import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
 import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 import app.thirtyninth.githubviewer.utils.Validator
-import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
+import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -73,7 +74,7 @@ class AuthViewModel @Inject constructor(
                         )
                     )
                 } else {
-                    _actions.tryEmit(Action.ShowError(mapExceptionToStringMessage(throwable)))
+                    _actions.tryEmit(Action.ShowError(mapExceptionToBundle(throwable)))
                 }
             }
         }
@@ -92,7 +93,7 @@ class AuthViewModel @Inject constructor(
     }
 
     sealed interface Action {
-        data class ShowError(val error: LocalizeString) : Action
+        data class ShowError(val exceptionBundle: ExceptionBundle) : Action
         object RouteToRepositoryList : Action
     }
 }

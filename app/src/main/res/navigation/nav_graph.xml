@@ -39,11 +39,11 @@
         <argument
             android:name="owner"
             app:argType="string"
-            app:nullable="false"/>
+            app:nullable="false" />
         <argument
             android:name="repository_name"
             app:argType="string"
-            app:nullable="false"/>
+            app:nullable="false" />
     </fragment>
     <action
         android:id="@+id/navigate_toLoginScreen"

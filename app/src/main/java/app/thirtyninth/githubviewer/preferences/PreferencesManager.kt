@@ -11,7 +11,7 @@ class PreferencesManager @Inject constructor(
     var isLoggedIn: Boolean by BooleanPreference(sharedPreferences, "isLoggedIn")
     var authToken: String? by StringPreference(sharedPreferences, "authToken")
 
-    fun clear(){
+    fun clear() {
         sharedPreferences.edit().clear().apply()
     }
 }

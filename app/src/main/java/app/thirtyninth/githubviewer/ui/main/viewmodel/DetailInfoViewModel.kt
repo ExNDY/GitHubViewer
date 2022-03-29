@@ -3,11 +3,11 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
-import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
-import app.thirtyninth.githubviewer.utils.mapExceptionToStringMessage
+import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +42,8 @@ class DetailInfoViewModel @Inject constructor(
     val readmeState: SharedFlow<ReadmeState> = _readmeState.asSharedFlow()
 
     private val currentOwner: String = savedStateHandle.get<String>("owner").toString()
-    private val currentRepositoryName: String = savedStateHandle.get<String>("repository_name").toString()
+    private val currentRepositoryName: String =
+        savedStateHandle.get<String>("repository_name").toString()
 
     init {
         loadRepositoryInfo()
@@ -77,7 +78,7 @@ class DetailInfoViewModel @Inject constructor(
             repositoryDetail.onSuccess { repo ->
                 _state.tryEmit(DetailInfoScreenState.Loaded(repo, ReadmeState.Empty))
             }.onFailure { throwable ->
-                _state.tryEmit(DetailInfoScreenState.Error(mapExceptionToStringMessage(throwable)))
+                _state.tryEmit(DetailInfoScreenState.Error(mapExceptionToBundle(throwable)))
             }
         }
 
@@ -88,16 +89,17 @@ class DetailInfoViewModel @Inject constructor(
 
     sealed interface DetailInfoScreenState {
         object Loading : DetailInfoScreenState
-        data class Error(val error: LocalizeString) : DetailInfoScreenState
+        data class Error(val exceptionBundle: ExceptionBundle) : DetailInfoScreenState
         data class Loaded(
             val githubRepo: GitHubRepository,
-            val readmeState: ReadmeState) : DetailInfoScreenState
+            val readmeState: ReadmeState
+        ) : DetailInfoScreenState
     }
 
     sealed interface ReadmeState {
         object Loading : ReadmeState
         object Empty : ReadmeState
-        data class Error(val error: LocalizeString) : ReadmeState
+        data class Error(val exceptionBundle: ExceptionBundle) : ReadmeState
         data class Loaded(val markdown: String) : ReadmeState
     }
 
