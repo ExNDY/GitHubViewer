@@ -6,7 +6,7 @@
     app:startDestination="@id/repositoriesFragment">
 
     <fragment
-        android:id="@+id/loginFragment"
+        android:id="@+id/authFragment"
         android:name="app.thirtyninth.githubviewer.ui.main.view.AuthFragment"
         android:label="@string/fragment_name_login_screen"
         tools:layout="@layout/auth_fragment">
@@ -47,7 +47,7 @@
     </fragment>
     <action
         android:id="@+id/navigate_toLoginScreen"
-        app:destination="@id/loginFragment"
+        app:destination="@id/authFragment"
         app:enterAnim="@anim/slide_in_right"
         app:exitAnim="@anim/slide_out_left"
         app:launchSingleTop="true"

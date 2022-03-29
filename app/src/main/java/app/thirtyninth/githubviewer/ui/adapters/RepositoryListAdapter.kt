@@ -30,41 +30,27 @@ class RepositoryListAdapter(
         val item = currentList[position]
         val languageColor = colors[item.language]
 
-        holder.bind(item, languageColor)
-        holder.container.setOnClickListener {
-            listener.onClick(position, item.owner?.login.toString(), item.name.toString())
+        holder.bind(item)
+
+        if (languageColor != null) {
+            holder.itemBinding.language.setTextColor(
+                languageColor.toArgb()
+            )
+        }
+
+        holder.itemBinding.itemContainer.setOnClickListener {
+            listener.onClick(position)
         }
     }
 
     class RepositoryListViewHolder(
-        private val itemBinding: RepositoriesListItemBinding
+        val itemBinding: RepositoriesListItemBinding
     ) : RecyclerView.ViewHolder(itemBinding.root) {
 
-        val container = itemBinding.itemContainer
-
-        fun bind(item: GitHubRepository, languageTextColor: Color?) {
-            bindName(item.name)
-            bindLanguage(item.language, languageTextColor)
-            bindDescription(item.description)
-        }
-
-        private fun bindName(name: String?) {
-            itemBinding.repositoryName.text = name
-        }
-
-        private fun bindLanguage(language: String?, languageTextColor: Color?) {
-            //FIXME Переделать биндинг цвета
-            if (languageTextColor != null) {
-                itemBinding.language.setTextColor(
-                    languageTextColor.toArgb()
-                )
-            }
-
-            itemBinding.language.text = language
-        }
-
-        private fun bindDescription(description: String?) {
-            itemBinding.repositoryDescription.text = description
+        fun bind(item: GitHubRepository) {
+            itemBinding.repositoryName.text = item.name
+            itemBinding.language.text = item.language
+            itemBinding.repositoryDescription.text = item.description
         }
     }
 }

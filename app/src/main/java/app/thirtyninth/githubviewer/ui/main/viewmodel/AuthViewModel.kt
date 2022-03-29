@@ -17,11 +17,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,51 +30,48 @@ class AuthViewModel @Inject constructor(
 
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.SUSPEND
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableSharedFlow<AuthScreenState>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val state: SharedFlow<AuthScreenState> = _state.asSharedFlow()
+    private val _state = MutableStateFlow<AuthScreenState>(AuthScreenState.Loaded)
+    val state: StateFlow<AuthScreenState> = _state
 
     val authTokenFlow = MutableStateFlow<String>("")
 
-    //TODO не работает
-    var authTokenValidation: StateFlow<ValidationResult> = authTokenFlow.map { token ->
-        validateAuthToken(token)
-    }.stateIn(viewModelScope, SharingStarted.Lazily, ValidationResult.Correct)
+    private fun signInGitHubAndStoreLoginData(authToken: String) {
+        val validStatus = validateAuthToken(authToken)
 
-    private fun signInGitHubAndStoreLoginData(authToken: String) =
-        viewModelScope.launch {
-            _state.tryEmit(AuthScreenState.Idle)
+        if (validStatus is ValidationResult.Correct) {
+            viewModelScope.launch {
+                _state.value = AuthScreenState.Idle
 
-            val userDataResult = repository.getUserInfo(authToken)
+                val userDataResult = repository.getUserInfo(authToken)
 
-            userDataResult.onSuccess {
-                _state.tryEmit(AuthScreenState.Loaded)
+                userDataResult.onSuccess {
+                    _state.value = AuthScreenState.Loaded
 
-                userPreferences.saveUser(LoginData(authToken))
+                    userPreferences.saveUser(LoginData(authToken))
 
-                _actions.tryEmit(Action.RouteToRepositoryList)
-            }.onFailure { throwable ->
-                _state.tryEmit(AuthScreenState.Loaded)
+                    _actions.tryEmit(Action.RouteToRepositoryList)
+                }.onFailure { throwable ->
+                    _state.value = AuthScreenState.Loaded
 
-                if (throwable is UnauthorizedException) {
-                    _state.tryEmit(
-                        AuthScreenState.InvalidAuthTokenInput(
+                    if (throwable is UnauthorizedException) {
+                        _state.value = AuthScreenState.InvalidAuthTokenInput(
                             mapTokenValidation(
                                 ValidationResult.Incorrect
                             )
                         )
-                    )
-                } else {
-                    _actions.tryEmit(Action.ShowError(mapExceptionToBundle(throwable)))
+                    } else {
+                        _actions.tryEmit(Action.ShowError(mapExceptionToBundle(throwable)))
+                    }
                 }
             }
+        } else {
+            _state.value = AuthScreenState.InvalidAuthTokenInput(mapTokenValidation(validStatus))
         }
+    }
 
     fun onSignInButtonPressed() {
         signInGitHubAndStoreLoginData(authTokenFlow.value)

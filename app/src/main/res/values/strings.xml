@@ -33,6 +33,7 @@
     <string name="exception_title_not_found">Not found error</string>
     <string name="exception_title_unauthorized">Unauthorized exception</string>
     <string name="exception_title_unexpected">Something error</string>
+    <string name="exception_title_unknown">Unknown error</string>
 
     <string name="exception_message_empty_data">Received data is empty, try again or update authentication data</string>
     <string name="exception_message_http_call">Oops, something happened while requesting the data server, please try again later</string>

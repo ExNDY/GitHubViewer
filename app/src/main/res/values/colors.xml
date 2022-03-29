@@ -21,7 +21,7 @@
     <color name="green">#6ED370</color>
     <color name="cyan">#9CFFF9</color>
 
-    <color name="exceptionColor">#CB4F4F</color>
-    <color name="exceptionEmptyColor">#58A6FF</color>
+    <color name="exceptionColor">#FFCB4F4F</color>
+    <color name="exceptionEmptyColor">#FF58A6FF</color>
 
 </resources>

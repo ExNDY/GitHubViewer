@@ -10,10 +10,10 @@ import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,32 +22,16 @@ class RepositoriesViewModel @Inject constructor(
     private val repository: AppRepository,
     private val userPreferences: UserPreferences
 ) : ViewModel() {
-
-    private val _isLoggedIn = MutableSharedFlow<Boolean>(
-        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val isLoggedIn: SharedFlow<Boolean> = _isLoggedIn.asSharedFlow()
-
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableSharedFlow<RepositoriesListScreenState>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val state: SharedFlow<RepositoriesListScreenState> = _state.asSharedFlow()
+    private val _state = MutableStateFlow<RepositoriesListScreenState>(RepositoriesListScreenState.Loading)
+    val state: StateFlow<RepositoriesListScreenState> = _state
 
     init {
-        //TODO Унести логику в активити
-        viewModelScope.launch {
-            userPreferences.getLoggedInState().onEach {
-                _isLoggedIn.tryEmit(it)
-            }.collect()
-        }
-
         getUserRepositoryList()
     }
 
@@ -55,7 +39,7 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList()
     }
 
-    fun onRetryClicked(){
+    fun onRetryClicked() {
         loadData()
     }
 
@@ -69,14 +53,14 @@ class RepositoriesViewModel @Inject constructor(
     }
 
     private fun getUserRepositoryList() = viewModelScope.launch {
-        _state.tryEmit(RepositoriesListScreenState.Loading)
+        _state.value = RepositoriesListScreenState.Loading
 
         val repositoryListResult = repository.getRepositoryList()
 
         repositoryListResult.onSuccess { list ->
-            _state.tryEmit(RepositoriesListScreenState.Loaded(list))
+            _state.value = RepositoriesListScreenState.Loaded(list)
         }.onFailure { throwable ->
-            _state.tryEmit(RepositoriesListScreenState.Error(mapExceptionToBundle(throwable)))
+            _state.value = RepositoriesListScreenState.Error(mapExceptionToBundle(throwable))
         }
     }
 
@@ -84,7 +68,6 @@ class RepositoriesViewModel @Inject constructor(
         object Loading : RepositoriesListScreenState
         data class Loaded(val repos: List<GitHubRepository>) : RepositoriesListScreenState
         data class Error(val exceptionBundle: ExceptionBundle) : RepositoriesListScreenState
-        object Empty : RepositoriesListScreenState
     }
 
     sealed interface Action {

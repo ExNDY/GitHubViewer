@@ -9,7 +9,6 @@ import app.thirtyninth.githubviewer.data.network.NoInternetException
 import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
-import app.thirtyninth.githubviewer.ui.interfaces.LocalizeDrawable
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
 import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 
@@ -59,7 +58,7 @@ fun mapExceptionToBundle(throwable: Throwable): ExceptionBundle {
         )
         else -> {
             ExceptionBundle(
-                LocalizeString.Resource(R.string.exception_title_unexpected),
+                LocalizeString.Resource(R.string.exception_title_unknown),
                 LocalizeString.Raw(throwable.message.toString()),
                 R.drawable.img_error,
                 R.color.exceptionColor

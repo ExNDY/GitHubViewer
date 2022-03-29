@@ -20,49 +20,35 @@ class GitHubRemoteData @Inject constructor(
 ) {
 
     suspend fun getUser(authToken: String): Result<Owner> {
-        return try {
-            enqueue(gitHubService.getUser("token $authToken"))
-        } catch (e: Exception) {
-            Result.failure(mapToDomainException(e))
-        }
+        return enqueue { gitHubService.getUser("token $authToken") }
     }
 
     suspend fun getUserRepositoryList(): Result<List<GitHubRepository>> {
-        return try {
-            enqueue(gitHubService.getUserRepositoryList())
-        } catch (e: Exception) {
-            Result.failure(mapToDomainException(e))
-        }
+        return enqueue { gitHubService.getUserRepositoryList() }
     }
 
     suspend fun getRepositoryDetail(
         owner: String,
         repository: String
     ): Result<GitHubRepository> {
-        return try {
-            enqueue(gitHubService.getRepositoryDetail(owner, repository))
-        } catch (e: Exception) {
-            Result.failure(mapToDomainException(e))
-        }
+        return enqueue{ gitHubService.getRepositoryDetail(owner, repository) }
     }
 
     suspend fun getReadmeData(
         owner: String,
         repository: String
     ): Result<Readme> {
-        return try {
-            enqueue(gitHubService.getReadmeData(owner, repository))
-        } catch (e: Exception) {
-            Result.failure(mapToDomainException(e))
-        }
+        return enqueue{gitHubService.getReadmeData(owner, repository)}
+
     }
 
 //    suspend fun fetchReadme(url:String):Result<ResponseBody?>{
 //        downloadService.downloadReadme(url)
 //    }
 
-    private fun <T> enqueue(response: Response<T>): Result<T> {
+    private suspend fun <T> enqueue(responseBlock: suspend ()->Response<T>): Result<T> {
         try {
+            val response = responseBlock()
             when (response.code()) {
                 401 -> {
                     return Result.failure(
@@ -90,7 +76,6 @@ class GitHubRemoteData @Inject constructor(
                     } else {
                         Result.success(responseBody)
                     }
-
                 }
             }
         } catch (exception: Exception) {

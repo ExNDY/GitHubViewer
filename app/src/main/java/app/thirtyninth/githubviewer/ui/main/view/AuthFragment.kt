@@ -67,33 +67,11 @@ class AuthFragment : Fragment() {
             handleAction(action)
         }.launchIn(lifecycleScope)
 
-//        viewModel.authTokenValidation.onEach { status ->
-//            setAuthTokenErrorMessage(status)
-//        }
+
     }
 
     private fun routeToRepositoriesList() {
         findNavController().navigate(AuthFragmentDirections.navigateToRepositoryList())
-    }
-
-    private fun setNormalState() {
-        with(binding) {
-            signInButton.text = getString(R.string.sign_in)
-            progressCircular.visibility = View.GONE
-        }
-    }
-
-    private fun setLoadingState() {
-        with(binding) {
-            signInButton.text = ""
-            progressCircular.visibility = View.VISIBLE
-        }
-    }
-
-    private fun setAuthTokenErrorMessage(errorMessage: String) {
-        with(binding) {
-            accessTokenContainer.error = errorMessage
-        }
     }
 
     private fun handleAction(action: Action) {
@@ -104,14 +82,24 @@ class AuthFragment : Fragment() {
     }
 
     private fun handleState(state: AuthScreenState) {
-        when (state) {
-            AuthScreenState.Idle -> setLoadingState()
-            AuthScreenState.Loaded -> setNormalState()
-            is AuthScreenState.InvalidAuthTokenInput -> setAuthTokenErrorMessage(
-                state.reason.getString(
-                    requireContext()
-                )
-            )
+        with(binding){
+            accessTokenContainer.error = if (state is AuthScreenState.InvalidAuthTokenInput){
+                state.reason.getString(requireContext())
+            }else{
+                null
+            }
+
+            signInButton.text = if (state is AuthScreenState.Idle){
+                ""
+            }else{
+                getText(R.string.sign_in)
+            }
+
+            progressCircular.visibility = if (state is AuthScreenState.Idle){
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
 }

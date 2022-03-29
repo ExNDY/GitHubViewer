@@ -1,11 +1,13 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,11 +25,10 @@ import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.RepositoriesListScreenState
-import app.thirtyninth.githubviewer.utils.StorageUtil
+import app.thirtyninth.githubviewer.utils.LanguageColorReader
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -43,8 +44,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        initApp()
-
         setHasOptionsMenu(true)
 
         return binding.root
@@ -55,17 +54,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
         setupUIComponents()
         setupToolbar()
-    }
-
-    private fun initApp() {
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.isLoggedIn
-                .onEach { isLoggedIn ->
-                    if (!isLoggedIn) {
-                        routeToAuthScreen()
-                    }
-                }.collect()
-        }
     }
 
     private fun setupToolbar() {
@@ -87,7 +75,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupUIComponents() {
-        val colors: Map<String, Color> = StorageUtil.fetchLanguageColorsMap(
+        val colors: Map<String, Color> = LanguageColorReader().fetchLanguageColorsMap(
             requireContext(), Constants.LANGUAGE_COLORS_JSON_PATH
         )
 
@@ -95,6 +83,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
         setupObservers(listAdapter)
 
+        //TODO Переделать click listener item
         with(binding) {
             repositoryList.apply {
                 setHasFixedSize(true)
@@ -121,6 +110,21 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupObservers(adapter: RepositoryListAdapter) {
+        //TODO Посмотреть новую реализацию запуска на lifecycle
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            viewLifecycleOwner.withStarted {
+//                lifecycleScope.launch {
+//                    viewModel.actions.collect { action ->
+//                        handleAction(action)
+//                    }
+//
+//                    viewModel.state.collect { state ->
+//                        handleState(state, adapter)
+//                    }
+//                }
+//            }
+//        }
+
         viewModel.actions.onEach { action ->
             handleAction(action)
         }.launchIn(lifecycleScope)
@@ -130,36 +134,14 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }.launchIn(lifecycleScope)
     }
 
-    private fun setLoadingState() {
-        with(binding) {
-            blockError.container.visibility = View.GONE
-            repositoryList.visibility = View.VISIBLE
-            blockLoading.container.visibility = View.VISIBLE
-        }
-    }
-
-    private fun setLoadedState(list: List<GitHubRepository>, adapter: RepositoryListAdapter) {
-        with(binding) {
-            blockLoading.container.visibility = View.GONE
-            blockError.container.visibility = View.GONE
-            repositoryList.visibility = View.VISIBLE
-        }
-
-        adapter.submitList(list)
-    }
-
-    private fun setErrorState(exceptionBundle: ExceptionBundle) {
+    private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
         val titleColor = exceptionBundle.titleColor
 
         with(binding) {
-            repositoryList.visibility = View.GONE
-            blockLoading.container.visibility = View.GONE
-            blockError.container.visibility = View.VISIBLE
-
-            blockError.errorTitle.setTextColor(titleColor)
+            blockError.errorTitle.setTextColor(resources.getColor(titleColor, resources.newTheme()))
             blockError.errorTitle.text = title
             blockError.errorMessage.text = message
             blockError.errorImg.setImageResource(imageId)
@@ -168,10 +150,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
                 viewModel.onRetryClicked()
             }
         }
-    }
-
-    private fun setEmptyState() {
-        //TODO
     }
 
     private fun logout() = AlertDialog.Builder(context)
@@ -183,16 +161,30 @@ class RepositoriesFragment : Fragment(), ActionListener {
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
 
-    override fun onClick(clickedPosition: Int, owner: String, repositoryName: String) {
-        openRepositoryDetail(owner, repositoryName)
+    override fun onClick(clickedPosition: Int) {
+        //FIXME
+        //openRepositoryDetail(item, item.repositoryName)
     }
 
     private fun handleState(state: RepositoriesListScreenState, adapter: RepositoryListAdapter) {
-        when (state) {
-            RepositoriesListScreenState.Loading -> setLoadingState()
-            is RepositoriesListScreenState.Loaded -> setLoadedState(state.repos, adapter)
-            is RepositoriesListScreenState.Error -> setErrorState(state.exceptionBundle)
-            is RepositoriesListScreenState.Empty -> setEmptyState()
+        with(binding) {
+            blockError.container.visibility = if (state is RepositoriesListScreenState.Error) {
+                handleEmptyState(state.exceptionBundle)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            repositoryList.visibility = if (state is RepositoriesListScreenState.Loaded) {
+                adapter.submitList(state.repos)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            blockLoading.container.visibility = if (state is RepositoriesListScreenState.Loading){
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
 

@@ -2,12 +2,15 @@ package app.thirtyninth.githubviewer.ui.main.view
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -115,14 +118,14 @@ class DetailInfoFragment : Fragment() {
             readmeBlockHeader.text = source.name
         }
 
-        //FIXME
+        //FIXME доделать
         markwonAdapter.setMarkdown(markwon, source.download_url)
         markwonAdapter.notifyDataSetChanged()
     }
 
-    private fun bindRepositoryInfo(source: GitHubRepository) {
+    private fun setRepositoryDetail(gitHubRepository: GitHubRepository) {
         with(binding) {
-            source.license?.spdxId.also { spdxId ->
+            gitHubRepository.license?.spdxId.also { spdxId ->
                 if (spdxId.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
@@ -131,27 +134,32 @@ class DetailInfoFragment : Fragment() {
             }
 
             repositoryLinkButton.text =
-                source.htmlURL?.substring(8, source.htmlURL.length).orEmpty()
-            starsCount.text = source.stargazersCount.toString()
-            forksCount.text = source.forksCount.toString()
-            watchersCount.text = source.watchersCount.toString()
-            repositoryName.text = source.name
+                gitHubRepository.htmlURL?.substring(8, gitHubRepository.htmlURL.length).orEmpty()
+            starsCount.text = gitHubRepository.stargazersCount.toString()
+            forksCount.text = gitHubRepository.forksCount.toString()
+            watchersCount.text = gitHubRepository.watchersCount.toString()
+            repositoryName.text = gitHubRepository.name
 
             repositoryLinkButton.setOnClickListener {
-                if (source.htmlURL != null) {
-                    openInBrowser(source.htmlURL)
+                if (gitHubRepository.htmlURL != null) {
+                    openInBrowser(gitHubRepository.htmlURL)
                 }
             }
         }
     }
 
-    //TODO Учесть замечания и сделать учитывая тонкости API 30lvl
     private fun openInBrowser(url: String) {
         val browser: Intent =
             Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
         browser.data = Uri.parse(url)
 
-        startActivity(browser)
+        try {
+            startActivity(browser)
+        } catch (ex: ActivityNotFoundException) {
+            Log.e("OPEN_IN_BROWSER", "Browser don't found in system.", ex)
+            Toast.makeText(context, "Browser not found", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun logout() = AlertDialog.Builder(context)
@@ -178,7 +186,7 @@ class DetailInfoFragment : Fragment() {
             blockData.visibility = View.VISIBLE
         }
 
-        bindRepositoryInfo(gitHubRepo)
+        setRepositoryDetail(gitHubRepo)
         handleReadmeState(readmeState)
     }
 
