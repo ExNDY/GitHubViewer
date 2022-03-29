@@ -24,8 +24,8 @@
         android:label="@string/fragment_name_repositories_list"
         tools:layout="@layout/repositories_fragment">
         <action
-            android:id="@+id/navigate_toRepositoryInfo"
-            app:destination="@id/repositoryInfoFragment"
+            android:id="@+id/navigate_toDetailInfo"
+            app:destination="@id/detailInfoFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -33,7 +33,7 @@
             app:popUpTo="@id/repositoriesFragment" />
     </fragment>
     <fragment
-        android:id="@+id/repositoryInfoFragment"
+        android:id="@+id/detailInfoFragment"
         android:name="app.thirtyninth.githubviewer.ui.main.view.DetailInfoFragment"
         tools:layout="@layout/detail_info_fragment">
         <argument

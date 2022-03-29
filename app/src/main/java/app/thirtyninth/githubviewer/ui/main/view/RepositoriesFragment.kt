@@ -1,13 +1,11 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +16,6 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
-import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
@@ -103,7 +100,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
 
     private fun openRepositoryDetail(owner: String, repositoryName: String) {
         findNavController().navigate(
-            RepositoriesFragmentDirections.navigateToRepositoryInfo(
+            RepositoriesFragmentDirections.navigateToDetailInfo(
                 owner, repositoryName
             )
         )
