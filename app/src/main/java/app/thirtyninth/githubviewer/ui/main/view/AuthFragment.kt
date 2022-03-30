@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -75,13 +76,24 @@ class AuthFragment : Fragment() {
     }
 
     private fun routeToRepositoriesList() {
-        findNavController().navigate(AuthFragmentDirections.navigateToRepositoryList())
+        findNavController().navigate(AuthFragmentDirections.routeToRepositoriesScreen())
+    }
+
+    private fun showErrorMessage(title: String, message: String) {
+        AlertDialog.Builder(context, R.style.GitHubViewer_AlertDialog)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.dialog_ok), null)
+            .show()
     }
 
     private fun handleAction(action: Action) {
         when (action) {
             Action.RouteToRepositoryList -> routeToRepositoriesList()
-            is Action.ShowError -> {}
+            is Action.ShowError -> showErrorMessage(
+                action.exceptionBundle.title.getString(requireContext()),
+                action.exceptionBundle.message.getString(requireContext())
+            )
         }
     }
 

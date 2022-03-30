@@ -22,7 +22,7 @@ class KeyValueStorage @Inject constructor(
     }.stateIn(scope, SharingStarted.Eagerly, null)
 
     fun isLoggedIn(): Boolean {
-        return tokenStateFlow.value != null
+        return !tokenStateFlow.value.isNullOrBlank()
     }
 
     //var authToken:String? = preferencesManager.authToken

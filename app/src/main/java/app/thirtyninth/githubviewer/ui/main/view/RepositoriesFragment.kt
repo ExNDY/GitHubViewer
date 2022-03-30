@@ -99,7 +99,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun routeToAuthScreen() {
-        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+        findNavController().navigate(AppNavigationDirections.routeToAuthScreen())
     }
 
     private fun openRepositoryDetail(repo: GitHubRepository) {
@@ -114,7 +114,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupObservers(adapter: RepositoryListAdapter) {
-        // TODO разобраться почему не работает обычный Collect
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.actions.onEach { action ->

@@ -323,8 +323,8 @@
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/block_readme_loading"
                 style="@style/Widget.MaterialComponents.CircularProgressIndicator"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:indeterminate="true"
                 android:indeterminateTint="@color/white"
                 android:visibility="gone"

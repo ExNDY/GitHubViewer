@@ -13,6 +13,7 @@ import app.thirtyninth.githubviewer.utils.Validator
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -27,13 +28,16 @@ class AuthViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _actions = MutableSharedFlow<Action>()
+    private val _actions = MutableSharedFlow<Action>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loaded)
     val state: StateFlow<ScreenState> = _state
 
-    val authTokenFlow = MutableStateFlow<String>("")
+    val authTokenFlow = MutableStateFlow("")
 
     private fun signInGitHubAndStoreLoginData(authToken: String) {
         val validStatus = validateAuthToken(authToken)

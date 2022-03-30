@@ -115,6 +115,7 @@ class DetailInfoFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setupReadmeMd(readme: String, readmeDetail: Readme) {
+        //FIXME Coil doesnt work
         val markwon = Markwon.builder(requireContext())
             .usePlugin(MarkwonInlineParserPlugin.create())
             .usePlugin(StrikethroughPlugin.create())
@@ -240,7 +241,7 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun routeToAuthScreen() {
-        findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
+        findNavController().navigate(AppNavigationDirections.routeToAuthScreen())
     }
 
     private fun handleAction(action: Action) {

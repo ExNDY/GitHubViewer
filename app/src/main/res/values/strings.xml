@@ -52,6 +52,7 @@
     <string name="logout_dialog_title">Logout</string>
     <string name="logout_dialog_positive">Yes, sure</string>
     <string name="logout_dialog_negative">No, thanks</string>
+    <string name="dialog_ok">OK</string>
 
     <string name="zero_value">0</string>
     <string name="repo_info_license_type_not_specified">Not specified</string>

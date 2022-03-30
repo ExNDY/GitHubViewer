@@ -12,6 +12,7 @@ import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -27,7 +28,10 @@ class DetailInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _actions = MutableSharedFlow<Action>()
+    private val _actions = MutableSharedFlow<Action>(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
