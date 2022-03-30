@@ -42,19 +42,27 @@ fun mapExceptionToBundle(throwable: Throwable): ExceptionBundle {
             LocalizeString.Resource(R.string.exception_title_not_found),
             LocalizeString.Resource(R.string.exception_message_not_found),
             R.drawable.img_error,
-            R.color.exceptionColor
+            R.color.exceptionColor,
+            throwable.code,
+            throwable.request,
+            throwable.url
         )
-        is UnauthorizedException -> ExceptionBundle(
-            LocalizeString.Resource(R.string.exception_title_unauthorized),
-            LocalizeString.Resource(R.string.exception_message_unauthorized),
-            R.drawable.img_error,
-            R.color.exceptionColor
-        )
+        is UnauthorizedException -> {
+            ExceptionBundle(
+                LocalizeString.Resource(R.string.exception_title_unauthorized),
+                LocalizeString.Resource(R.string.exception_message_unauthorized),
+                R.drawable.img_error,
+                R.color.exceptionColor,
+                throwable.code,
+                throwable.request,
+                throwable.url
+            )
+        }
         is UnexpectedException -> ExceptionBundle(
             LocalizeString.Resource(R.string.exception_title_unexpected),
             LocalizeString.Resource(R.string.exception_message_unexpected),
             R.drawable.img_error,
-            R.color.exceptionColor
+            R.color.exceptionColor,
         )
         else -> {
             ExceptionBundle(

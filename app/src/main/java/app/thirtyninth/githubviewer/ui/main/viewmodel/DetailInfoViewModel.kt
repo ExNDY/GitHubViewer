@@ -46,14 +46,14 @@ class DetailInfoViewModel @Inject constructor(
     private var readmeData: Readme? = null
 
     init {
-        loadRepositoryInfo()
+        loadDetailInfo()
     }
 
     fun retryButtonClicked() {
-        loadRepositoryInfo()
+        loadDetailInfo()
     }
 
-    fun retryLoadReadmeButtonClicked() {
+    fun retryReadmeButtonClicked() {
         if (readmeData == null) {
             _readmeState.value = ReadmeState.Empty
         } else {
@@ -61,8 +61,8 @@ class DetailInfoViewModel @Inject constructor(
         }
     }
 
-    private fun loadRepositoryInfo() = viewModelScope.launch {
-        getRepositoryDetails(currentOwner, currentRepositoryName)
+    private fun loadDetailInfo() = viewModelScope.launch {
+        fetchRepositoryDetails(currentOwner, currentRepositoryName)
     }
 
     private fun fetchReadmeMd(readmeDetail: Readme) = viewModelScope.launch {
@@ -77,7 +77,7 @@ class DetailInfoViewModel @Inject constructor(
         }
     }
 
-    private fun getRepositoryDetails(owner: String, repoName: String) = viewModelScope.launch {
+    private fun fetchRepositoryDetails(owner: String, repoName: String) = viewModelScope.launch {
         _state.value = ScreenState.Loading
 
         val resultDetails = async { repository.getRepositoryDetails(owner, repoName) }
@@ -87,7 +87,6 @@ class DetailInfoViewModel @Inject constructor(
             _state.value = ScreenState.Loaded(repo, ReadmeState.Loading)
         }.onFailure { throwable ->
             _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
-
         }
 
         resultReadmeDetails.await().onSuccess { readmeDetail ->

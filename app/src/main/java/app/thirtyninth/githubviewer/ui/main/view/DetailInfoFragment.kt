@@ -48,7 +48,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.commonmark.node.FencedCodeBlock
 
-//TODO rewrite logic and naming
 @AndroidEntryPoint
 class DetailInfoFragment : Fragment() {
     private val viewModel: DetailInfoViewModel by viewModels()
@@ -69,9 +68,9 @@ class DetailInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupObservers()
-
         setupToolbar(args.repositoryName)
+
+        setupMarkdown()
     }
 
     private fun setupToolbar(title: String) {
@@ -95,26 +94,7 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun setupObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.onEach { action ->
-                    handleAction(action)
-                }.launchIn(lifecycleScope)
-
-                viewModel.readmeState.onEach { state ->
-                    handleReadmeState(state)
-                }.launchIn(lifecycleScope)
-
-                viewModel.state.onEach { state ->
-                    handleState(state)
-                }.launchIn(lifecycleScope)
-            }
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun setupReadmeMd(readme: String, readmeDetail: Readme) {
+    private fun setupMarkdown() {
         //FIXME Coil doesnt work
         val markwon = Markwon.builder(requireContext())
             .usePlugin(MarkwonInlineParserPlugin.create())
@@ -138,15 +118,43 @@ class DetailInfoFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                 adapter = markwonAdapter
             }
-
-            readmeBlockHeader.text = readmeDetail.name
         }
 
-        markwonAdapter.setMarkdown(markwon, readme)
-        markwonAdapter.notifyDataSetChanged()
+        setupObservers(markwon, markwonAdapter)
     }
 
-    private fun handleRepositoryDetail(gitHubRepository: GitHubRepository) {
+    private fun setupObservers(markwon: Markwon, markwonAdapter: MarkwonAdapter) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actions.onEach { action ->
+                    handleAction(action)
+                }.launchIn(lifecycleScope)
+
+                viewModel.readmeState.onEach { state ->
+                    handleReadmeState(state, markwon, markwonAdapter)
+                }.launchIn(lifecycleScope)
+
+                viewModel.state.onEach { state ->
+                    handleState(state, markwon, markwonAdapter)
+                }.launchIn(lifecycleScope)
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun setReadme(
+        markwon: Markwon,
+        adapter: MarkwonAdapter,
+        readme: String,
+        readmeDetail: Readme
+    ) {
+        binding.readmeBlockHeader.text = readmeDetail.name
+
+        adapter.setMarkdown(markwon, readme)
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun setRepositoryDetail(gitHubRepository: GitHubRepository) {
         with(binding) {
             gitHubRepository.license?.spdxId.also { spdxId ->
                 if (spdxId.isNullOrEmpty()) {
@@ -199,7 +207,7 @@ class DetailInfoFragment : Fragment() {
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
 
-    private fun handleErrorState(exceptionBundle: ExceptionBundle) {
+    private fun setErrorState(exceptionBundle: ExceptionBundle) {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
@@ -217,7 +225,7 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleReadmeErrorState(exceptionBundle: ExceptionBundle) {
+    private fun setReadmeErrorState(exceptionBundle: ExceptionBundle) {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
@@ -235,7 +243,7 @@ class DetailInfoFragment : Fragment() {
             blockReadmeError.errorImg.setImageResource(imageId)
 
             blockReadmeError.retryButton.setOnClickListener {
-                viewModel.retryLoadReadmeButtonClicked()
+                viewModel.retryReadmeButtonClicked()
             }
         }
     }
@@ -250,11 +258,11 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleState(state: ScreenState) {
+    private fun handleState(state: ScreenState, markwon: Markwon, markwonAdapter: MarkwonAdapter) {
         with(binding) {
             blockData.visibility = if (state is ScreenState.Loaded) {
-                handleRepositoryDetail(state.githubRepo)
-                handleReadmeState(state.readmeState)
+                setRepositoryDetail(state.githubRepo)
+                handleReadmeState(state.readmeState, markwon, markwonAdapter)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -267,7 +275,7 @@ class DetailInfoFragment : Fragment() {
             }
 
             blockError.container.visibility = if (state is ScreenState.Error) {
-                handleErrorState(state.exceptionBundle)
+                setErrorState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -275,10 +283,14 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleReadmeState(state: ReadmeState) {
+    private fun handleReadmeState(
+        state: ReadmeState,
+        markwon: Markwon,
+        markwonAdapter: MarkwonAdapter
+    ) {
         with(binding) {
             markdown.visibility = if (state is ReadmeState.Loaded) {
-                setupReadmeMd(state.markdown, state.readmeDetail)
+                setReadme(markwon, markwonAdapter, state.markdown, state.readmeDetail)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -291,7 +303,7 @@ class DetailInfoFragment : Fragment() {
             }
 
             blockReadmeError.container.visibility = if (state is ReadmeState.Error) {
-                handleReadmeErrorState(state.exceptionBundle)
+                setReadmeErrorState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE

@@ -53,7 +53,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupUIComponents()
+        setupRepositoriesList()
         setupToolbar()
     }
 
@@ -75,7 +75,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
-    private fun setupUIComponents() {
+    private fun setupRepositoriesList() {
         val colors: Map<String, Color> = LanguageColorReader().fetchLanguageColorsMap(
             requireContext(), Constants.LANGUAGE_COLORS_JSON_PATH
         )
@@ -96,6 +96,10 @@ class RepositoriesFragment : Fragment(), ActionListener {
                 viewModel.loadData()
             }
         }
+    }
+
+    private fun setRepositoriesList(adapter: RepositoryListAdapter, list: List<GitHubRepository>){
+        adapter.submitList(list)
     }
 
     private fun routeToAuthScreen() {
@@ -167,7 +171,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
             }
 
             repositoryList.visibility = if (state is ScreenState.Loaded) {
-                adapter.submitList(state.repos)
+                setRepositoriesList(adapter, state.repos)
                 View.VISIBLE
             } else {
                 View.GONE

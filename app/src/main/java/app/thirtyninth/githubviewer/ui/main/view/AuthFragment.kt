@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
+import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.databinding.AuthFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
 import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel
@@ -79,9 +80,21 @@ class AuthFragment : Fragment() {
         findNavController().navigate(AuthFragmentDirections.routeToRepositoriesScreen())
     }
 
-    private fun showErrorMessage(title: String, message: String) {
+    private fun showErrorMessage(exceptionBundle: ExceptionBundle) {
+        val message = if (exceptionBundle.errorCode != null
+            && exceptionBundle.request != null
+            && exceptionBundle.url != null
+        ) {
+            "code: ${exceptionBundle.errorCode}" + "\n" +
+                    "request: ${exceptionBundle.request}" + "\n" +
+                    "url: ${exceptionBundle.url}" + "\n" +
+                    "message: ${exceptionBundle.message.getString(requireContext())}"
+        } else {
+            exceptionBundle.message.getString(requireContext())
+        }
+
         AlertDialog.Builder(context, R.style.GitHubViewer_AlertDialog)
-            .setTitle(title)
+            .setTitle(exceptionBundle.title.getString(requireContext()))
             .setMessage(message)
             .setPositiveButton(getString(R.string.dialog_ok), null)
             .show()
@@ -90,10 +103,7 @@ class AuthFragment : Fragment() {
     private fun handleAction(action: Action) {
         when (action) {
             Action.RouteToRepositoryList -> routeToRepositoriesList()
-            is Action.ShowError -> showErrorMessage(
-                action.exceptionBundle.title.getString(requireContext()),
-                action.exceptionBundle.message.getString(requireContext())
-            )
+            is Action.ShowError -> showErrorMessage(action.exceptionBundle)
         }
     }
 
