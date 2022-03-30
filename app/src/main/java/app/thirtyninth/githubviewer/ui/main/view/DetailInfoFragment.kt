@@ -171,26 +171,7 @@ class DetailInfoFragment : Fragment() {
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
 
-    private fun setLoadingState() {
-        with(binding) {
-            blockData.visibility = View.GONE
-            blockError.container.visibility = View.GONE
-            blockLoading.container.visibility = View.VISIBLE
-        }
-    }
-
-    private fun setLoadedState(gitHubRepo: GitHubRepository, readmeState: ReadmeState) {
-        with(binding) {
-            blockLoading.container.visibility = View.GONE
-            blockError.container.visibility = View.GONE
-            blockData.visibility = View.VISIBLE
-        }
-
-        setRepositoryDetail(gitHubRepo)
-        handleReadmeState(readmeState)
-    }
-
-    private fun setErrorState(exceptionBundle: ExceptionBundle) {
+    private fun handleErrorState(exceptionBundle: ExceptionBundle) {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
@@ -223,10 +204,27 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun handleState(state: DetailInfoScreenState) {
-        when (state) {
-            DetailInfoScreenState.Loading -> setLoadingState()
-            is DetailInfoScreenState.Loaded -> setLoadedState(state.githubRepo, state.readmeState)
-            is DetailInfoScreenState.Error -> setErrorState(state.exceptionBundle)
+        with(binding) {
+            blockData.visibility = if (state is DetailInfoScreenState.Loaded) {
+                setRepositoryDetail(state.githubRepo)
+                handleReadmeState(state.readmeState)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            blockLoading.container.visibility = if (state is DetailInfoScreenState.Loading) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            blockError.container.visibility = if (state is DetailInfoScreenState.Error) {
+                handleErrorState(state.exceptionBundle)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     }
 

@@ -49,6 +49,7 @@ object Dependencies {
         const val uiKtx = "androidx.navigation:navigation-ui-ktx:$version"
 
         const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version"
+        const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:$version"
     }
 
     object Google {

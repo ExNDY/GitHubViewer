@@ -56,10 +56,10 @@
         android:text="@string/sign_in"
         android:textAppearance="@style/LoginScreen.SignIn.TextStyle"
         android:textColor="@color/white"
-        tools:ignore="TextContrastCheck"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress_circular"
@@ -70,8 +70,8 @@
         android:indeterminate="true"
         android:visibility="invisible"
         app:indicatorColor="@color/white"
-        app:layout_constraintStart_toStartOf="@id/sign_in_button"
+        app:layout_constraintBottom_toBottomOf="@id/sign_in_button"
         app:layout_constraintEnd_toEndOf="@id/sign_in_button"
-        app:layout_constraintTop_toTopOf="@id/sign_in_button"
-        app:layout_constraintBottom_toBottomOf="@id/sign_in_button"/>
+        app:layout_constraintStart_toStartOf="@id/sign_in_button"
+        app:layout_constraintTop_toTopOf="@id/sign_in_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>

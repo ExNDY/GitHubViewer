@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
-    @Inject lateinit var storage: KeyValueStorage
+    @Inject
+    lateinit var storage: KeyValueStorage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -20,12 +21,13 @@ class AppActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_app)
 
-        if (savedInstanceState == null){
-            val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container) as NavHostFragment
+        if (savedInstanceState == null) {
+            val navHostFragment =
+                supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container) as NavHostFragment
             val navController = navHostFragment.navController
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
 
-            val destinationId = if (storage.isLoggedIn()){
+            val destinationId = if (storage.isLoggedIn()) {
                 R.id.repositoriesFragment
             } else {
                 R.id.authFragment

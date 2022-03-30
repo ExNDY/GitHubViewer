@@ -65,6 +65,7 @@ dependencies {
     implementation(Dependencies.Navigation.fragment)
     implementation(Dependencies.Navigation.uiKtx)
     implementation(Dependencies.Navigation.viewModel)
+    implementation(Dependencies.Navigation.lifecycleRuntime)
     //Dagger.Hilt
     implementation(Dependencies.Hilt.android)
     kapt(Dependencies.Hilt.compiler)

@@ -28,7 +28,8 @@ class RepositoriesViewModel @Inject constructor(
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableStateFlow<RepositoriesListScreenState>(RepositoriesListScreenState.Loading)
+    private val _state =
+        MutableStateFlow<RepositoriesListScreenState>(RepositoriesListScreenState.Loading)
     val state: StateFlow<RepositoriesListScreenState> = _state
 
     init {

@@ -82,20 +82,20 @@ class AuthFragment : Fragment() {
     }
 
     private fun handleState(state: AuthScreenState) {
-        with(binding){
-            accessTokenContainer.error = if (state is AuthScreenState.InvalidAuthTokenInput){
+        with(binding) {
+            accessTokenContainer.error = if (state is AuthScreenState.InvalidAuthTokenInput) {
                 state.reason.getString(requireContext())
-            }else{
+            } else {
                 null
             }
 
-            signInButton.text = if (state is AuthScreenState.Idle){
+            signInButton.text = if (state is AuthScreenState.Idle) {
                 ""
-            }else{
+            } else {
                 getText(R.string.sign_in)
             }
 
-            progressCircular.visibility = if (state is AuthScreenState.Idle){
+            progressCircular.visibility = if (state is AuthScreenState.Idle) {
                 View.VISIBLE
             } else {
                 View.GONE

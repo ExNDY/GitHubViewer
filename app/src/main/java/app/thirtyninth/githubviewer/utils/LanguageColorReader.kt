@@ -28,6 +28,7 @@ class LanguageColorReader {
     private fun jsonToJsonObj(context: Context, jsonFilePath: String): JsonObject {
         return Json.parseToJsonElement(readJSON(context, jsonFilePath)).jsonObject
     }
+
     //TODO сделать обработку
     fun fetchLanguageColorsMap(
         context: Context,

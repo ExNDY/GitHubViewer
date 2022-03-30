@@ -12,7 +12,7 @@ fun EditText.bindTextTwoWayFlow(
     mutableStateFlow: MutableStateFlow<String>,
     scope: CoroutineScope
 ) {
-    this.addTextChangedListener(object :TextWatcher{
+    this.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
 

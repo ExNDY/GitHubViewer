@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,6 +30,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RepositoriesFragment : Fragment(), ActionListener {
@@ -107,28 +110,17 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun setupObservers(adapter: RepositoryListAdapter) {
-        //TODO Посмотреть новую реализацию запуска на lifecycle
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewLifecycleOwner.withStarted {
-//                lifecycleScope.launch {
-//                    viewModel.actions.collect { action ->
-//                        handleAction(action)
-//                    }
-//
-//                    viewModel.state.collect { state ->
-//                        handleState(state, adapter)
-//                    }
-//                }
-//            }
-//        }
-
-        viewModel.actions.onEach { action ->
-            handleAction(action)
-        }.launchIn(lifecycleScope)
-
-        viewModel.state.onEach { state ->
-            handleState(state, adapter)
-        }.launchIn(lifecycleScope)
+        // TODO разобраться почему не работает обычный Collect
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actions.onEach { action ->
+                    handleAction(action)
+                }.launchIn(lifecycleScope)
+                viewModel.state.onEach { state ->
+                    handleState(state, adapter)
+                }.launchIn(lifecycleScope)
+            }
+        }
     }
 
     private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
@@ -171,13 +163,15 @@ class RepositoriesFragment : Fragment(), ActionListener {
             } else {
                 View.GONE
             }
+
             repositoryList.visibility = if (state is RepositoriesListScreenState.Loaded) {
                 adapter.submitList(state.repos)
                 View.VISIBLE
             } else {
                 View.GONE
             }
-            blockLoading.container.visibility = if (state is RepositoriesListScreenState.Loading){
+
+            blockLoading.container.visibility = if (state is RepositoriesListScreenState.Loading) {
                 View.VISIBLE
             } else {
                 View.GONE
