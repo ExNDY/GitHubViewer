@@ -21,17 +21,21 @@ class AppRepository
         return gitHub.getUserRepositoryList()
     }
 
-    suspend fun getRepositoryInfo(
+    suspend fun getRepositoryDetails(
         owner: String,
         repository: String
     ): Result<GitHubRepository> {
         return gitHub.getRepositoryDetail(owner, repository)
     }
 
-    suspend fun getReadmeData(
+    suspend fun getReadmeDetail(
         owner: String,
         repository: String
     ): Result<Readme> {
         return gitHub.getReadmeData(owner, repository)
+    }
+
+    suspend fun getReadmeMd(url: String): Result<String> {
+        return gitHub.fetchReadme(url)
     }
 }

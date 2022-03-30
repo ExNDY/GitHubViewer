@@ -39,7 +39,7 @@ class RepositoryListAdapter(
         }
 
         holder.itemBinding.itemContainer.setOnClickListener {
-            listener.onClick(position)
+            listener.onClick(currentList[position])
         }
     }
 

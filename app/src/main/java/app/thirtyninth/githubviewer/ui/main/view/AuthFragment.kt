@@ -6,19 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.AuthFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
 import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.AuthScreenState
+import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.ScreenState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -59,15 +62,16 @@ class AuthFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.state.onEach { state ->
-            handleState(state)
-        }.launchIn(lifecycleScope)
-
-        viewModel.actions.onEach { action ->
-            handleAction(action)
-        }.launchIn(lifecycleScope)
-
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actions.onEach { action ->
+                    handleAction(action)
+                }.launchIn(lifecycleScope)
+                viewModel.state.onEach { state ->
+                    handleState(state)
+                }.launchIn(lifecycleScope)
+            }
+        }
     }
 
     private fun routeToRepositoriesList() {
@@ -81,21 +85,21 @@ class AuthFragment : Fragment() {
         }
     }
 
-    private fun handleState(state: AuthScreenState) {
+    private fun handleState(state: ScreenState) {
         with(binding) {
-            accessTokenContainer.error = if (state is AuthScreenState.InvalidAuthTokenInput) {
+            accessTokenContainer.error = if (state is ScreenState.InvalidAuthTokenInput) {
                 state.reason.getString(requireContext())
             } else {
                 null
             }
 
-            signInButton.text = if (state is AuthScreenState.Idle) {
+            signInButton.text = if (state is ScreenState.Idle) {
                 ""
             } else {
                 getText(R.string.sign_in)
             }
 
-            progressCircular.visibility = if (state is AuthScreenState.Idle) {
+            progressCircular.visibility = if (state is ScreenState.Idle) {
                 View.VISIBLE
             } else {
                 View.GONE

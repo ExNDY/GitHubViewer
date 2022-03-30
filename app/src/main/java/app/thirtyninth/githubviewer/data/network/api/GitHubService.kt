@@ -3,7 +3,6 @@ package app.thirtyninth.githubviewer.data.network.api
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Owner
 import app.thirtyninth.githubviewer.data.models.Readme
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -27,7 +26,7 @@ interface GitHubService {
     ): Response<GitHubRepository>
 
     @GET("/repos/{owner}/{repository}/readme")
-    suspend fun getReadmeData(
+    suspend fun getReadmeDetail(
         @Path("owner") owner: String,
         @Path("repository") repository: String
     ): Response<Readme>
@@ -35,6 +34,5 @@ interface GitHubService {
 
 interface DownloadService {
     @GET
-    suspend fun downloadReadme(@Url url: String): Response<ResponseBody>
-
+    suspend fun downloadReadme(@Url url: String): Response<String>
 }

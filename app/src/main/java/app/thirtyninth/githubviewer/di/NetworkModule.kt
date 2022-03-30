@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
 
@@ -67,6 +68,7 @@ object NetworkModule {
     fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttpClient)
+        .addConverterFactory(ScalarsConverterFactory.create())
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 

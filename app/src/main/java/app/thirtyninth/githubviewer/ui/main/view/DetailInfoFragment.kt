@@ -13,7 +13,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,18 +26,26 @@ import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
+import app.thirtyninth.githubviewer.extentions.getCoilPlugin
 import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.DetailInfoScreenState
 import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.ReadmeState
+import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.ScreenState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.ext.tables.TablePlugin
+import io.noties.markwon.html.HtmlPlugin
+import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin
+import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.recycler.MarkwonAdapter
 import io.noties.markwon.recycler.SimpleEntry
+import io.noties.markwon.simple.ext.SimpleExtPlugin
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.commonmark.node.FencedCodeBlock
 
 //TODO rewrite logic and naming
@@ -86,22 +96,34 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.state.onEach { state ->
-            handleState(state)
-        }.launchIn(lifecycleScope)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actions.onEach { action ->
+                    handleAction(action)
+                }.launchIn(lifecycleScope)
 
-        viewModel.readmeState.onEach { state ->
-            handleReadmeState(state)
-        }.launchIn(lifecycleScope)
+                viewModel.readmeState.onEach { state ->
+                    handleReadmeState(state)
+                }.launchIn(lifecycleScope)
 
-        viewModel.action.onEach { action ->
-            handleAction(action)
-        }.launchIn(lifecycleScope)
+                viewModel.state.onEach { state ->
+                    handleState(state)
+                }.launchIn(lifecycleScope)
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun bindReadmeData(source: Readme) {
-        val markwon = Markwon.builder(requireContext()).build()
+    private fun setupReadmeMd(readme: String, readmeDetail: Readme) {
+        val markwon = Markwon.builder(requireContext())
+            .usePlugin(MarkwonInlineParserPlugin.create())
+            .usePlugin(StrikethroughPlugin.create())
+            .usePlugin(TablePlugin.create(requireContext()))
+            .usePlugin(LinkifyPlugin.create())
+            .usePlugin(HtmlPlugin.create())
+            .usePlugin(getCoilPlugin(requireContext()))
+            .usePlugin(SimpleExtPlugin.create())
+            .build()
 
         val markwonAdapter = MarkwonAdapter.builderTextViewIsRoot(R.layout.markdown_default_layout)
             .include(
@@ -115,15 +137,15 @@ class DetailInfoFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                 adapter = markwonAdapter
             }
-            readmeBlockHeader.text = source.name
+
+            readmeBlockHeader.text = readmeDetail.name
         }
 
-        //FIXME доделать
-        markwonAdapter.setMarkdown(markwon, source.download_url)
+        markwonAdapter.setMarkdown(markwon, readme)
         markwonAdapter.notifyDataSetChanged()
     }
 
-    private fun setRepositoryDetail(gitHubRepository: GitHubRepository) {
+    private fun handleRepositoryDetail(gitHubRepository: GitHubRepository) {
         with(binding) {
             gitHubRepository.license?.spdxId.also { spdxId ->
                 if (spdxId.isNullOrEmpty()) {
@@ -139,6 +161,7 @@ class DetailInfoFragment : Fragment() {
             forksCount.text = gitHubRepository.forksCount.toString()
             watchersCount.text = gitHubRepository.watchersCount.toString()
             repositoryName.text = gitHubRepository.name
+            repositoryDescription.text = gitHubRepository.description
 
             repositoryLinkButton.setOnClickListener {
                 if (gitHubRepository.htmlURL != null) {
@@ -157,7 +180,11 @@ class DetailInfoFragment : Fragment() {
             startActivity(browser)
         } catch (ex: ActivityNotFoundException) {
             Log.e("OPEN_IN_BROWSER", "Browser don't found in system.", ex)
-            Toast.makeText(context, "Browser not found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.exception_browser_not_found),
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
     }
@@ -175,20 +202,39 @@ class DetailInfoFragment : Fragment() {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
-        val titleColor = exceptionBundle.titleColor
+        val colorId = exceptionBundle.colorResId
 
         with(binding) {
-            blockData.visibility = View.GONE
-            blockLoading.container.visibility = View.GONE
-            blockError.container.visibility = View.VISIBLE
-
-            blockError.errorTitle.setTextColor(titleColor)
+            blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
             blockError.errorTitle.text = title
             blockError.errorMessage.text = message
             blockError.errorImg.setImageResource(imageId)
 
             blockError.retryButton.setOnClickListener {
                 viewModel.retryButtonClicked()
+            }
+        }
+    }
+
+    private fun handleReadmeErrorState(exceptionBundle: ExceptionBundle) {
+        val title = exceptionBundle.title.getString(requireContext())
+        val message = exceptionBundle.message.getString(requireContext())
+        val imageId = exceptionBundle.imageResId
+        val colorId = exceptionBundle.colorResId
+
+        with(binding) {
+            blockReadmeError.errorTitle.setTextColor(
+                resources.getColor(
+                    colorId,
+                    resources.newTheme()
+                )
+            )
+            blockReadmeError.errorTitle.text = title
+            blockReadmeError.errorMessage.text = message
+            blockReadmeError.errorImg.setImageResource(imageId)
+
+            blockReadmeError.retryButton.setOnClickListener {
+                viewModel.retryLoadReadmeButtonClicked()
             }
         }
     }
@@ -203,23 +249,23 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleState(state: DetailInfoScreenState) {
+    private fun handleState(state: ScreenState) {
         with(binding) {
-            blockData.visibility = if (state is DetailInfoScreenState.Loaded) {
-                setRepositoryDetail(state.githubRepo)
+            blockData.visibility = if (state is ScreenState.Loaded) {
+                handleRepositoryDetail(state.githubRepo)
                 handleReadmeState(state.readmeState)
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
-            blockLoading.container.visibility = if (state is DetailInfoScreenState.Loading) {
+            blockLoading.container.visibility = if (state is ScreenState.Loading) {
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
-            blockError.container.visibility = if (state is DetailInfoScreenState.Error) {
+            blockError.container.visibility = if (state is ScreenState.Error) {
                 handleErrorState(state.exceptionBundle)
                 View.VISIBLE
             } else {
@@ -228,13 +274,35 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    //TODO Реализовать ридми
     private fun handleReadmeState(state: ReadmeState) {
-        when (state) {
-            ReadmeState.Loading -> {}
-            is ReadmeState.Loaded -> {}
-            is ReadmeState.Error -> {}
-            is ReadmeState.Empty -> {}
+        with(binding) {
+            markdown.visibility = if (state is ReadmeState.Loaded) {
+                setupReadmeMd(state.markdown, state.readmeDetail)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            blockReadmeLoading.visibility = if (state is ReadmeState.Loading) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            blockReadmeError.container.visibility = if (state is ReadmeState.Error) {
+                handleReadmeErrorState(state.exceptionBundle)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            readmeBlockHeader.text = when (state) {
+                is ReadmeState.Empty -> getString(R.string.empty_readme)
+                is ReadmeState.Loaded -> state.readmeDetail.name
+                else -> {
+                    ""
+                }
+            }
         }
     }
 }

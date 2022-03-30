@@ -38,13 +38,13 @@ class GitHubRemoteData @Inject constructor(
         owner: String,
         repository: String
     ): Result<Readme> {
-        return enqueue { gitHubService.getReadmeData(owner, repository) }
+        return enqueue { gitHubService.getReadmeDetail(owner, repository) }
 
     }
 
-//    suspend fun fetchReadme(url:String):Result<ResponseBody?>{
-//        downloadService.downloadReadme(url)
-//    }
+    suspend fun fetchReadme(url: String): Result<String> {
+        return enqueue { downloadService.downloadReadme(url) }
+    }
 
     private suspend fun <T> enqueue(responseBlock: suspend () -> Response<T>): Result<T> {
         try {

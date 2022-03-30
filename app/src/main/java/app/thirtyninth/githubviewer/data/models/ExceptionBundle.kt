@@ -6,5 +6,5 @@ data class ExceptionBundle(
     val title: LocalizeString,
     val message: LocalizeString,
     val imageResId: Int,
-    val titleColor: Int
+    val colorResId: Int
 )

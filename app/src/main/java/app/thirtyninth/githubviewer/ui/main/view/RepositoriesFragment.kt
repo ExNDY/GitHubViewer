@@ -18,12 +18,13 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
+import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
 import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.RepositoriesListScreenState
+import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.ScreenState
 import app.thirtyninth.githubviewer.utils.LanguageColorReader
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -101,7 +102,10 @@ class RepositoriesFragment : Fragment(), ActionListener {
         findNavController().navigate(AppNavigationDirections.navigateToLoginScreen())
     }
 
-    private fun openRepositoryDetail(owner: String, repositoryName: String) {
+    private fun openRepositoryDetail(repo: GitHubRepository) {
+        val owner = repo.owner!!.login
+        val repositoryName = repo.name!!
+
         findNavController().navigate(
             RepositoriesFragmentDirections.navigateToDetailInfo(
                 owner, repositoryName
@@ -127,10 +131,10 @@ class RepositoriesFragment : Fragment(), ActionListener {
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
-        val titleColor = exceptionBundle.titleColor
+        val colorId = exceptionBundle.colorResId
 
         with(binding) {
-            blockError.errorTitle.setTextColor(resources.getColor(titleColor, resources.newTheme()))
+            blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
             blockError.errorTitle.text = title
             blockError.errorMessage.text = message
             blockError.errorImg.setImageResource(imageId)
@@ -150,28 +154,27 @@ class RepositoriesFragment : Fragment(), ActionListener {
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
 
-    override fun onClick(clickedPosition: Int) {
-        //FIXME
-        //openRepositoryDetail(item, item.repositoryName)
+    override fun onClick(item: GitHubRepository) {
+        openRepositoryDetail(item)
     }
 
-    private fun handleState(state: RepositoriesListScreenState, adapter: RepositoryListAdapter) {
+    private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {
-            blockError.container.visibility = if (state is RepositoriesListScreenState.Error) {
+            blockError.container.visibility = if (state is ScreenState.Error) {
                 handleEmptyState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
-            repositoryList.visibility = if (state is RepositoriesListScreenState.Loaded) {
+            repositoryList.visibility = if (state is ScreenState.Loaded) {
                 adapter.submitList(state.repos)
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
-            blockLoading.container.visibility = if (state is RepositoriesListScreenState.Loading) {
+            blockLoading.container.visibility = if (state is ScreenState.Loading) {
                 View.VISIBLE
             } else {
                 View.GONE

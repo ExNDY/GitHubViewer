@@ -13,7 +13,6 @@ import app.thirtyninth.githubviewer.utils.Validator
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -28,14 +27,11 @@ class AuthViewModel @Inject constructor(
     private val userPreferences: UserPreferences
 ) : ViewModel() {
 
-    private val _actions = MutableSharedFlow<Action>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.SUSPEND
-    )
+    private val _actions = MutableSharedFlow<Action>()
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableStateFlow<AuthScreenState>(AuthScreenState.Loaded)
-    val state: StateFlow<AuthScreenState> = _state
+    private val _state = MutableStateFlow<ScreenState>(ScreenState.Loaded)
+    val state: StateFlow<ScreenState> = _state
 
     val authTokenFlow = MutableStateFlow<String>("")
 
@@ -44,21 +40,21 @@ class AuthViewModel @Inject constructor(
 
         if (validStatus is ValidationResult.Correct) {
             viewModelScope.launch {
-                _state.value = AuthScreenState.Idle
+                _state.value = ScreenState.Idle
 
                 val userDataResult = repository.getUserInfo(authToken)
 
                 userDataResult.onSuccess {
-                    _state.value = AuthScreenState.Loaded
+                    _state.value = ScreenState.Loaded
 
                     userPreferences.saveUser(LoginData(authToken))
 
                     _actions.tryEmit(Action.RouteToRepositoryList)
                 }.onFailure { throwable ->
-                    _state.value = AuthScreenState.Loaded
+                    _state.value = ScreenState.Loaded
 
                     if (throwable is UnauthorizedException) {
-                        _state.value = AuthScreenState.InvalidAuthTokenInput(
+                        _state.value = ScreenState.InvalidAuthTokenInput(
                             mapTokenValidation(
                                 ValidationResult.Incorrect
                             )
@@ -69,7 +65,7 @@ class AuthViewModel @Inject constructor(
                 }
             }
         } else {
-            _state.value = AuthScreenState.InvalidAuthTokenInput(mapTokenValidation(validStatus))
+            _state.value = ScreenState.InvalidAuthTokenInput(mapTokenValidation(validStatus))
         }
     }
 
@@ -80,10 +76,10 @@ class AuthViewModel @Inject constructor(
     private fun validateAuthToken(authToken: String) =
         Validator.validateAuthorisationToken(authToken)
 
-    sealed interface AuthScreenState {
-        object Idle : AuthScreenState
-        object Loaded : AuthScreenState
-        data class InvalidAuthTokenInput(val reason: LocalizeString) : AuthScreenState
+    sealed interface ScreenState {
+        object Idle : ScreenState
+        object Loaded : ScreenState
+        data class InvalidAuthTokenInput(val reason: LocalizeString) : ScreenState
     }
 
     sealed interface Action {

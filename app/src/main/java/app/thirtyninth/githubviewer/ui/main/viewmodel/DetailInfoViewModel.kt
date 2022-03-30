@@ -5,13 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
+import app.thirtyninth.githubviewer.data.models.Readme
+import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.UserPreferences
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,27 +27,19 @@ class DetailInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _action = MutableSharedFlow<Action>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val action: SharedFlow<Action> = _action.asSharedFlow()
+    private val _actions = MutableSharedFlow<Action>()
+    val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableSharedFlow<DetailInfoScreenState>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val state: SharedFlow<DetailInfoScreenState> = _state.asSharedFlow()
+    private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
+    val state: StateFlow<ScreenState> = _state
 
-    private val _readmeState = MutableSharedFlow<ReadmeState>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val readmeState: SharedFlow<ReadmeState> = _readmeState.asSharedFlow()
+    private val _readmeState = MutableStateFlow<ReadmeState>(ReadmeState.Loading)
+    val readmeState: StateFlow<ReadmeState> = _readmeState
 
     private val currentOwner: String = savedStateHandle.get<String>("owner").toString()
     private val currentRepositoryName: String =
         savedStateHandle.get<String>("repository_name").toString()
+    private var readmeData: Readme? = null
 
     init {
         loadRepositoryInfo()
@@ -53,54 +49,74 @@ class DetailInfoViewModel @Inject constructor(
         loadRepositoryInfo()
     }
 
-    private fun loadRepositoryInfo() = viewModelScope.launch {
-        getRepositoryInfo(currentOwner, currentRepositoryName)
-        //getReadmeInfo(currentOwner, currentRepositoryName)
+    fun retryLoadReadmeButtonClicked() {
+        if (readmeData == null) {
+            _readmeState.value = ReadmeState.Empty
+        } else {
+            fetchReadmeMd(readmeData!!)
+        }
     }
 
-    //TODO Readme.md reasearch
-//    private fun getReadmeInfo(owner: String, repositoryName: String) = viewModelScope.launch {
-//        val readmeData = repository.getReadmeData(owner, repositoryName)
-//
-//        readmeData.onSuccess { readme ->
-//            _readme.tryEmit(readme)
-//        }.onFailure { throwable ->
-//            _actions.tryEmit(Action.ShowErrorAction(throwable))
-//        }
-//    }
+    private fun loadRepositoryInfo() = viewModelScope.launch {
+        getRepositoryDetails(currentOwner, currentRepositoryName)
+    }
 
-    private fun getRepositoryInfo(owner: String, repositoryName: String) =
-        viewModelScope.launch {
-            _state.tryEmit(DetailInfoScreenState.Loading)
+    private fun fetchReadmeMd(readmeDetail: Readme) = viewModelScope.launch {
+        _readmeState.value = ReadmeState.Loading
 
-            val repositoryDetail = repository.getRepositoryInfo(owner, repositoryName)
+        val result = repository.getReadmeMd(readmeDetail.download_url)
 
-            repositoryDetail.onSuccess { repo ->
-                _state.tryEmit(DetailInfoScreenState.Loaded(repo, ReadmeState.Empty))
-            }.onFailure { throwable ->
-                _state.tryEmit(DetailInfoScreenState.Error(mapExceptionToBundle(throwable)))
+        result.onSuccess { readme ->
+            _readmeState.value = ReadmeState.Loaded(readme, readmeDetail)
+        }.onFailure { throwable ->
+            _readmeState.value = ReadmeState.Error(mapExceptionToBundle(throwable))
+        }
+    }
+
+    private fun getRepositoryDetails(owner: String, repoName: String) = viewModelScope.launch {
+        _state.value = ScreenState.Loading
+
+        val resultDetails = async { repository.getRepositoryDetails(owner, repoName) }
+        val resultReadmeDetails = async { repository.getReadmeDetail(owner, repoName) }
+
+        resultDetails.await().onSuccess { repo ->
+            _state.value = ScreenState.Loaded(repo, ReadmeState.Loading)
+        }.onFailure { throwable ->
+            _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
+
+        }
+
+        resultReadmeDetails.await().onSuccess { readmeDetail ->
+            readmeData = readmeDetail
+            fetchReadmeMd(readmeDetail)
+        }.onFailure { throwable ->
+            if (throwable is NotFoundException) {
+                _readmeState.value = ReadmeState.Empty
+            } else {
+                _readmeState.value = ReadmeState.Error(mapExceptionToBundle(throwable))
             }
         }
+    }
 
     fun logout() = viewModelScope.launch {
         userPreferences.logout()
-        _action.tryEmit(Action.RouteToAuthScreen)
+        _actions.tryEmit(Action.RouteToAuthScreen)
     }
 
-    sealed interface DetailInfoScreenState {
-        object Loading : DetailInfoScreenState
-        data class Error(val exceptionBundle: ExceptionBundle) : DetailInfoScreenState
+    sealed interface ScreenState {
+        object Loading : ScreenState
+        data class Error(val exceptionBundle: ExceptionBundle) : ScreenState
         data class Loaded(
             val githubRepo: GitHubRepository,
             val readmeState: ReadmeState
-        ) : DetailInfoScreenState
+        ) : ScreenState
     }
 
     sealed interface ReadmeState {
         object Loading : ReadmeState
         object Empty : ReadmeState
         data class Error(val exceptionBundle: ExceptionBundle) : ReadmeState
-        data class Loaded(val markdown: String) : ReadmeState
+        data class Loaded(val markdown: String, val readmeDetail: Readme) : ReadmeState
     }
 
     sealed interface Action {

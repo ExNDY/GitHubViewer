@@ -58,6 +58,7 @@ dependencies {
     //Retrofit
     implementation(Dependencies.OkHttp.okHttp)
     implementation(Dependencies.Retrofit.retrofit)
+    implementation(Dependencies.Retrofit.scalars)
     //Kotlinx Serialization
     implementation(Dependencies.Kotlin.serialization)
     implementation(Dependencies.Kotlin.converter)
@@ -78,8 +79,18 @@ dependencies {
     //SplashScreen
     implementation(Dependencies.UI.splashScreen)
     //Markwon-Markdown
-    implementation(Dependencies.UI.markwon)
-    implementation(Dependencies.UI.markwonRecycler)
+    implementation(Dependencies.Markdown.markwon)
+    implementation(Dependencies.Markdown.markwonRecycler)
+    implementation(Dependencies.Markdown.markwonCoil)
+    implementation(Dependencies.Markdown.markwonHtml)
+    implementation(Dependencies.Markdown.markwonInlineParser)
+    implementation(Dependencies.Markdown.markwonLatex)
+    implementation(Dependencies.Markdown.markwonLinkify)
+    implementation(Dependencies.Markdown.markwonSimple)
+    implementation(Dependencies.Markdown.markwonStrikethrough)
+    implementation(Dependencies.Markdown.markwonTables)
+    //Coil
+    implementation(Dependencies.UI.coil)
 
     implementation(Dependencies.AndroidX.coreKtx)
     implementation(Dependencies.AndroidX.appCompat)

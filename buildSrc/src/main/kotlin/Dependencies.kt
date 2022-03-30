@@ -13,6 +13,7 @@ object Dependencies {
     object Retrofit {
         private const val version = "2.9.0"
         const val retrofit = "com.squareup.retrofit2:retrofit:$version"
+        const val scalars = "com.squareup.retrofit2:converter-scalars:$version"
     }
 
     object OkHttp {
@@ -57,11 +58,23 @@ object Dependencies {
     }
 
     object UI {
+        const val splashScreen = "androidx.core:core-splashscreen:1.0.0-beta01"
+        const val coil = "io.coil-kt:coil:2.0.0-rc02"
+    }
+
+    object Markdown{
         private const val markwonVersion = "4.6.2"
 
-        const val splashScreen = "androidx.core:core-splashscreen:1.0.0-beta01"
         const val markwon = "io.noties.markwon:core:${markwonVersion}"
         const val markwonRecycler = "io.noties.markwon:recycler:${markwonVersion}"
+        const val markwonLatex = "io.noties.markwon:ext-latex:${markwonVersion}"
+        const val markwonStrikethrough = "io.noties.markwon:ext-strikethrough:${markwonVersion}"
+        const val markwonTables = "io.noties.markwon:ext-tables:${markwonVersion}"
+        const val markwonHtml = "io.noties.markwon:html:${markwonVersion}"
+        const val markwonCoil = "io.noties.markwon:image-coil:${markwonVersion}"
+        const val markwonInlineParser = "io.noties.markwon:inline-parser:${markwonVersion}"
+        const val markwonLinkify = "io.noties.markwon:linkify:${markwonVersion}"
+        const val markwonSimple = "io.noties.markwon:simple-ext:${markwonVersion}"
     }
 
     object AndroidX {
