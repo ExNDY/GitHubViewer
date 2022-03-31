@@ -8,6 +8,8 @@ Test task and design maket: https://kmm.icerock.dev/university/android-basics/pr
 | ------------------------------------------------------------------------ |
 | ![](https://github.com/ExNDY/GitHubViewer/blob/master/media/preview.gif) |
 
+![](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)
+
 ****
 
 ### **Used libraries:**
