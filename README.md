@@ -6,7 +6,8 @@ Test task and design maket: https://kmm.icerock.dev/university/android-basics/pr
 
 | Preview                                                                  |
 | ------------------------------------------------------------------------ |
-| ![](https://github.com/ExNDY/GitHubViewer/blob/7e70c2fe366e8e082bc0263fb9044deb53aabedc/media/preview.gif) |
+| ![](https://github.com/ExNDY/GitHubViewer/blob/7e70c2fe366e8e082bc0263fb9044deb53aabedc/media/preview.gif)|
+|![](https://i.stack.imgur.com/1dpmw.gif)|
 
 ![](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)
 
