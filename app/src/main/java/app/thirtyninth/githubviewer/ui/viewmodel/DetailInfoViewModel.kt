@@ -38,11 +38,11 @@ class DetailInfoViewModel @Inject constructor(
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val state: StateFlow<ScreenState> = _state
 
-    private val _readmeState = MutableStateFlow<ReadmeState>(ReadmeState.Empty)
+    private val _readmeState = MutableStateFlow<ReadmeState>(ReadmeState.Loading)
     val readmeState: StateFlow<ReadmeState> = _readmeState
 
     private val currentOwner: String = savedStateHandle.get<String>("owner").toString()
-    private val currentRepositoryName: String =
+    private val currentRepoName: String =
         savedStateHandle.get<String>("repository_name").toString()
     private var readmeData: Readme? = null
 
@@ -63,7 +63,7 @@ class DetailInfoViewModel @Inject constructor(
     }
 
     private fun loadDetailInfo() = viewModelScope.launch {
-        fetchRepositoryDetails(currentOwner, currentRepositoryName)
+        fetchRepositoryDetails(currentOwner, currentRepoName)
     }
 
     private fun fetchReadmeMd(readmeDetail: Readme) = viewModelScope.launch {
@@ -99,12 +99,12 @@ class DetailInfoViewModel @Inject constructor(
         }
 
         resultReadmeDetails.await().onSuccess { readmeDetail ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(readmeDetail.toString())
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_README_ON_SUCCESS").d(readmeDetail.toString())
 
             readmeData = readmeDetail
             fetchReadmeMd(readmeDetail)
         }.onFailure { throwable ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_README_ON_FAILURE").d(throwable)
 
             if (throwable is NotFoundException) {
                 _readmeState.value = ReadmeState.Empty

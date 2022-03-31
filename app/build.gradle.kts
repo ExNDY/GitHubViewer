@@ -78,6 +78,7 @@ dependencies {
     implementation(Dependencies.ViewBindingDelegate.delegate)
     //SplashScreen
     implementation(Dependencies.UI.splashScreen)
+    //
     //Markwon-Markdown
     implementation(Dependencies.Markdown.markwon)
     implementation(Dependencies.Markdown.markwonRecycler)

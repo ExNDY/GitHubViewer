@@ -37,7 +37,7 @@ class RepositoriesViewModel @Inject constructor(
         getUserRepositoryList()
     }
 
-    fun loadData() = viewModelScope.launch {
+    fun loadData() {
         getUserRepositoryList()
     }
 

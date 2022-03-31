@@ -34,9 +34,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.noties.markwon.Markwon
 import io.noties.markwon.recycler.MarkwonAdapter
-import io.noties.markwon.recycler.SimpleEntry
 import kotlinx.coroutines.launch
-import org.commonmark.node.FencedCodeBlock
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -44,6 +42,9 @@ import javax.inject.Inject
 class DetailInfoFragment : Fragment() {
     @Inject
     lateinit var markwon: Markwon
+
+    @Inject
+    lateinit var markwonAdapter: MarkwonAdapter
 
     private val viewModel: DetailInfoViewModel by viewModels()
     private val binding: DetailInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
@@ -64,8 +65,8 @@ class DetailInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupToolbar(args.repositoryName)
-
         setupMarkdown()
+        setupObservers()
     }
 
     private fun setupToolbar(title: String) {
@@ -90,24 +91,15 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setupMarkdown() {
-        val markwonAdapter = MarkwonAdapter.builderTextViewIsRoot(R.layout.markdown_default_layout)
-            .include(
-                FencedCodeBlock::class.java,
-                SimpleEntry.create(R.layout.markdown_view_layout, R.id.code_text_view)
-            )
-            .build()
-
         with(binding) {
             markdown.apply {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                 adapter = markwonAdapter
             }
         }
-
-        setupObservers(markwonAdapter)
     }
 
-    private fun setupObservers(markwonAdapter: MarkwonAdapter) {
+    private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.actions.collect { action ->
@@ -118,14 +110,14 @@ class DetailInfoFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
-                    handleState(state, markwonAdapter)
+                    handleState(state)
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.readmeState.collect { state ->
-                    handleReadmeState(state, markwonAdapter)
+                    handleReadmeState(state)
                 }
             }
         }
@@ -133,20 +125,18 @@ class DetailInfoFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun setReadme(
-        markwon: Markwon,
-        adapter: MarkwonAdapter,
         readme: String,
         readmeDetail: Readme
     ) {
         binding.readmeBlockHeader.text = readmeDetail.name
 
-        adapter.setMarkdown(markwon, readme)
-        adapter.notifyDataSetChanged()
+        markwonAdapter.setMarkdown(markwon, readme)
+        markwonAdapter.notifyDataSetChanged()
     }
 
-    private fun setRepositoryDetail(gitHubRepository: GitHubRepository) {
+    private fun setRepositoryDetail(repository: GitHubRepository) {
         with(binding) {
-            gitHubRepository.license?.spdxId.also { spdxId ->
+            repository.license?.spdxId.also { spdxId ->
                 if (spdxId.isNullOrEmpty()) {
                     licenseType.text = getString(R.string.repo_info_license_type)
                 } else {
@@ -155,16 +145,22 @@ class DetailInfoFragment : Fragment() {
             }
 
             repositoryLinkButton.text =
-                gitHubRepository.htmlURL?.substring(8, gitHubRepository.htmlURL.length).orEmpty()
-            starsCount.text = gitHubRepository.stargazersCount.toString()
-            forksCount.text = gitHubRepository.forksCount.toString()
-            watchersCount.text = gitHubRepository.watchersCount.toString()
-            repositoryName.text = gitHubRepository.name
-            repositoryDescription.text = gitHubRepository.description
+                repository.htmlURL?.substring(8, repository.htmlURL.length).orEmpty()
+            starsCount.text = repository.stargazersCount.toString()
+            forksCount.text = repository.forksCount.toString()
+            watchersCount.text = repository.watchersCount.toString()
+            repositoryName.text = repository.name
+            repositoryDescription.text = repository.description
 
             repositoryLinkButton.setOnClickListener {
-                if (gitHubRepository.htmlURL != null) {
-                    openInBrowser(gitHubRepository.htmlURL)
+                if (repository.htmlURL != null) {
+                    openInBrowser(repository.htmlURL)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.url_not_found),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -244,11 +240,11 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleState(state: ScreenState, markwonAdapter: MarkwonAdapter) {
+    private fun handleState(state: ScreenState) {
         with(binding) {
             blockData.visibility = if (state is ScreenState.Loaded) {
                 setRepositoryDetail(state.githubRepo)
-                handleReadmeState(state.readmeState, markwonAdapter)
+                handleReadmeState(state.readmeState)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -269,10 +265,10 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleReadmeState(state: ReadmeState, markwonAdapter: MarkwonAdapter) {
+    private fun handleReadmeState(state: ReadmeState) {
         with(binding) {
             markdown.visibility = if (state is ReadmeState.Loaded) {
-                setReadme(markwon, markwonAdapter, state.markdown, state.readmeDetail)
+                setReadme(state.markdown, state.readmeDetail)
                 View.VISIBLE
             } else {
                 View.GONE

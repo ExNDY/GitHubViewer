@@ -65,7 +65,6 @@ class RepositoriesFragment : Fragment() {
                         logout()
                     }
                 }
-
                 true
             }
 
@@ -101,10 +100,6 @@ class RepositoriesFragment : Fragment() {
         adapter.submitList(list)
     }
 
-    private fun routeToAuthScreen() {
-        findNavController().navigate(AppNavigationDirections.routeToAuthScreen())
-    }
-
     private fun openRepositoryDetail(position: Int) {
         val item: GitHubRepository =
             (binding.repositoryList.adapter as RepositoryListAdapter).getItem(position)
@@ -117,6 +112,10 @@ class RepositoriesFragment : Fragment() {
                 owner, repositoryName
             )
         )
+    }
+
+    private fun routeToAuthScreen() {
+        findNavController().navigate(AppNavigationDirections.routeToAuthScreen())
     }
 
     private fun setupObservers(adapter: RepositoryListAdapter) {
@@ -137,6 +136,8 @@ class RepositoriesFragment : Fragment() {
         }
     }
 
+    private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
+
     private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
         Timber.tag("EXCEPTION_BUNDLE_REPOSITORIES_SCREEN").d(exceptionBundle.toString())
 
@@ -156,8 +157,6 @@ class RepositoriesFragment : Fragment() {
             }
         }
     }
-
-    private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {

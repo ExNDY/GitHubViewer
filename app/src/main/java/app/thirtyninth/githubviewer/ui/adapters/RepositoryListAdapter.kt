@@ -28,11 +28,11 @@ class RepositoryListAdapter(
 
     fun submitList(list: List<GitHubRepository>) {
         val diffCallback = RepositoriesDiffCallback(items, list)
-        val difResult = DiffUtil.calculateDiff(diffCallback)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
 
         items = emptyList()
         items = list
-        difResult.dispatchUpdatesTo(this)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     fun getItem(position: Int): GitHubRepository = items[position]

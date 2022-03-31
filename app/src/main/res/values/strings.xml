@@ -44,6 +44,7 @@
     <string name="exception_message_unexpected">Oops! Something happened, but we will definitely deal with this problem, but then: </string>
 
     <string name="exception_browser_not_found">Exception: Browser not found</string>
+    <string name="url_not_found">Url not found!</string>
     <string name="empty_readme">No Readme.md</string>
     <string name="field_error_message_incorrect">Invalid token</string>
     <string name="field_error_message_is_empty">Field is empty</string>
