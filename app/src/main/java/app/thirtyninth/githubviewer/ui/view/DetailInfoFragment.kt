@@ -1,7 +1,6 @@
 package app.thirtyninth.githubviewer.ui.view
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -25,31 +24,27 @@ import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
-import app.thirtyninth.githubviewer.extentions.getCoilPlugin
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ReadmeState
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ScreenState
+import app.thirtyninth.githubviewer.utils.callLogoutDialog
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.noties.markwon.Markwon
-import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.html.HtmlPlugin
-import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin
-import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.recycler.MarkwonAdapter
 import io.noties.markwon.recycler.SimpleEntry
-import io.noties.markwon.simple.ext.SimpleExtPlugin
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.commonmark.node.FencedCodeBlock
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DetailInfoFragment : Fragment() {
+    @Inject
+    lateinit var markwon: Markwon
+
     private val viewModel: DetailInfoViewModel by viewModels()
     private val binding: DetailInfoFragmentBinding by viewBinding(CreateMethod.INFLATE)
     private val args: DetailInfoFragmentArgs by navArgs()
@@ -95,17 +90,6 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setupMarkdown() {
-        //FIXME Coil doesnt work
-        val markwon = Markwon.builder(requireContext())
-            .usePlugin(MarkwonInlineParserPlugin.create())
-            .usePlugin(StrikethroughPlugin.create())
-            .usePlugin(TablePlugin.create(requireContext()))
-            .usePlugin(LinkifyPlugin.create())
-            .usePlugin(HtmlPlugin.create())
-            .usePlugin(getCoilPlugin(requireContext()))
-            .usePlugin(SimpleExtPlugin.create())
-            .build()
-
         val markwonAdapter = MarkwonAdapter.builderTextViewIsRoot(R.layout.markdown_default_layout)
             .include(
                 FencedCodeBlock::class.java,
@@ -120,23 +104,29 @@ class DetailInfoFragment : Fragment() {
             }
         }
 
-        setupObservers(markwon, markwonAdapter)
+        setupObservers(markwonAdapter)
     }
 
-    private fun setupObservers(markwon: Markwon, markwonAdapter: MarkwonAdapter) {
+    private fun setupObservers(markwonAdapter: MarkwonAdapter) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.onEach { action ->
+                viewModel.actions.collect { action ->
                     handleAction(action)
-                }.launchIn(lifecycleScope)
-
-                viewModel.readmeState.onEach { state ->
-                    handleReadmeState(state, markwon, markwonAdapter)
-                }.launchIn(lifecycleScope)
-
-                viewModel.state.onEach { state ->
-                    handleState(state, markwon, markwonAdapter)
-                }.launchIn(lifecycleScope)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    handleState(state, markwonAdapter)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.readmeState.collect { state ->
+                    handleReadmeState(state, markwonAdapter)
+                }
             }
         }
     }
@@ -199,14 +189,7 @@ class DetailInfoFragment : Fragment() {
 
     }
 
-    private fun logout() = AlertDialog.Builder(context)
-        .setTitle(getString(R.string.logout_dialog_title))
-        .setMessage(getString(R.string.logout_dialog_message))
-        .setPositiveButton(getString(R.string.logout_dialog_positive)) { _, _ ->
-            viewModel.logout()
-        }
-        .setNegativeButton(getString(R.string.logout_dialog_negative), null)
-        .show()
+    private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
     private fun setErrorState(exceptionBundle: ExceptionBundle) {
         val title = exceptionBundle.title.getString(requireContext())
@@ -261,11 +244,11 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleState(state: ScreenState, markwon: Markwon, markwonAdapter: MarkwonAdapter) {
+    private fun handleState(state: ScreenState, markwonAdapter: MarkwonAdapter) {
         with(binding) {
             blockData.visibility = if (state is ScreenState.Loaded) {
                 setRepositoryDetail(state.githubRepo)
-                handleReadmeState(state.readmeState, markwon, markwonAdapter)
+                handleReadmeState(state.readmeState, markwonAdapter)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -286,11 +269,7 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun handleReadmeState(
-        state: ReadmeState,
-        markwon: Markwon,
-        markwonAdapter: MarkwonAdapter
-    ) {
+    private fun handleReadmeState(state: ReadmeState, markwonAdapter: MarkwonAdapter) {
         with(binding) {
             markdown.visibility = if (state is ReadmeState.Loaded) {
                 setReadme(markwon, markwonAdapter, state.markdown, state.readmeDetail)

@@ -81,7 +81,7 @@ dependencies {
     //Markwon-Markdown
     implementation(Dependencies.Markdown.markwon)
     implementation(Dependencies.Markdown.markwonRecycler)
-    implementation(Dependencies.Markdown.markwonCoil)
+    implementation(Dependencies.Markdown.markwonGlide)
     implementation(Dependencies.Markdown.markwonHtml)
     implementation(Dependencies.Markdown.markwonInlineParser)
     implementation(Dependencies.Markdown.markwonLatex)
@@ -89,6 +89,10 @@ dependencies {
     implementation(Dependencies.Markdown.markwonSimple)
     implementation(Dependencies.Markdown.markwonStrikethrough)
     implementation(Dependencies.Markdown.markwonTables)
+    implementation(Dependencies.Markdown.markdownImage)
+
+    implementation(Dependencies.Markdown.gif)
+    implementation(Dependencies.Markdown.svg)
     //Coil
     implementation(Dependencies.UI.coil)
 

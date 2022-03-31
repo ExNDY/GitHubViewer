@@ -12,7 +12,8 @@ class NoInternetException(cause: Throwable) : IOException(cause)
 
 class EmptyDataException : NetworkException()
 
-class UnauthorizedException(val code: Int, val request: String, val url: HttpUrl) : NetworkException()
+class UnauthorizedException(val code: Int, val request: String, val url: HttpUrl) :
+    NetworkException()
 
 class NotFoundException(val code: Int, val request: String, val url: HttpUrl) : NetworkException()
 

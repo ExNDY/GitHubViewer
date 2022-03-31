@@ -7,7 +7,7 @@
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
     android:paddingBottom="24dp"
-    tools:background="@color/gray_blue"
+    tools:background="@color/backgroundColor"
     tools:context=".ui.view.AuthFragment">
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -51,7 +51,7 @@
         android:id="@+id/sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:backgroundTint="@color/green_github"
+        android:backgroundTint="@color/green_dark"
         android:gravity="center"
         android:text="@string/sign_in"
         android:textAppearance="@style/LoginScreen.SignIn.TextStyle"

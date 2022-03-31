@@ -9,6 +9,6 @@ data class ExceptionBundle(
     val imageResId: Int,
     val colorResId: Int,
     val errorCode: Int? = null,
-    val request:String? = null,
+    val request: String? = null,
     val url: HttpUrl? = null
 )

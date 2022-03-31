@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.ui.view
 
-import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,11 +24,10 @@ import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel
 import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel.Action
 import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel.ScreenState
 import app.thirtyninth.githubviewer.utils.LanguageColorReader
+import app.thirtyninth.githubviewer.utils.callLogoutDialog
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -108,7 +106,8 @@ class RepositoriesFragment : Fragment() {
     }
 
     private fun openRepositoryDetail(position: Int) {
-        val item: GitHubRepository = (binding.repositoryList.adapter as RepositoryListAdapter).getItem(position)
+        val item: GitHubRepository =
+            (binding.repositoryList.adapter as RepositoryListAdapter).getItem(position)
 
         val owner = item.owner!!.login
         val repositoryName = item.name!!
@@ -123,12 +122,17 @@ class RepositoriesFragment : Fragment() {
     private fun setupObservers(adapter: RepositoryListAdapter) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.onEach { action ->
+                viewModel.actions.collect { action ->
                     handleAction(action)
-                }.launchIn(lifecycleScope)
-                viewModel.state.onEach { state ->
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
                     handleState(state, adapter)
-                }.launchIn(lifecycleScope)
+                }
             }
         }
     }
@@ -153,14 +157,7 @@ class RepositoriesFragment : Fragment() {
         }
     }
 
-    private fun logout() = AlertDialog.Builder(context)
-        .setTitle(getString(R.string.logout_dialog_title))
-        .setMessage(getString(R.string.logout_dialog_message))
-        .setPositiveButton(getString(R.string.logout_dialog_positive)) { _, _ ->
-            viewModel.onLogoutClicked()
-        }
-        .setNegativeButton(getString(R.string.logout_dialog_negative), null)
-        .show()
+    private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {

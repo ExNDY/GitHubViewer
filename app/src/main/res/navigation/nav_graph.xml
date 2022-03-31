@@ -10,12 +10,13 @@
         android:name="app.thirtyninth.githubviewer.ui.view.AuthFragment"
         android:label="@string/fragment_name_login_screen"
         tools:layout="@layout/auth_fragment">
-        <action android:id="@+id/routeToRepositoriesScreen"
+        <action
+            android:id="@+id/routeToRepositoriesScreen"
             app:destination="@id/repositoriesFragment"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/app_navigation"
-            app:popUpToInclusive="true"/>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/repositoriesFragment"
@@ -52,5 +53,5 @@
         app:exitAnim="@anim/slide_out_right"
         app:launchSingleTop="true"
         app:popUpTo="@id/app_navigation"
-        app:popUpToInclusive="true"/>
+        app:popUpToInclusive="true" />
 </navigation>

@@ -75,10 +75,14 @@ object Dependencies {
         const val markwonStrikethrough = "io.noties.markwon:ext-strikethrough:${markwonVersion}"
         const val markwonTables = "io.noties.markwon:ext-tables:${markwonVersion}"
         const val markwonHtml = "io.noties.markwon:html:${markwonVersion}"
-        const val markwonCoil = "io.noties.markwon:image-coil:${markwonVersion}"
+        const val markwonGlide = "io.noties.markwon:image-glide:${markwonVersion}"
         const val markwonInlineParser = "io.noties.markwon:inline-parser:${markwonVersion}"
         const val markwonLinkify = "io.noties.markwon:linkify:${markwonVersion}"
         const val markwonSimple = "io.noties.markwon:simple-ext:${markwonVersion}"
+        const val markdownImage = "io.noties.markwon:image:${markwonVersion}"
+
+        const val gif = "pl.droidsonroids.gif:android-gif-drawable:1.2.24"
+        const val svg = "com.caverock:androidsvg-aar:1.4"
     }
 
     object AndroidX {

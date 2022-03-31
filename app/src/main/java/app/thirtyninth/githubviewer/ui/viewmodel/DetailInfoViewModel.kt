@@ -38,7 +38,7 @@ class DetailInfoViewModel @Inject constructor(
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val state: StateFlow<ScreenState> = _state
 
-    private val _readmeState = MutableStateFlow<ReadmeState>(ReadmeState.Loading)
+    private val _readmeState = MutableStateFlow<ReadmeState>(ReadmeState.Empty)
     val readmeState: StateFlow<ReadmeState> = _readmeState
 
     private val currentOwner: String = savedStateHandle.get<String>("owner").toString()
@@ -114,7 +114,7 @@ class DetailInfoViewModel @Inject constructor(
         }
     }
 
-    fun logout() = viewModelScope.launch {
+    fun onLogoutClicked() = viewModelScope.launch {
         keyValueStorage.logout()
         _actions.tryEmit(Action.RouteToAuthScreen)
     }

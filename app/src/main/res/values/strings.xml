@@ -58,6 +58,6 @@
     <string name="repo_info_license_type_not_specified">Not specified</string>
     <string name="placeholder">PLACEHOLDER</string>
     <string name="readme_md">Readme.md</string>
-    <string name="try_again">Try again</string>
+    <string name="retry_button">Retry</string>
     <string name="logout">Logout</string>
 </resources>

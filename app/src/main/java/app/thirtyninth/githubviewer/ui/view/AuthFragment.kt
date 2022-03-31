@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.ui.view
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,11 +17,11 @@ import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
 import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel
 import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel.Action
 import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel.ScreenState
+import app.thirtyninth.githubviewer.utils.callExceptionDialog
+import app.thirtyninth.githubviewer.utils.mapAlertMessage
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -67,12 +66,17 @@ class AuthFragment : Fragment() {
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.onEach { action ->
+                viewModel.actions.collect { action ->
                     handleAction(action)
-                }.launchIn(lifecycleScope)
-                viewModel.state.onEach { state ->
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
                     handleState(state)
-                }.launchIn(lifecycleScope)
+                }
             }
         }
     }
@@ -84,23 +88,12 @@ class AuthFragment : Fragment() {
     private fun showErrorMessage(exceptionBundle: ExceptionBundle) {
         Timber.tag("EXCEPTION_BUNDLE_AUTH_SCREEN").d(exceptionBundle.toString())
 
-        val message = if (exceptionBundle.errorCode != null
-            && exceptionBundle.request != null
-            && exceptionBundle.url != null
-        ) {
-            "code: ${exceptionBundle.errorCode}" + "\n" +
-                    "request: ${exceptionBundle.request}" + "\n" +
-                    "url: ${exceptionBundle.url}" + "\n" +
-                    "message: ${exceptionBundle.message.getString(requireContext())}"
-        } else {
-            exceptionBundle.message.getString(requireContext())
-        }
+        val title = exceptionBundle.title.getString(requireContext())
+        val message = mapAlertMessage(exceptionBundle, requireContext())
 
-        AlertDialog.Builder(context, R.style.GitHubViewer_AlertDialog)
-            .setTitle(exceptionBundle.title.getString(requireContext()))
-            .setMessage(message)
-            .setPositiveButton(getString(R.string.dialog_ok), null)
-            .show()
+        callExceptionDialog(title, message, requireContext()) {
+            Timber.tag("EXCEPTION_AUTH_SCREEN").e(exceptionBundle.toString())
+        }
     }
 
     private fun handleAction(action: Action) {

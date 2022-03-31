@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="grey">#21262D</color>
+    <color name="grey_dark">#161B22</color>
+    <color name="grey_500">#0D1117</color>
+    <color name="blue">#58A6FF</color>
+    <color name="blue_dark">#8058A6FF</color>
+    <color name="red">#B00020</color>
+    <color name="yellow">#FAD876</color>
+    <color name="green">#6ED370</color>
+    <color name="cyan">#9CFFF9</color>
+    <color name="green_dark">#438440</color>
+    <color name="white_50">#80FFFFFF</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="purple">#7e60b8</color>
 
-    <color name="logoColor">@color/white</color>
-
-    <color name="backgroundColor">#0D1117</color>
-    <color name="gray_blue">#FF161A22</color>
-    <color name="gray_blue_dark">#12151b</color>
-    <color name="gray_blue_light">#45484e</color>
-    <color name="gray_dark">#0e1116</color>
-    <color name="gray_light">#9C9C9C</color>
-    <color name="accent_github">#FF58a6ff</color>
-    <color name="kotlin">#FF7e60b8</color>
-    <color name="green_github">#FF5a9357</color>
-    <color name="red_error">#ffc93838</color>
-    <color name="yellow">#FAD876</color>
-    <color name="green">#6ED370</color>
-    <color name="cyan">#9CFFF9</color>
-
+    <color name="primaryColor">@color/blue</color>
+    <color name="primaryVariant">@color/blue_dark</color>
+    <color name="backgroundColor">@color/grey_500</color>
+    <color name="statusBarColor">@color/grey_dark</color>
+    <color name="navigationBarColor">@color/grey_dark</color>
+    <color name="accentColor">@color/blue</color>
+    <color name="starColor">@color/yellow</color>
+    <color name="forkColor">@color/green</color>
+    <color name="watcherColor">@color/cyan</color>
+    <color name="boxStrokeErrorColor">@color/red</color>
+    <color name="textColorHint">@color/white_50</color>
     <color name="exceptionColor">#FFCB4F4F</color>
-    <color name="exceptionEmptyColor">#FF58A6FF</color>
-
+    <color name="exceptionEmptyColor">@color/blue</color>
+    <color name="kotlin">@color/purple</color>
+    <color name="linkColor">@color/blue</color>
 </resources>

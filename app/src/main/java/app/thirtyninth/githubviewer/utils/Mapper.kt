@@ -1,5 +1,6 @@
 package app.thirtyninth.githubviewer.utils
 
+import android.content.Context
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.network.EmptyDataException
@@ -11,6 +12,20 @@ import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
 import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
+
+fun mapAlertMessage(exceptionBundle: ExceptionBundle, context: Context): String {
+    return if (exceptionBundle.errorCode != null
+        && exceptionBundle.request != null
+        && exceptionBundle.url != null
+    ) {
+        "code: ${exceptionBundle.errorCode}" + "\n" +
+                "request: ${exceptionBundle.request}" + "\n" +
+                "url: ${exceptionBundle.url}" + "\n" +
+                "message: ${exceptionBundle.message.getString(context)}"
+    } else {
+        exceptionBundle.message.getString(context)
+    }
+}
 
 fun mapExceptionToBundle(throwable: Throwable): ExceptionBundle {
     return when (throwable) {

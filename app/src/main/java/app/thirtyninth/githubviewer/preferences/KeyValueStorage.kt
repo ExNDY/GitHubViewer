@@ -26,7 +26,7 @@ class KeyValueStorage @Inject constructor(
         return !tokenStateFlow.value.isNullOrBlank()
     }
 
-    suspend fun saveToken(authToken:String){
+    suspend fun saveToken(authToken: String) {
         dataStore.updateData {
             it.toBuilder()
                 .setAuthToken(authToken)
@@ -34,7 +34,7 @@ class KeyValueStorage @Inject constructor(
         }
     }
 
-    suspend fun logout(){
+    suspend fun logout() {
         dataStore.updateData {
             it.toBuilder()
                 .clear()
