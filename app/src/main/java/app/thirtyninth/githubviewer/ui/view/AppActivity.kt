@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.view
+package app.thirtyninth.githubviewer.ui.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

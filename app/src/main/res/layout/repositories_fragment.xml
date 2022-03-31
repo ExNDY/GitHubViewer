@@ -39,7 +39,7 @@
         android:scrollbars="none"
         android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:context=".ui.main.view.RepositoriesFragment"
+        tools:context=".ui.view.RepositoriesFragment"
         tools:itemCount="10"
         tools:listitem="@layout/repositories_list_item" />
 

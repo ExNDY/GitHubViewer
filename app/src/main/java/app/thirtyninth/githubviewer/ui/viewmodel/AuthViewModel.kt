@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.viewmodel
+package app.thirtyninth.githubviewer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,13 +48,17 @@ class AuthViewModel @Inject constructor(
 
                 val userDataResult = repository.getUserInfo(authToken)
 
-                userDataResult.onSuccess {
+                userDataResult.onSuccess { owner ->
+                    Timber.tag("AUTH_SCREEN_VIEWMODEL_ON_SUCCESS").d(owner.toString())
+
                     _state.value = ScreenState.Loaded
 
                     keyValueStorage.saveToken(authToken)
 
                     _actions.tryEmit(Action.RouteToRepositoryList)
                 }.onFailure { throwable ->
+                    Timber.tag("AUTH_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+
                     _state.value = ScreenState.Loaded
 
                     if (throwable is UnauthorizedException) {

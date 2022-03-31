@@ -2,11 +2,11 @@ package app.thirtyninth.githubviewer.utils
 
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import java.io.IOException
 
 class LanguageColorReader {
@@ -17,9 +17,10 @@ class LanguageColorReader {
             json = context.assets.open(jsonFilePath).bufferedReader().use {
                 it.readText()
             }
-        } catch (ex: IOException) {
-            Log.e("ReadJSONFILE", ex.toString(), ex)
-            throw ex
+        } catch (e: IOException) {
+            Timber.tag("READING_JSON_FROM_ASSETS").e(e)
+
+            throw e
         }
 
         return json
@@ -29,7 +30,7 @@ class LanguageColorReader {
         return Json.parseToJsonElement(readJSON(context, jsonFilePath)).jsonObject
     }
 
-    //TODO сделать обработку
+    //TODO сделать нормальный json файл и залить себе в гист
     fun fetchLanguageColorsMap(
         context: Context,
         jsonFilePath: String

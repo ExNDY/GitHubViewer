@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.view
+package app.thirtyninth.githubviewer.ui.view
 
 import android.app.AlertDialog
 import android.graphics.Color
@@ -21,10 +21,9 @@ import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
-import app.thirtyninth.githubviewer.ui.interfaces.ActionListener
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.RepositoriesViewModel.ScreenState
+import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel
+import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel.Action
+import app.thirtyninth.githubviewer.ui.viewmodel.RepositoriesViewModel.ScreenState
 import app.thirtyninth.githubviewer.utils.LanguageColorReader
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -32,9 +31,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
-class RepositoriesFragment : Fragment(), ActionListener {
+class RepositoriesFragment : Fragment() {
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -80,16 +80,17 @@ class RepositoriesFragment : Fragment(), ActionListener {
             requireContext(), Constants.LANGUAGE_COLORS_JSON_PATH
         )
 
-        val listAdapter = RepositoryListAdapter(colors, listener = this)
+        val repositoriesListAdapter = RepositoryListAdapter(colors) { clickedPosition ->
+            openRepositoryDetail(clickedPosition)
+        }
 
-        setupObservers(listAdapter)
+        setupObservers(repositoriesListAdapter)
 
-        //TODO Переделать click listener item
         with(binding) {
             repositoryList.apply {
                 setHasFixedSize(true)
                 addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-                adapter = listAdapter
+                adapter = repositoriesListAdapter
             }
 
             blockError.retryButton.setOnClickListener {
@@ -98,7 +99,7 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
     }
 
-    private fun setRepositoriesList(adapter: RepositoryListAdapter, list: List<GitHubRepository>){
+    private fun setRepositoriesList(adapter: RepositoryListAdapter, list: List<GitHubRepository>) {
         adapter.submitList(list)
     }
 
@@ -106,9 +107,11 @@ class RepositoriesFragment : Fragment(), ActionListener {
         findNavController().navigate(AppNavigationDirections.routeToAuthScreen())
     }
 
-    private fun openRepositoryDetail(repo: GitHubRepository) {
-        val owner = repo.owner!!.login
-        val repositoryName = repo.name!!
+    private fun openRepositoryDetail(position: Int) {
+        val item: GitHubRepository = (binding.repositoryList.adapter as RepositoryListAdapter).getItem(position)
+
+        val owner = item.owner!!.login
+        val repositoryName = item.name!!
 
         findNavController().navigate(
             RepositoriesFragmentDirections.navigateToDetailInfo(
@@ -131,6 +134,8 @@ class RepositoriesFragment : Fragment(), ActionListener {
     }
 
     private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
+        Timber.tag("EXCEPTION_BUNDLE_REPOSITORIES_SCREEN").d(exceptionBundle.toString())
+
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId
@@ -156,10 +161,6 @@ class RepositoriesFragment : Fragment(), ActionListener {
         }
         .setNegativeButton(getString(R.string.logout_dialog_negative), null)
         .show()
-
-    override fun onClick(item: GitHubRepository) {
-        openRepositoryDetail(item)
-    }
 
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {

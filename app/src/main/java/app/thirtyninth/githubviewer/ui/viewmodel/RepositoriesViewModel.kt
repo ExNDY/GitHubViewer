@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.viewmodel
+package app.thirtyninth.githubviewer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,8 +60,12 @@ class RepositoriesViewModel @Inject constructor(
         val repositoryListResult = repository.getRepositoryList()
 
         repositoryListResult.onSuccess { list ->
+            Timber.tag("REPOSITORIES_SCREEN_VIEWMODEL_ON_SUCCESS").d(list.toString())
+
             _state.value = ScreenState.Loaded(list)
         }.onFailure { throwable ->
+            Timber.tag("REPOSITORIES_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+
             _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
         }
     }

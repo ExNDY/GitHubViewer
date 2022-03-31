@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.viewmodel
+package app.thirtyninth.githubviewer.ui.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,8 +72,12 @@ class DetailInfoViewModel @Inject constructor(
         val result = repository.getReadmeMd(readmeDetail.download_url)
 
         result.onSuccess { readme ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(readme)
+
             _readmeState.value = ReadmeState.Loaded(readme, readmeDetail)
         }.onFailure { throwable ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+
             _readmeState.value = ReadmeState.Error(mapExceptionToBundle(throwable))
         }
     }
@@ -84,15 +89,23 @@ class DetailInfoViewModel @Inject constructor(
         val resultReadmeDetails = async { repository.getReadmeDetail(owner, repoName) }
 
         resultDetails.await().onSuccess { repo ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(repo.toString())
+
             _state.value = ScreenState.Loaded(repo, ReadmeState.Loading)
         }.onFailure { throwable ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+
             _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
         }
 
         resultReadmeDetails.await().onSuccess { readmeDetail ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(readmeDetail.toString())
+
             readmeData = readmeDetail
             fetchReadmeMd(readmeDetail)
         }.onFailure { throwable ->
+            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+
             if (throwable is NotFoundException) {
                 _readmeState.value = ReadmeState.Empty
             } else {

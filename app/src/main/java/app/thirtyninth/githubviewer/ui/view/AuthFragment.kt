@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.view
+package app.thirtyninth.githubviewer.ui.view
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -15,15 +15,16 @@ import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.databinding.AuthFragmentBinding
 import app.thirtyninth.githubviewer.extentions.bindTextTwoWayFlow
-import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel
-import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.AuthViewModel.ScreenState
+import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel
+import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel.Action
+import app.thirtyninth.githubviewer.ui.viewmodel.AuthViewModel.ScreenState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -81,6 +82,8 @@ class AuthFragment : Fragment() {
     }
 
     private fun showErrorMessage(exceptionBundle: ExceptionBundle) {
+        Timber.tag("EXCEPTION_BUNDLE_AUTH_SCREEN").d(exceptionBundle.toString())
+
         val message = if (exceptionBundle.errorCode != null
             && exceptionBundle.request != null
             && exceptionBundle.url != null

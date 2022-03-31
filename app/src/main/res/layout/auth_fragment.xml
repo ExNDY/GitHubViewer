@@ -8,7 +8,7 @@
     android:paddingEnd="24dp"
     android:paddingBottom="24dp"
     tools:background="@color/gray_blue"
-    tools:context=".ui.main.view.AuthFragment">
+    tools:context=".ui.view.AuthFragment">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/logo"

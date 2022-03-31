@@ -1,4 +1,4 @@
-package app.thirtyninth.githubviewer.ui.main.view
+package app.thirtyninth.githubviewer.ui.view
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -6,7 +6,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,10 +26,10 @@ import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
 import app.thirtyninth.githubviewer.extentions.getCoilPlugin
-import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel
-import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.Action
-import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.ReadmeState
-import app.thirtyninth.githubviewer.ui.main.viewmodel.DetailInfoViewModel.ScreenState
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ReadmeState
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ScreenState
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,6 +46,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.commonmark.node.FencedCodeBlock
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DetailInfoFragment : Fragment() {
@@ -188,7 +188,8 @@ class DetailInfoFragment : Fragment() {
         try {
             startActivity(browser)
         } catch (ex: ActivityNotFoundException) {
-            Log.e("OPEN_IN_BROWSER", "Browser don't found in system.", ex)
+            Timber.tag("DETAILS_SCREEN").e(ex, "OPEN_IN_BROWSER")
+
             Toast.makeText(
                 context,
                 getString(R.string.exception_browser_not_found),
@@ -226,6 +227,8 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setReadmeErrorState(exceptionBundle: ExceptionBundle) {
+        Timber.tag("EXCEPTION_BUNDLE_DETAIL_SCREEN").d(exceptionBundle.toString())
+
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
         val imageId = exceptionBundle.imageResId

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authFragment"
-        android:name="app.thirtyninth.githubviewer.ui.main.view.AuthFragment"
+        android:name="app.thirtyninth.githubviewer.ui.view.AuthFragment"
         android:label="@string/fragment_name_login_screen"
         tools:layout="@layout/auth_fragment">
         <action android:id="@+id/routeToRepositoriesScreen"
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/repositoriesFragment"
-        android:name="app.thirtyninth.githubviewer.ui.main.view.RepositoriesFragment"
+        android:name="app.thirtyninth.githubviewer.ui.view.RepositoriesFragment"
         android:label="@string/fragment_name_repositories_list"
         tools:layout="@layout/repositories_fragment">
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/detailInfoFragment"
-        android:name="app.thirtyninth.githubviewer.ui.main.view.DetailInfoFragment"
+        android:name="app.thirtyninth.githubviewer.ui.view.DetailInfoFragment"
         tools:layout="@layout/detail_info_fragment">
         <argument
             android:name="owner"
