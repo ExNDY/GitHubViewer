@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.repository.AppRepository
-import app.thirtyninth.githubviewer.preferences.UserPreferences
+import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RepositoriesViewModel @Inject constructor(
     private val repository: AppRepository,
-    private val userPreferences: UserPreferences
+    private val keyValueStorage: KeyValueStorage
 ) : ViewModel() {
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
@@ -49,7 +49,7 @@ class RepositoriesViewModel @Inject constructor(
     }
 
     private fun logout() = viewModelScope.launch {
-        userPreferences.logout()
+        keyValueStorage.logout()
         _actions.tryEmit(Action.RouteToAuthScreen)
     }
 

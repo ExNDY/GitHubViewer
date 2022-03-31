@@ -11,6 +11,7 @@ import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import retrofit2.HttpException
 import retrofit2.Response
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
@@ -49,6 +50,7 @@ class GitHubRemoteData @Inject constructor(
     private suspend fun <T> enqueue(responseBlock: suspend () -> Response<T>): Result<T> {
         try {
             val response = responseBlock()
+
             when (response.code()) {
                 401 -> {
                     return Result.failure(
@@ -79,6 +81,8 @@ class GitHubRemoteData @Inject constructor(
                 }
             }
         } catch (exception: Exception) {
+            Timber.d(exception, "RemoteDataLog!")
+
             return Result.failure(mapToDomainException(exception))
         }
     }

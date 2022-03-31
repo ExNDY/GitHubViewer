@@ -8,7 +8,7 @@ import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
-import app.thirtyninth.githubviewer.preferences.UserPreferences
+import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailInfoViewModel @Inject constructor(
     private val repository: AppRepository,
-    private val userPreferences: UserPreferences,
+    private val keyValueStorage: KeyValueStorage,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -102,7 +102,7 @@ class DetailInfoViewModel @Inject constructor(
     }
 
     fun logout() = viewModelScope.launch {
-        userPreferences.logout()
+        keyValueStorage.logout()
         _actions.tryEmit(Action.RouteToAuthScreen)
     }
 

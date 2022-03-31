@@ -36,6 +36,10 @@ object Dependencies {
         const val espresso = "androidx.test.espresso:espresso-core:3.4.0"
     }
 
+    object Debug{
+        const val timber = "com.jakewharton.timber:timber:5.0.1"
+    }
+
     object ProtoDataStore {
         private const val version = "1.0.0"
         const val dataStore = "androidx.datastore:datastore:$version"

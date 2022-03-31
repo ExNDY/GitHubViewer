@@ -3,10 +3,9 @@ package app.thirtyninth.githubviewer.ui.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.thirtyninth.githubviewer.data.models.ExceptionBundle
-import app.thirtyninth.githubviewer.data.models.LoginData
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
-import app.thirtyninth.githubviewer.preferences.UserPreferences
+import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
 import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 import app.thirtyninth.githubviewer.utils.Validator
@@ -25,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AppRepository,
-    private val userPreferences: UserPreferences
+    private val keyValueStorage: KeyValueStorage
 ) : ViewModel() {
 
     private val _actions = MutableSharedFlow<Action>(
@@ -51,7 +50,7 @@ class AuthViewModel @Inject constructor(
                 userDataResult.onSuccess {
                     _state.value = ScreenState.Loaded
 
-                    userPreferences.saveUser(LoginData(authToken))
+                    keyValueStorage.saveToken(authToken)
 
                     _actions.tryEmit(Action.RouteToRepositoryList)
                 }.onFailure { throwable ->

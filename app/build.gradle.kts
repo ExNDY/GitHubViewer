@@ -98,6 +98,8 @@ dependencies {
 
     implementation(Dependencies.Google.material)
 
+    //Timber
+    implementation(Dependencies.Debug.timber)
     testImplementation(Dependencies.Test.jUnit)
     androidTestImplementation(Dependencies.Test.extJUnit)
     androidTestImplementation(Dependencies.Test.espresso)

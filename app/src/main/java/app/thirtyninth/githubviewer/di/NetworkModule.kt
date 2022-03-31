@@ -6,7 +6,7 @@ import app.thirtyninth.githubviewer.data.network.api.GitHubService
 import app.thirtyninth.githubviewer.data.network.interceptors.AcceptInterceptor
 import app.thirtyninth.githubviewer.data.network.interceptors.AuthInterceptor
 import app.thirtyninth.githubviewer.data.network.interceptors.TokenProvider
-import app.thirtyninth.githubviewer.data.repository.KeyValueStorage
+import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides

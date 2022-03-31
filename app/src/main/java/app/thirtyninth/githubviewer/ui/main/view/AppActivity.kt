@@ -1,12 +1,11 @@
 package app.thirtyninth.githubviewer.ui.main.view
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.fragment.NavHostFragment
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.data.repository.KeyValueStorage
+import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
