@@ -12,7 +12,6 @@ import app.thirtyninth.githubviewer.utils.Validator
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,10 +28,7 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     private val TAG = AuthViewModel::class.java.simpleName
 
-    private val _actions = MutableSharedFlow<Action>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.SUSPEND
-    )
+    private val _actions = MutableSharedFlow<Action>()
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Idle)
