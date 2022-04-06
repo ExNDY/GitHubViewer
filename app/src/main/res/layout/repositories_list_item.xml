@@ -24,8 +24,6 @@
         android:textColor="@color/primaryColor"
         android:textSize="18sp"
         android:visibility="visible"
-        app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@+id/language"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -39,13 +37,12 @@
         android:paddingEnd="4dp"
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceBody1"
-        android:textColor="@color/white"
+        android:textColor="@color/languageColorDefault"
         app:layout_constraintBottom_toBottomOf="@id/repository_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/repository_name"
         app:layout_constraintTop_toTopOf="@id/repository_name"
-        tools:text="@string/item_field_language"
-        tools:textColor="@color/kotlin" />
+        tools:text="@string/item_field_language" />
 
     <TextView
         android:id="@+id/repository_description"
@@ -57,7 +54,6 @@
         android:textAppearance="?attr/textAppearanceBody1"
         android:textColor="@color/white"
         android:visibility="visible"
-        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

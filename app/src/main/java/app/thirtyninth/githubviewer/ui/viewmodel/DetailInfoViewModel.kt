@@ -28,6 +28,7 @@ class DetailInfoViewModel @Inject constructor(
     private val keyValueStorage: KeyValueStorage,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private val TAG = DetailInfoViewModel::class.java.simpleName
 
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
@@ -69,14 +70,14 @@ class DetailInfoViewModel @Inject constructor(
     private fun fetchReadmeMd(readmeDetail: Readme) = viewModelScope.launch {
         _readmeState.value = ReadmeState.Loading
 
-        val result = repository.getReadmeMd(readmeDetail.download_url)
+        val result = repository.getReadmeMd(readmeDetail.downloadUrl)
 
         result.onSuccess { readme ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(readme)
+            Timber.tag(TAG).d(readme)
 
             _readmeState.value = ReadmeState.Loaded(readme, readmeDetail)
         }.onFailure { throwable ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+            Timber.tag(TAG).d(throwable)
 
             _readmeState.value = ReadmeState.Error(mapExceptionToBundle(throwable))
         }
@@ -89,22 +90,22 @@ class DetailInfoViewModel @Inject constructor(
         val resultReadmeDetails = async { repository.getReadmeDetail(owner, repoName) }
 
         resultDetails.await().onSuccess { repo ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_SUCCESS").d(repo.toString())
+            Timber.tag(TAG).d(repo.toString())
 
             _state.value = ScreenState.Loaded(repo, ReadmeState.Loading)
         }.onFailure { throwable ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+            Timber.tag(TAG).d(throwable)
 
             _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
         }
 
         resultReadmeDetails.await().onSuccess { readmeDetail ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_README_ON_SUCCESS").d(readmeDetail.toString())
+            Timber.tag(TAG).d(readmeDetail.toString())
 
             readmeData = readmeDetail
             fetchReadmeMd(readmeDetail)
         }.onFailure { throwable ->
-            Timber.tag("DETAILS_INFO_SCREEN_VIEWMODEL_README_ON_FAILURE").d(throwable)
+            Timber.tag(TAG).d(throwable)
 
             if (throwable is NotFoundException) {
                 _readmeState.value = ReadmeState.Empty

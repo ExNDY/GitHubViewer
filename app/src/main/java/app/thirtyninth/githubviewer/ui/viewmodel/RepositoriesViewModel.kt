@@ -23,6 +23,8 @@ class RepositoriesViewModel @Inject constructor(
     private val repository: AppRepository,
     private val keyValueStorage: KeyValueStorage
 ) : ViewModel() {
+    private val TAG = RepositoriesViewModel::class.java.simpleName
+
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
         onBufferOverflow = BufferOverflow.SUSPEND
@@ -60,11 +62,11 @@ class RepositoriesViewModel @Inject constructor(
         val repositoryListResult = repository.getRepositoryList()
 
         repositoryListResult.onSuccess { list ->
-            Timber.tag("REPOSITORIES_SCREEN_VIEWMODEL_ON_SUCCESS").d(list.toString())
+            Timber.tag(TAG).d(list.toString())
 
             _state.value = ScreenState.Loaded(list)
         }.onFailure { throwable ->
-            Timber.tag("REPOSITORIES_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+            Timber.tag(TAG).d(throwable)
 
             _state.value = ScreenState.Error(mapExceptionToBundle(throwable))
         }

@@ -1,6 +1,5 @@
 package app.thirtyninth.githubviewer.utils
 
-import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 import java.util.regex.Pattern
 
 object Validator {

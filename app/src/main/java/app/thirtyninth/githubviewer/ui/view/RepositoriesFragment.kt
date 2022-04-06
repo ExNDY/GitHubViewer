@@ -33,6 +33,8 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class RepositoriesFragment : Fragment() {
+    private val TAG = RepositoriesFragment::class.java.simpleName
+
     private val viewModel: RepositoriesViewModel by viewModels()
     private val binding: RepositoriesFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -139,7 +141,7 @@ class RepositoriesFragment : Fragment() {
     private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
     private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
-        Timber.tag("EXCEPTION_BUNDLE_REPOSITORIES_SCREEN").d(exceptionBundle.toString())
+        Timber.tag(TAG).d(exceptionBundle.toString())
 
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
@@ -161,14 +163,12 @@ class RepositoriesFragment : Fragment() {
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {
             blockError.container.visibility = if (state is ScreenState.Error) {
-                handleEmptyState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE
             }
 
             repositoryList.visibility = if (state is ScreenState.Loaded) {
-                setRepositoriesList(adapter, state.repos)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -179,6 +179,14 @@ class RepositoriesFragment : Fragment() {
             } else {
                 View.GONE
             }
+        }
+
+        if (state is ScreenState.Error){
+            handleEmptyState(state.exceptionBundle)
+        }
+
+        if (state is ScreenState.Loaded){
+            setRepositoriesList(adapter, state.repos)
         }
     }
 

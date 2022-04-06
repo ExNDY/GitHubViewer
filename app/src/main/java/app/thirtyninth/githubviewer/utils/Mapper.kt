@@ -11,7 +11,6 @@ import app.thirtyninth.githubviewer.data.network.NotFoundException
 import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.network.UnexpectedException
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
-import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
 
 fun mapAlertMessage(exceptionBundle: ExceptionBundle, context: Context): String {
     return if (exceptionBundle.errorCode != null
@@ -92,8 +91,8 @@ fun mapExceptionToBundle(throwable: Throwable): ExceptionBundle {
 
 fun mapTokenValidation(status: ValidationResult): LocalizeString {
     return when (status) {
-        is ValidationResult.Correct -> LocalizeString.Raw("")
-        is ValidationResult.Incorrect -> LocalizeString.Resource(R.string.field_error_message_incorrect)
-        is ValidationResult.Empty -> LocalizeString.Resource(R.string.field_error_message_is_empty)
+        ValidationResult.Correct -> LocalizeString.Raw("")
+        ValidationResult.Incorrect -> LocalizeString.Resource(R.string.field_error_message_incorrect)
+        ValidationResult.Empty -> LocalizeString.Resource(R.string.field_error_message_is_empty)
     }
 }

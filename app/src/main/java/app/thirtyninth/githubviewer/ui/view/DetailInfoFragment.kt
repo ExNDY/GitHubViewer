@@ -40,6 +40,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DetailInfoFragment : Fragment() {
+    private val TAG = DetailInfoFragment::class.java.simpleName
+
     @Inject
     lateinit var markwon: Markwon
 
@@ -174,7 +176,7 @@ class DetailInfoFragment : Fragment() {
         try {
             startActivity(browser)
         } catch (ex: ActivityNotFoundException) {
-            Timber.tag("DETAILS_SCREEN").e(ex, "OPEN_IN_BROWSER")
+            Timber.tag(TAG).e(ex, "OPEN_IN_BROWSER")
 
             Toast.makeText(
                 context,
@@ -206,7 +208,7 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setReadmeErrorState(exceptionBundle: ExceptionBundle) {
-        Timber.tag("EXCEPTION_BUNDLE_DETAIL_SCREEN").d(exceptionBundle.toString())
+        Timber.tag(TAG).d(exceptionBundle.toString())
 
         val title = exceptionBundle.title.getString(requireContext())
         val message = exceptionBundle.message.getString(requireContext())
@@ -243,8 +245,6 @@ class DetailInfoFragment : Fragment() {
     private fun handleState(state: ScreenState) {
         with(binding) {
             blockData.visibility = if (state is ScreenState.Loaded) {
-                setRepositoryDetail(state.githubRepo)
-                handleReadmeState(state.readmeState)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -257,18 +257,25 @@ class DetailInfoFragment : Fragment() {
             }
 
             blockError.container.visibility = if (state is ScreenState.Error) {
-                setErrorState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE
             }
+        }
+
+        if (state is ScreenState.Loaded){
+            setRepositoryDetail(state.githubRepo)
+            handleReadmeState(state.readmeState)
+        }
+
+        if (state is ScreenState.Error){
+            setErrorState(state.exceptionBundle)
         }
     }
 
     private fun handleReadmeState(state: ReadmeState) {
         with(binding) {
             markdown.visibility = if (state is ReadmeState.Loaded) {
-                setReadme(state.markdown, state.readmeDetail)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -281,7 +288,6 @@ class DetailInfoFragment : Fragment() {
             }
 
             blockReadmeError.container.visibility = if (state is ReadmeState.Error) {
-                setReadmeErrorState(state.exceptionBundle)
                 View.VISIBLE
             } else {
                 View.GONE
@@ -294,6 +300,14 @@ class DetailInfoFragment : Fragment() {
                     ""
                 }
             }
+        }
+
+        if (state is ReadmeState.Loaded){
+            setReadme(state.markdown, state.readmeDetail)
+        }
+
+        if (state is ReadmeState.Error){
+            setReadmeErrorState(state.exceptionBundle)
         }
     }
 }

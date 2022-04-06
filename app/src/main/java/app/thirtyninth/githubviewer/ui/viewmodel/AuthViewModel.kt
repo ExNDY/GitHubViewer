@@ -7,7 +7,7 @@ import app.thirtyninth.githubviewer.data.network.UnauthorizedException
 import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import app.thirtyninth.githubviewer.ui.interfaces.LocalizeString
-import app.thirtyninth.githubviewer.ui.interfaces.ValidationResult
+import app.thirtyninth.githubviewer.utils.ValidationResult
 import app.thirtyninth.githubviewer.utils.Validator
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
@@ -27,6 +27,7 @@ class AuthViewModel @Inject constructor(
     private val repository: AppRepository,
     private val keyValueStorage: KeyValueStorage
 ) : ViewModel() {
+    private val TAG = AuthViewModel::class.java.simpleName
 
     private val _actions = MutableSharedFlow<Action>(
         replay = 1,
@@ -34,7 +35,7 @@ class AuthViewModel @Inject constructor(
     )
     val actions: SharedFlow<Action> = _actions.asSharedFlow()
 
-    private val _state = MutableStateFlow<ScreenState>(ScreenState.Loaded)
+    private val _state = MutableStateFlow<ScreenState>(ScreenState.Idle)
     val state: StateFlow<ScreenState> = _state
 
     val authTokenFlow = MutableStateFlow("")
@@ -42,14 +43,14 @@ class AuthViewModel @Inject constructor(
     private fun signInGitHubAndStoreLoginData(authToken: String) {
         val validStatus = validateAuthToken(authToken)
 
-        if (validStatus is ValidationResult.Correct) {
+        if (validStatus == ValidationResult.Correct) {
             viewModelScope.launch {
-                _state.value = ScreenState.Idle
+                _state.value = ScreenState.Loading
 
                 val userDataResult = repository.getUserInfo(authToken)
 
                 userDataResult.onSuccess { owner ->
-                    Timber.tag("AUTH_SCREEN_VIEWMODEL_ON_SUCCESS").d(owner.toString())
+                    Timber.tag(TAG).d(owner.toString())
 
                     _state.value = ScreenState.Loaded
 
@@ -57,7 +58,7 @@ class AuthViewModel @Inject constructor(
 
                     _actions.tryEmit(Action.RouteToRepositoryList)
                 }.onFailure { throwable ->
-                    Timber.tag("AUTH_SCREEN_VIEWMODEL_ON_FAILURE").d(throwable)
+                    Timber.tag(TAG).d(throwable)
 
                     _state.value = ScreenState.Loaded
 
@@ -86,6 +87,7 @@ class AuthViewModel @Inject constructor(
 
     sealed interface ScreenState {
         object Idle : ScreenState
+        object Loading: ScreenState
         object Loaded : ScreenState
         data class InvalidAuthTokenInput(val reason: LocalizeString) : ScreenState
     }

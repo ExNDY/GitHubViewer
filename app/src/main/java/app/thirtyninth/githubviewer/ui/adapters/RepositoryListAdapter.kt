@@ -52,11 +52,14 @@ class RepositoryListAdapter(
 
         holder.bind(item)
 
-        if (languageColor != null) {
+        if (languageColor == null){
+            holder.itemBinding.language.setTextColor(Color.WHITE)
+        } else {
             holder.itemBinding.language.setTextColor(
                 languageColor.toArgb()
             )
         }
+
 
         holder.itemBinding.itemContainer.setOnClickListener {
             onItemClick(position)

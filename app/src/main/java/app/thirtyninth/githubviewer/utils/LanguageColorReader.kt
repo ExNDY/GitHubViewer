@@ -10,6 +10,8 @@ import timber.log.Timber
 import java.io.IOException
 
 class LanguageColorReader {
+    private val TAG = LanguageColorReader::class.java.simpleName
+
     private fun readJSON(context: Context, jsonFilePath: String): String {
         val json: String
 
@@ -18,7 +20,7 @@ class LanguageColorReader {
                 it.readText()
             }
         } catch (e: IOException) {
-            Timber.tag("READING_JSON_FROM_ASSETS").e(e)
+            Timber.tag(TAG).e(e)
 
             throw e
         }

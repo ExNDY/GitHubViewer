@@ -25,9 +25,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-
 @AndroidEntryPoint
 class AuthFragment : Fragment() {
+    private val TAG = AuthFragment::class.java.simpleName
+
     private val viewModel: AuthViewModel by viewModels()
     private val binding: AuthFragmentBinding by viewBinding(CreateMethod.INFLATE)
 
@@ -86,13 +87,13 @@ class AuthFragment : Fragment() {
     }
 
     private fun showErrorMessage(exceptionBundle: ExceptionBundle) {
-        Timber.tag("EXCEPTION_BUNDLE_AUTH_SCREEN").d(exceptionBundle.toString())
+        Timber.tag(TAG).d(exceptionBundle.toString())
 
         val title = exceptionBundle.title.getString(requireContext())
         val message = mapAlertMessage(exceptionBundle, requireContext())
 
         callExceptionDialog(title, message, requireContext()) {
-            Timber.tag("EXCEPTION_AUTH_SCREEN").e(exceptionBundle.toString())
+            Timber.tag(TAG).e(exceptionBundle.toString())
         }
     }
 
@@ -111,13 +112,13 @@ class AuthFragment : Fragment() {
                 null
             }
 
-            signInButton.text = if (state is ScreenState.Idle) {
+            signInButton.text = if (state is ScreenState.Loading) {
                 ""
             } else {
                 getText(R.string.sign_in)
             }
 
-            progressCircular.visibility = if (state is ScreenState.Idle) {
+            progressCircular.visibility = if (state is ScreenState.Loading) {
                 View.VISIBLE
             } else {
                 View.GONE
