@@ -244,54 +244,29 @@ class DetailInfoFragment : Fragment() {
 
     private fun handleState(state: ScreenState) {
         with(binding) {
-            blockData.visibility = if (state is ScreenState.Loaded) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            blockLoading.container.visibility = if (state is ScreenState.Loading) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            blockError.container.visibility = if (state is ScreenState.Error) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            blockData.visibility = if (state is ScreenState.Loaded) View.VISIBLE else View.GONE
+            blockLoading.container.visibility =
+                if (state is ScreenState.Loading) View.VISIBLE else View.GONE
+            blockError.container.visibility =
+                if (state is ScreenState.Error) View.VISIBLE else View.GONE
         }
 
-        if (state is ScreenState.Loaded){
+        if (state is ScreenState.Loaded) {
             setRepositoryDetail(state.githubRepo)
-            handleReadmeState(state.readmeState)
         }
 
-        if (state is ScreenState.Error){
+        if (state is ScreenState.Error) {
             setErrorState(state.exceptionBundle)
         }
     }
 
     private fun handleReadmeState(state: ReadmeState) {
         with(binding) {
-            markdown.visibility = if (state is ReadmeState.Loaded) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            blockReadmeLoading.visibility = if (state is ReadmeState.Loading) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-
-            blockReadmeError.container.visibility = if (state is ReadmeState.Error) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            markdown.visibility = if (state is ReadmeState.Loaded) View.VISIBLE else View.GONE
+            blockReadmeLoading.visibility =
+                if (state is ReadmeState.Loading) View.VISIBLE else View.GONE
+            blockReadmeError.container.visibility =
+                if (state is ReadmeState.Error) View.VISIBLE else View.GONE
 
             readmeBlockHeader.text = when (state) {
                 is ReadmeState.Empty -> getString(R.string.empty_readme)
@@ -302,11 +277,11 @@ class DetailInfoFragment : Fragment() {
             }
         }
 
-        if (state is ReadmeState.Loaded){
+        if (state is ReadmeState.Loaded) {
             setReadme(state.markdown, state.readmeDetail)
         }
 
-        if (state is ReadmeState.Error){
+        if (state is ReadmeState.Error) {
             setReadmeErrorState(state.exceptionBundle)
         }
     }

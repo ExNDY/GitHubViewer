@@ -118,11 +118,8 @@ class AuthFragment : Fragment() {
                 getText(R.string.sign_in)
             }
 
-            progressCircular.visibility = if (state is ScreenState.Loading) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            progressCircular.visibility =
+                if (state is ScreenState.Loading) View.VISIBLE else View.GONE
         }
     }
 }

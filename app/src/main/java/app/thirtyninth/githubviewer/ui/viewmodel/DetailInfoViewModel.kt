@@ -88,7 +88,7 @@ class DetailInfoViewModel @Inject constructor(
         resultDetails.await().onSuccess { repo ->
             Timber.tag(TAG).d(repo.toString())
 
-            _state.value = ScreenState.Loaded(repo, ReadmeState.Loading)
+            _state.value = ScreenState.Loaded(repo)
         }.onFailure { throwable ->
             Timber.tag(TAG).d(throwable)
 
@@ -119,10 +119,7 @@ class DetailInfoViewModel @Inject constructor(
     sealed interface ScreenState {
         object Loading : ScreenState
         data class Error(val exceptionBundle: ExceptionBundle) : ScreenState
-        data class Loaded(
-            val githubRepo: GitHubRepository,
-            val readmeState: ReadmeState
-        ) : ScreenState
+        data class Loaded(val githubRepo: GitHubRepository) : ScreenState
     }
 
     sealed interface ReadmeState {

@@ -140,7 +140,7 @@ class RepositoriesFragment : Fragment() {
 
     private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
-    private fun handleEmptyState(exceptionBundle: ExceptionBundle) {
+    private fun handleErrorState(exceptionBundle: ExceptionBundle) {
         Timber.tag(TAG).d(exceptionBundle.toString())
 
         val title = exceptionBundle.title.getString(requireContext())
@@ -162,31 +162,23 @@ class RepositoriesFragment : Fragment() {
 
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
         with(binding) {
-            blockError.container.visibility = if (state is ScreenState.Error) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            blockError.container.visibility =
+                if (state is ScreenState.Error) View.VISIBLE else View.GONE
 
-            repositoryList.visibility = if (state is ScreenState.Loaded) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            repositoryList.visibility = if (state is ScreenState.Loaded) View.VISIBLE else View.GONE
 
-            blockLoading.container.visibility = if (state is ScreenState.Loading) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            blockLoading.container.visibility =
+                if (state is ScreenState.Loading) View.VISIBLE else View.GONE
         }
 
-        if (state is ScreenState.Error){
-            handleEmptyState(state.exceptionBundle)
+        if (state is ScreenState.Error) {
+            handleErrorState(state.exceptionBundle)
         }
 
-        if (state is ScreenState.Loaded){
+        if (state is ScreenState.Loaded) {
             setRepositoriesList(adapter, state.repos)
+        } else {
+            setRepositoriesList(adapter, emptyList())
         }
     }
 
