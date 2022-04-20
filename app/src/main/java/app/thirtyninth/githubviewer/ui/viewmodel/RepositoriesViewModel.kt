@@ -8,11 +8,11 @@ import app.thirtyninth.githubviewer.data.repository.AppRepository
 import app.thirtyninth.githubviewer.preferences.KeyValueStorage
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,8 +24,8 @@ class RepositoriesViewModel @Inject constructor(
 ) : ViewModel() {
     private val TAG = RepositoriesViewModel::class.java.simpleName
 
-    private val _actions = MutableSharedFlow<Action>()
-    val actions: SharedFlow<Action> = _actions.asSharedFlow()
+    private val _actions: Channel<Action> = Channel(Channel.BUFFERED)
+    val actions: Flow<Action> = _actions.receiveAsFlow()
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val state: StateFlow<ScreenState> = _state
@@ -48,7 +48,7 @@ class RepositoriesViewModel @Inject constructor(
 
     private fun logout() = viewModelScope.launch {
         keyValueStorage.logout()
-        _actions.tryEmit(Action.RouteToAuthScreen)
+        _actions.send(Action.RouteToAuthScreen)
     }
 
     private fun getUserRepositoryList() = viewModelScope.launch {

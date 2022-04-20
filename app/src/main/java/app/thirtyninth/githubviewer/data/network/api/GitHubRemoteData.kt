@@ -87,9 +87,7 @@ class GitHubRemoteData @Inject constructor(
         }
     }
 
-    private fun mapToDomainException(
-        remoteException: Exception,
-    ): Throwable {
+    private fun mapToDomainException( remoteException: Exception ): Throwable {
         return when (remoteException) {
             is IOException -> NoInternetException(remoteException)
             is HttpException -> HttpCallException(remoteException)

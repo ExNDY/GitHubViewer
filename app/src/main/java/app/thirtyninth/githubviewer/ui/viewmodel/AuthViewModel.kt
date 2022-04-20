@@ -12,11 +12,11 @@ import app.thirtyninth.githubviewer.utils.Validator
 import app.thirtyninth.githubviewer.utils.mapExceptionToBundle
 import app.thirtyninth.githubviewer.utils.mapTokenValidation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,8 +28,8 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     private val TAG = AuthViewModel::class.java.simpleName
 
-    private val _actions = MutableSharedFlow<Action>()
-    val actions: SharedFlow<Action> = _actions.asSharedFlow()
+    private val _actions: Channel<Action> = Channel(Channel.BUFFERED)
+    val actions: Flow<Action> = _actions.receiveAsFlow()
 
     private val _state = MutableStateFlow<ScreenState>(ScreenState.Idle)
     val state: StateFlow<ScreenState> = _state
@@ -52,7 +52,7 @@ class AuthViewModel @Inject constructor(
 
                     keyValueStorage.saveToken(authToken)
 
-                    _actions.tryEmit(Action.RouteToRepositoryList)
+                    _actions.send(Action.RouteToRepositoryList)
                 }.onFailure { throwable ->
                     Timber.tag(TAG).d(throwable)
 
@@ -65,7 +65,7 @@ class AuthViewModel @Inject constructor(
                             )
                         )
                     } else {
-                        _actions.tryEmit(Action.ShowError(mapExceptionToBundle(throwable)))
+                        _actions.send(Action.ShowError(mapExceptionToBundle(throwable)))
                     }
                 }
             }
@@ -83,7 +83,7 @@ class AuthViewModel @Inject constructor(
 
     sealed interface ScreenState {
         object Idle : ScreenState
-        object Loading: ScreenState
+        object Loading : ScreenState
         object Loaded : ScreenState
         data class InvalidAuthTokenInput(val reason: LocalizeString) : ScreenState
     }
