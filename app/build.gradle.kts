@@ -105,6 +105,7 @@ dependencies {
 
     //Timber
     implementation(Dependencies.Debug.timber)
+    //Tests
     testImplementation(Dependencies.Test.jUnit)
     androidTestImplementation(Dependencies.Test.extJUnit)
     androidTestImplementation(Dependencies.Test.espresso)

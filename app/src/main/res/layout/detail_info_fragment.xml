@@ -181,7 +181,7 @@
                 app:layout_constraintEnd_toStartOf="@id/stars_name"
                 app:layout_constraintStart_toEndOf="@id/stars"
                 app:layout_constraintTop_toTopOf="@id/stars"
-                tools:text="29999999" />
+                tools:text="0" />
 
             <TextView
                 android:id="@+id/stars_name"
@@ -217,7 +217,7 @@
                 app:layout_constraintEnd_toStartOf="@id/forks_name"
                 app:layout_constraintStart_toEndOf="@id/forks"
                 app:layout_constraintTop_toTopOf="@+id/forks"
-                tools:text="9999999999" />
+                tools:text="0" />
 
             <TextView
                 android:id="@+id/forks_name"
@@ -252,7 +252,7 @@
                 app:layout_constraintEnd_toStartOf="@id/watchers_name"
                 app:layout_constraintStart_toEndOf="@id/watchers"
                 app:layout_constraintTop_toTopOf="@+id/watchers"
-                tools:text="999999999999" />
+                tools:text="0" />
 
             <TextView
                 android:id="@+id/watchers_name"

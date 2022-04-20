@@ -25,9 +25,7 @@ import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel
-import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
-import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ReadmeState
-import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ScreenState
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.*
 import app.thirtyninth.githubviewer.utils.callLogoutDialog
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -189,20 +187,46 @@ class DetailInfoFragment : Fragment() {
 
     private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
-    private fun setErrorState(exceptionBundle: ExceptionBundle) {
-        val title = exceptionBundle.title.getString(requireContext())
-        val message = exceptionBundle.message.getString(requireContext())
-        val imageId = exceptionBundle.imageResId
-        val colorId = exceptionBundle.colorResId
+    private fun setErrorState(state: ScreenState) {
+        val title = if (state is ScreenState.Error) {
+            state.exceptionBundle.title.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val message = if (state is ScreenState.Error) {
+            state.exceptionBundle.message.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val imageId = if (state is ScreenState.Error) {
+            state.exceptionBundle.imageResId
+        } else {
+            null
+        }
+        val colorId = if (state is ScreenState.Error) {
+            state.exceptionBundle.colorResId
+        } else {
+            null
+        }
 
         with(binding) {
-            blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
+            if (colorId != null) {
+                blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
+            }
+
+            if (imageId != null) {
+                blockError.errorImg.setImageResource(imageId)
+            }
+
             blockError.errorTitle.text = title
             blockError.errorMessage.text = message
-            blockError.errorImg.setImageResource(imageId)
 
-            blockError.retryButton.setOnClickListener {
-                viewModel.retryButtonClicked()
+            if (state is ScreenState.Error) {
+                blockError.retryButton.setOnClickListener {
+                    viewModel.retryButtonClicked()
+                }
             }
         }
     }
@@ -256,7 +280,7 @@ class DetailInfoFragment : Fragment() {
         }
 
         if (state is ScreenState.Error) {
-            setErrorState(state.exceptionBundle)
+            setErrorState(state)
         }
     }
 
