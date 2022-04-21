@@ -93,7 +93,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="64dp"
-                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeMaxTextSize="16sp"
                 android:autoSizeMinTextSize="14sp"
                 android:autoSizeTextType="uniform"
                 android:maxLines="2"
