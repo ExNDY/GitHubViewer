@@ -1,10 +1,12 @@
 package app.thirtyninth.githubviewer.ui.view
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -84,16 +86,10 @@ class RepositoriesFragment : Fragment() {
 
         setupObservers(repositoriesListAdapter)
 
-        with(binding) {
-            repositoryList.apply {
-                setHasFixedSize(true)
-                addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-                adapter = repositoriesListAdapter
-            }
-
-            blockError.retryButton.setOnClickListener {
-                viewModel.loadData()
-            }
+        binding.repositoryList.apply {
+            setHasFixedSize(true)
+            addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+            adapter = repositoriesListAdapter
         }
     }
 
@@ -137,55 +133,48 @@ class RepositoriesFragment : Fragment() {
 
     private fun handleErrorState(state: ScreenState) {
 
-        val title = if (state is ScreenState.Error) {
+        val title: String = if (state is ScreenState.Error) {
             state.exceptionBundle.title.getString(requireContext())
         } else {
             ""
         }
 
-        val message = if (state is ScreenState.Error) {
+        val message: String = if (state is ScreenState.Error) {
             state.exceptionBundle.message.getString(requireContext())
         } else {
             ""
         }
 
-        val imageId = if (state is ScreenState.Error) {
-            state.exceptionBundle.imageResId
+        val errorDrawable: Drawable? = if (state is ScreenState.Error) {
+            ContextCompat.getDrawable(requireContext(), state.exceptionBundle.imageResId)
         } else {
             null
         }
+
         val colorId = if (state is ScreenState.Error) {
             state.exceptionBundle.colorResId
         } else {
-            null
+            R.color.white
         }
 
-        with(binding) {
-            if (colorId != null) {
-                blockError.errorTitle.setTextColor(
-                    resources.getColor(
-                        colorId,
-                        resources.newTheme()
-                    )
-                )
-            }
+        with(binding.blockError) {
+            errorTitle.setTextColor(
+                ContextCompat.getColor(requireContext(), colorId)
+            )
 
-            if (imageId != null) {
-                blockError.errorImg.visibility = View.VISIBLE
+            errorImg.setImageDrawable(errorDrawable)
+            errorImg.visibility =
+                if (state is ScreenState.Error) View.VISIBLE else View.GONE
+            errorTitle.text = title
+            errorMessage.text = message
 
-                blockError.errorImg.setImageResource(imageId)
-            } else {
-                blockError.errorImg.visibility = View.GONE
-            }
-
-            blockError.errorTitle.text = title
-            blockError.errorMessage.text = message
-
-            if (state is ScreenState.Error) {
-                blockError.retryButton.setOnClickListener {
+            val listener: View.OnClickListener? = if (state is ScreenState.Error) {
+                View.OnClickListener {
                     viewModel.onRetryClicked()
                 }
-            }
+            } else null
+
+            retryButton.setOnClickListener(listener)
         }
     }
 
@@ -202,15 +191,15 @@ class RepositoriesFragment : Fragment() {
                 if (state is ScreenState.Loading) View.VISIBLE else View.GONE
         }
 
-        if (state is ScreenState.Error) {
-            handleErrorState(state)
+        handleErrorState(state)
+
+        val list: List<GitHubRepository> = if (state is ScreenState.Loaded) {
+            state.repos
+        } else {
+            emptyList()
         }
 
-        if (state is ScreenState.Loaded) {
-            adapter.submitList(state.repos)
-        } else {
-            adapter.submitList(emptyList())
-        }
+        adapter.submitList(list)
     }
 
     private fun handleAction(action: Action) {

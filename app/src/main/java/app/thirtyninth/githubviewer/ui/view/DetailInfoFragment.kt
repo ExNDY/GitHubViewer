@@ -3,12 +3,14 @@ package app.thirtyninth.githubviewer.ui.view
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,9 +24,9 @@ import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ReadmeState
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ScreenState
-import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
 import app.thirtyninth.githubviewer.utils.callLogoutDialog
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -90,11 +92,9 @@ class DetailInfoFragment : Fragment() {
     }
 
     private fun setupMarkdown() {
-        with(binding) {
-            markdown.apply {
-                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                adapter = markwonAdapter
-            }
+        binding.markdown.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = markwonAdapter
         }
     }
 
@@ -106,6 +106,7 @@ class DetailInfoFragment : Fragment() {
                 }
             }
         }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
@@ -113,6 +114,7 @@ class DetailInfoFragment : Fragment() {
                 }
             }
         }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.readmeState.collect { state ->
@@ -125,33 +127,36 @@ class DetailInfoFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun handleReadmeLoadedState(state: ReadmeState) {
 
-        binding.readmeBlockHeader.text = if (state is ReadmeState.Loaded){
+        binding.readmeBlockHeader.text = if (state is ReadmeState.Loaded) {
             state.readmeDetail.name
         } else {
             getString(R.string.empty_readme)
         }
 
-        if (state is ReadmeState.Loaded){
-            markwonAdapter.setMarkdown(markwon, state.markdown)
-            markwonAdapter.notifyDataSetChanged()
+        val markdownString: String = if (state is ReadmeState.Loaded) {
+            state.markdown
+        } else {
+            ""
         }
+
+        markwonAdapter.setMarkdown(markwon, markdownString)
+        markwonAdapter.notifyDataSetChanged()
     }
 
     private fun handleDetailsLoadedState(state: ScreenState) {
         with(binding) {
 
-            if (state is ScreenState.Loaded) {
-                state.githubRepo.license?.spdxId.also { spdxId ->
-                    if (spdxId.isNullOrEmpty()) {
-                        licenseType.text = getString(R.string.repo_info_license_type)
-                    } else {
-                        licenseType.text = spdxId
-                    }
+            licenseType.text = if (state is ScreenState.Loaded) {
+                val licenseType: String? = state.githubRepo.license?.spdxId
+
+                if (licenseType.isNullOrEmpty()) {
+                    getString(R.string.repo_info_license_type)
+                } else {
+                    licenseType
                 }
             } else {
-                licenseType.text = getString(R.string.repo_info_license_type)
+                getString(R.string.repo_info_license_type)
             }
-
 
             repositoryLinkButton.text = if (state is ScreenState.Loaded) {
                 state.githubRepo.htmlURL?.substring(8, state.githubRepo.htmlURL.length).orEmpty()
@@ -162,20 +167,21 @@ class DetailInfoFragment : Fragment() {
             starsCount.text = if (state is ScreenState.Loaded) {
                 state.githubRepo.stargazersCount.toString()
             } else {
-                ""
+                "-"
             }
 
             forksCount.text = if (state is ScreenState.Loaded) {
                 state.githubRepo.forksCount.toString()
             } else {
-                ""
+                "-"
             }
 
             watchersCount.text = if (state is ScreenState.Loaded) {
                 state.githubRepo.watchersCount.toString()
             } else {
-                ""
+                "-"
             }
+
             repositoryName.text = if (state is ScreenState.Loaded) {
                 state.githubRepo.name
             } else {
@@ -188,8 +194,8 @@ class DetailInfoFragment : Fragment() {
                 ""
             }
 
-            if (state is ScreenState.Loaded) {
-                repositoryLinkButton.setOnClickListener {
+            val listener: View.OnClickListener? = if (state is ScreenState.Loaded) {
+                View.OnClickListener {
                     if (state.githubRepo.htmlURL != null) {
                         openInBrowser(state.githubRepo.htmlURL)
                     } else {
@@ -200,7 +206,9 @@ class DetailInfoFragment : Fragment() {
                         ).show()
                     }
                 }
-            }
+            } else null
+
+            repositoryLinkButton.setOnClickListener(listener)
         }
     }
 
@@ -225,107 +233,94 @@ class DetailInfoFragment : Fragment() {
 
     private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
-    private fun setErrorState(state: ScreenState) {
-        val title = if (state is ScreenState.Error) {
+    private fun handleErrorState(state: ScreenState) {
+        val title: String = if (state is ScreenState.Error) {
             state.exceptionBundle.title.getString(requireContext())
         } else {
             ""
         }
 
-        val message = if (state is ScreenState.Error) {
+        val message: String = if (state is ScreenState.Error) {
             state.exceptionBundle.message.getString(requireContext())
         } else {
             ""
         }
 
-        val imageId = if (state is ScreenState.Error) {
-            state.exceptionBundle.imageResId
+        val errorDrawable: Drawable? = if (state is ScreenState.Error) {
+            ContextCompat.getDrawable(requireContext(), state.exceptionBundle.imageResId)
         } else {
             null
         }
         val colorId = if (state is ScreenState.Error) {
             state.exceptionBundle.colorResId
         } else {
-            null
+            R.color.white
         }
 
-        with(binding) {
-            if (colorId != null) {
-                blockError.errorTitle.setTextColor(
-                    resources.getColor(
-                        colorId,
-                        resources.newTheme()
-                    )
-                )
-            }
+        with(binding.blockError) {
+            errorTitle.setTextColor(
+                ContextCompat.getColor(requireContext(), colorId)
+            )
 
-            if (imageId != null) {
-                blockError.errorImg.visibility = View.VISIBLE
+            errorImg.setImageDrawable(errorDrawable)
+            errorImg.visibility =
+                if (state is ScreenState.Error) View.VISIBLE else View.GONE
+            errorTitle.text = title
+            errorMessage.text = message
 
-                blockError.errorImg.setImageResource(imageId)
-            } else {
-                blockError.errorImg.visibility = View.GONE
-            }
-
-            blockError.errorTitle.text = title
-            blockError.errorMessage.text = message
-
-            if (state is ScreenState.Error) {
-                blockError.retryButton.setOnClickListener {
+            val listener: View.OnClickListener? = if (state is ScreenState.Error) {
+                View.OnClickListener {
                     viewModel.retryButtonClicked()
                 }
-            }
+            } else null
+
+            retryButton.setOnClickListener(listener)
         }
     }
 
     private fun handleReadmeErrorState(state: ReadmeState) {
 
-        val title = if (state is ReadmeState.Error) {
+        val title: String = if (state is ReadmeState.Error) {
             state.exceptionBundle.title.getString(requireContext())
         } else {
             ""
         }
 
-        val message = if (state is ReadmeState.Error) {
+        val message: String = if (state is ReadmeState.Error) {
             state.exceptionBundle.message.getString(requireContext())
         } else {
             ""
         }
 
-        val imageId = if (state is ReadmeState.Error) {
-            state.exceptionBundle.imageResId
+        val errorDrawable: Drawable? = if (state is ReadmeState.Error) {
+            ContextCompat.getDrawable(requireContext(), state.exceptionBundle.imageResId)
         } else {
             null
         }
-
         val colorId = if (state is ReadmeState.Error) {
             state.exceptionBundle.colorResId
         } else {
-            null
+            R.color.white
         }
 
-        with(binding) {
-            if (colorId != null) {
-                blockReadmeError.errorTitle.setTextColor(
-                    resources.getColor(colorId, resources.newTheme())
-                )
-            }
+        with(binding.blockReadmeError) {
+            errorTitle.setTextColor(
+                ContextCompat.getColor(requireContext(), colorId)
+            )
 
-            if (imageId != null) {
-                blockReadmeError.errorImg.visibility = View.VISIBLE
-                blockReadmeError.errorImg.setImageResource(imageId)
-            } else {
-                blockReadmeError.errorImg.visibility = View.GONE
-            }
+            errorImg.setImageDrawable(errorDrawable)
+            errorImg.visibility =
+                if (state is ReadmeState.Error) View.VISIBLE else View.GONE
+            errorTitle.text = title
+            errorMessage.text = message
 
-            blockReadmeError.errorTitle.text = title
-            blockReadmeError.errorMessage.text = message
-
-            if (state is ReadmeState.Error) {
-                blockReadmeError.retryButton.setOnClickListener {
+            val listener: View.OnClickListener? = if (state is ReadmeState.Error) {
+                View.OnClickListener {
                     viewModel.retryReadmeButtonClicked()
                 }
-            }
+            } else null
+
+            retryButton.setOnClickListener(listener)
         }
     }
 
@@ -348,13 +343,9 @@ class DetailInfoFragment : Fragment() {
                 if (state is ScreenState.Error) View.VISIBLE else View.GONE
         }
 
-        if (state is ScreenState.Loaded) {
-            handleDetailsLoadedState(state)
-        }
+        handleDetailsLoadedState(state)
 
-        if (state is ScreenState.Error) {
-            setErrorState(state)
-        }
+        handleErrorState(state)
     }
 
     private fun handleReadmeState(state: ReadmeState) {
@@ -374,12 +365,8 @@ class DetailInfoFragment : Fragment() {
             }
         }
 
-        if (state is ReadmeState.Loaded) {
-            handleReadmeLoadedState(state)
-        }
+        handleReadmeLoadedState(state)
 
-        if (state is ReadmeState.Error) {
-            handleReadmeErrorState(state)
-        }
+        handleReadmeErrorState(state)
     }
 }
