@@ -20,12 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
-import app.thirtyninth.githubviewer.data.models.ExceptionBundle
-import app.thirtyninth.githubviewer.data.models.GitHubRepository
-import app.thirtyninth.githubviewer.data.models.Readme
 import app.thirtyninth.githubviewer.databinding.DetailInfoFragmentBinding
 import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel
-import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.*
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ReadmeState
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.ScreenState
+import app.thirtyninth.githubviewer.ui.viewmodel.DetailInfoViewModel.Action
 import app.thirtyninth.githubviewer.utils.callLogoutDialog
 import by.kirich1409.viewbindingdelegate.CreateMethod
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -124,43 +123,82 @@ class DetailInfoFragment : Fragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun setReadme(
-        readme: String,
-        readmeDetail: Readme
-    ) {
-        binding.readmeBlockHeader.text = readmeDetail.name
+    private fun handleReadmeLoadedState(state: ReadmeState) {
 
-        markwonAdapter.setMarkdown(markwon, readme)
-        markwonAdapter.notifyDataSetChanged()
+        binding.readmeBlockHeader.text = if (state is ReadmeState.Loaded){
+            state.readmeDetail.name
+        } else {
+            getString(R.string.empty_readme)
+        }
+
+        if (state is ReadmeState.Loaded){
+            markwonAdapter.setMarkdown(markwon, state.markdown)
+            markwonAdapter.notifyDataSetChanged()
+        }
     }
 
-    private fun setRepositoryDetail(repository: GitHubRepository) {
+    private fun handleDetailsLoadedState(state: ScreenState) {
         with(binding) {
-            repository.license?.spdxId.also { spdxId ->
-                if (spdxId.isNullOrEmpty()) {
-                    licenseType.text = getString(R.string.repo_info_license_type)
-                } else {
-                    licenseType.text = spdxId
+
+            if (state is ScreenState.Loaded) {
+                state.githubRepo.license?.spdxId.also { spdxId ->
+                    if (spdxId.isNullOrEmpty()) {
+                        licenseType.text = getString(R.string.repo_info_license_type)
+                    } else {
+                        licenseType.text = spdxId
+                    }
                 }
+            } else {
+                licenseType.text = getString(R.string.repo_info_license_type)
             }
 
-            repositoryLinkButton.text =
-                repository.htmlURL?.substring(8, repository.htmlURL.length).orEmpty()
-            starsCount.text = repository.stargazersCount.toString()
-            forksCount.text = repository.forksCount.toString()
-            watchersCount.text = repository.watchersCount.toString()
-            repositoryName.text = repository.name
-            repositoryDescription.text = repository.description
 
-            repositoryLinkButton.setOnClickListener {
-                if (repository.htmlURL != null) {
-                    openInBrowser(repository.htmlURL)
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.url_not_found),
-                        Toast.LENGTH_SHORT
-                    ).show()
+            repositoryLinkButton.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.htmlURL?.substring(8, state.githubRepo.htmlURL.length).orEmpty()
+            } else {
+                ""
+            }
+
+            starsCount.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.stargazersCount.toString()
+            } else {
+                ""
+            }
+
+            forksCount.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.forksCount.toString()
+            } else {
+                ""
+            }
+
+            watchersCount.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.watchersCount.toString()
+            } else {
+                ""
+            }
+            repositoryName.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.name
+            } else {
+                ""
+            }
+
+            repositoryDescription.text = if (state is ScreenState.Loaded) {
+                state.githubRepo.description
+            } else {
+                ""
+            }
+
+            if (state is ScreenState.Loaded) {
+                repositoryLinkButton.setOnClickListener {
+                    if (state.githubRepo.htmlURL != null) {
+                        openInBrowser(state.githubRepo.htmlURL)
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.url_not_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
@@ -213,11 +251,20 @@ class DetailInfoFragment : Fragment() {
 
         with(binding) {
             if (colorId != null) {
-                blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
+                blockError.errorTitle.setTextColor(
+                    resources.getColor(
+                        colorId,
+                        resources.newTheme()
+                    )
+                )
             }
 
             if (imageId != null) {
+                blockError.errorImg.visibility = View.VISIBLE
+
                 blockError.errorImg.setImageResource(imageId)
+            } else {
+                blockError.errorImg.visibility = View.GONE
             }
 
             blockError.errorTitle.text = title
@@ -231,27 +278,53 @@ class DetailInfoFragment : Fragment() {
         }
     }
 
-    private fun setReadmeErrorState(exceptionBundle: ExceptionBundle) {
-        Timber.tag(TAG).d(exceptionBundle.toString())
+    private fun handleReadmeErrorState(state: ReadmeState) {
 
-        val title = exceptionBundle.title.getString(requireContext())
-        val message = exceptionBundle.message.getString(requireContext())
-        val imageId = exceptionBundle.imageResId
-        val colorId = exceptionBundle.colorResId
+        val title = if (state is ReadmeState.Error) {
+            state.exceptionBundle.title.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val message = if (state is ReadmeState.Error) {
+            state.exceptionBundle.message.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val imageId = if (state is ReadmeState.Error) {
+            state.exceptionBundle.imageResId
+        } else {
+            null
+        }
+
+        val colorId = if (state is ReadmeState.Error) {
+            state.exceptionBundle.colorResId
+        } else {
+            null
+        }
 
         with(binding) {
-            blockReadmeError.errorTitle.setTextColor(
-                resources.getColor(
-                    colorId,
-                    resources.newTheme()
+            if (colorId != null) {
+                blockReadmeError.errorTitle.setTextColor(
+                    resources.getColor(colorId, resources.newTheme())
                 )
-            )
+            }
+
+            if (imageId != null) {
+                blockReadmeError.errorImg.visibility = View.VISIBLE
+                blockReadmeError.errorImg.setImageResource(imageId)
+            } else {
+                blockReadmeError.errorImg.visibility = View.GONE
+            }
+
             blockReadmeError.errorTitle.text = title
             blockReadmeError.errorMessage.text = message
-            blockReadmeError.errorImg.setImageResource(imageId)
 
-            blockReadmeError.retryButton.setOnClickListener {
-                viewModel.retryReadmeButtonClicked()
+            if (state is ReadmeState.Error) {
+                blockReadmeError.retryButton.setOnClickListener {
+                    viewModel.retryReadmeButtonClicked()
+                }
             }
         }
     }
@@ -276,7 +349,7 @@ class DetailInfoFragment : Fragment() {
         }
 
         if (state is ScreenState.Loaded) {
-            setRepositoryDetail(state.githubRepo)
+            handleDetailsLoadedState(state)
         }
 
         if (state is ScreenState.Error) {
@@ -302,11 +375,11 @@ class DetailInfoFragment : Fragment() {
         }
 
         if (state is ReadmeState.Loaded) {
-            setReadme(state.markdown, state.readmeDetail)
+            handleReadmeLoadedState(state)
         }
 
         if (state is ReadmeState.Error) {
-            setReadmeErrorState(state.exceptionBundle)
+            handleReadmeErrorState(state)
         }
     }
 }

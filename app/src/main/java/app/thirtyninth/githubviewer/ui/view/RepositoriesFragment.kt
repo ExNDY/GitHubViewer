@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.thirtyninth.githubviewer.AppNavigationDirections
 import app.thirtyninth.githubviewer.R
 import app.thirtyninth.githubviewer.common.Constants
-import app.thirtyninth.githubviewer.data.models.ExceptionBundle
 import app.thirtyninth.githubviewer.data.models.GitHubRepository
 import app.thirtyninth.githubviewer.databinding.RepositoriesFragmentBinding
 import app.thirtyninth.githubviewer.ui.adapters.RepositoryListAdapter
@@ -98,10 +97,6 @@ class RepositoriesFragment : Fragment() {
         }
     }
 
-    private fun setRepositoriesList(adapter: RepositoryListAdapter, list: List<GitHubRepository>) {
-        adapter.submitList(list)
-    }
-
     private fun openRepositoryDetail(position: Int) {
         val item: GitHubRepository =
             (binding.repositoryList.adapter as RepositoryListAdapter).getItem(position)
@@ -140,27 +135,63 @@ class RepositoriesFragment : Fragment() {
 
     private fun logout() = callLogoutDialog(requireContext()) { viewModel.onLogoutClicked() }
 
-    private fun handleErrorState(exceptionBundle: ExceptionBundle) {
-        Timber.tag(TAG).d(exceptionBundle.toString())
+    private fun handleErrorState(state: ScreenState) {
 
-        val title = exceptionBundle.title.getString(requireContext())
-        val message = exceptionBundle.message.getString(requireContext())
-        val imageId = exceptionBundle.imageResId
-        val colorId = exceptionBundle.colorResId
+        val title = if (state is ScreenState.Error) {
+            state.exceptionBundle.title.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val message = if (state is ScreenState.Error) {
+            state.exceptionBundle.message.getString(requireContext())
+        } else {
+            ""
+        }
+
+        val imageId = if (state is ScreenState.Error) {
+            state.exceptionBundle.imageResId
+        } else {
+            null
+        }
+        val colorId = if (state is ScreenState.Error) {
+            state.exceptionBundle.colorResId
+        } else {
+            null
+        }
 
         with(binding) {
-            blockError.errorTitle.setTextColor(resources.getColor(colorId, resources.newTheme()))
+            if (colorId != null) {
+                blockError.errorTitle.setTextColor(
+                    resources.getColor(
+                        colorId,
+                        resources.newTheme()
+                    )
+                )
+            }
+
+            if (imageId != null) {
+                blockError.errorImg.visibility = View.VISIBLE
+
+                blockError.errorImg.setImageResource(imageId)
+            } else {
+                blockError.errorImg.visibility = View.GONE
+            }
+
             blockError.errorTitle.text = title
             blockError.errorMessage.text = message
-            blockError.errorImg.setImageResource(imageId)
 
-            blockError.retryButton.setOnClickListener {
-                viewModel.onRetryClicked()
+            if (state is ScreenState.Error) {
+                blockError.retryButton.setOnClickListener {
+                    viewModel.onRetryClicked()
+                }
             }
         }
     }
 
     private fun handleState(state: ScreenState, adapter: RepositoryListAdapter) {
+        Timber.tag(TAG).d(state.toString())
+
         with(binding) {
             blockError.container.visibility =
                 if (state is ScreenState.Error) View.VISIBLE else View.GONE
@@ -172,13 +203,13 @@ class RepositoriesFragment : Fragment() {
         }
 
         if (state is ScreenState.Error) {
-            handleErrorState(state.exceptionBundle)
+            handleErrorState(state)
         }
 
         if (state is ScreenState.Loaded) {
-            setRepositoriesList(adapter, state.repos)
+            adapter.submitList(state.repos)
         } else {
-            setRepositoriesList(adapter, emptyList())
+            adapter.submitList(emptyList())
         }
     }
 
