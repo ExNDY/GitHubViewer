@@ -38,8 +38,10 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar">
+        app:layout_constraintTop_toBottomOf="@id/appbar"
+        app:layout_constraintVertical_bias="1.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraint_container"
@@ -65,7 +67,7 @@
                 android:id="@+id/stats_section_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:constraint_referenced_ids="stars,stars_count,stars_name,forks,forks_count,forks_name,watchers,watchers_count,watchers_name" />
+                app:constraint_referenced_ids="stars_widget, forks_widget, watchers_widget" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/repository_info_section_group"
@@ -114,7 +116,6 @@
                 android:id="@+id/license_image"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_margin="4dp"
                 android:src="@drawable/ic_license"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/repository_link_button" />
@@ -156,113 +157,124 @@
                 android:layout_height="0dp"
                 android:orientation="horizontal"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="license_image, license, license_type" />
+                app:constraint_referenced_ids="license_image, license, license_type"
+                tools:layout_editor_absoluteX="12dp"
+                tools:layout_editor_absoluteY="92dp" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/stars"
+            <LinearLayout
+                android:id="@+id/stars_widget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_stars"
-                app:layout_constraintEnd_toStartOf="@id/stars_count"
-                app:layout_constraintHorizontal_chainStyle="packed"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toStartOf="@+id/forks_widget"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/license_section_barrier" />
+                app:layout_constraintTop_toBottomOf="@id/license_section_barrier">
 
-            <TextView
-                android:id="@+id/stars_count"
-                style="@style/RepositoryInfo.Counter.TextViewStyle"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/stars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_stars" />
+
+                <TextView
+                    android:id="@+id/stars_count"
+                    style="@style/RepositoryInfo.Counter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:maxWidth="56dp"
+                    android:maxLines="1"
+                    android:text="@string/zero_value"
+                    android:textColor="@color/starColor"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/stars_name"
+                    style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/repo_info_stared"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/forks_widget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxWidth="56dp"
-                android:maxLines="1"
-                android:text="@string/zero_value"
-                android:textColor="@color/starColor"
-                app:layout_constraintBottom_toBottomOf="@id/stars"
-                app:layout_constraintEnd_toStartOf="@id/stars_name"
-                app:layout_constraintStart_toEndOf="@id/stars"
-                app:layout_constraintTop_toTopOf="@id/stars"
-                tools:text="0" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toStartOf="@+id/watchers_widget"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@id/stars_widget"
+                app:layout_constraintTop_toBottomOf="@id/license_section_barrier">
 
-            <TextView
-                android:id="@+id/stars_name"
-                style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/forks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_forks" />
+
+                <TextView
+                    android:id="@+id/forks_count"
+                    style="@style/RepositoryInfo.Counter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:maxWidth="56dp"
+                    android:maxLines="1"
+                    android:text="@string/zero_value"
+                    android:textColor="@color/forkColor"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/forks_name"
+                    style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/repo_info_forks" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/watchers_widget"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/repo_info_stared"
-                android:textColor="@color/white"
-                app:layout_constraintBaseline_toBaselineOf="@id/stars_count"
-                app:layout_constraintEnd_toStartOf="@id/forks"
-                app:layout_constraintStart_toEndOf="@id/stars_count" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/forks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_forks"
-                app:layout_constraintEnd_toStartOf="@id/forks_count"
-                app:layout_constraintStart_toEndOf="@id/stars_name"
-                app:layout_constraintTop_toBottomOf="@id/license_section_barrier" />
-
-            <TextView
-                android:id="@+id/forks_count"
-                style="@style/RepositoryInfo.Counter.TextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxWidth="56dp"
-                android:maxLines="1"
-                android:text="@string/zero_value"
-                android:textColor="@color/forkColor"
-                app:layout_constraintBottom_toBottomOf="@+id/forks"
-                app:layout_constraintEnd_toStartOf="@id/forks_name"
-                app:layout_constraintStart_toEndOf="@id/forks"
-                app:layout_constraintTop_toTopOf="@+id/forks"
-                tools:text="0" />
-
-            <TextView
-                android:id="@+id/forks_name"
-                style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/repo_info_forks"
-                app:layout_constraintBaseline_toBaselineOf="@id/forks_count"
-                app:layout_constraintEnd_toStartOf="@id/watchers"
-                app:layout_constraintStart_toEndOf="@id/forks_count" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/watchers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_watchers"
-                app:layout_constraintEnd_toStartOf="@id/watchers_count"
-                app:layout_constraintStart_toEndOf="@id/forks_name"
-                app:layout_constraintTop_toTopOf="@+id/license_section_barrier" />
-
-            <TextView
-                android:id="@+id/watchers_count"
-                style="@style/RepositoryInfo.Counter.TextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxWidth="56dp"
-                android:maxLines="1"
-                android:text="@string/zero_value"
-                android:textColor="@color/watcherColor"
-                app:layout_constraintBottom_toBottomOf="@+id/watchers"
-                app:layout_constraintEnd_toStartOf="@id/watchers_name"
-                app:layout_constraintStart_toEndOf="@id/watchers"
-                app:layout_constraintTop_toTopOf="@+id/watchers"
-                tools:text="0" />
-
-            <TextView
-                android:id="@+id/watchers_name"
-                style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/repo_info_watchers"
-                app:layout_constraintBaseline_toBaselineOf="@id/watchers_count"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/watchers_count" />
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@id/forks_widget"
+                app:layout_constraintTop_toBottomOf="@id/license_section_barrier">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/watchers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_watchers" />
+
+                <TextView
+                    android:id="@+id/watchers_count"
+                    style="@style/RepositoryInfo.Counter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:maxWidth="56dp"
+                    android:maxLines="1"
+                    android:text="@string/zero_value"
+                    android:textColor="@color/watcherColor"
+                    tools:text="0" />
+
+                <TextView
+                    android:id="@+id/watchers_name"
+                    style="@style/RepositoryInfo.LabelCounter.TextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/repo_info_watchers" />
+            </LinearLayout>
+
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/stats_section_barrier"
@@ -270,7 +282,7 @@
                 android:layout_height="0dp"
                 android:orientation="horizontal"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="stars,stars_count,stars_name,forks,forks_count,forks_name,watchers,watchers_count,watchers_name" />
+                app:constraint_referenced_ids="stars_widget, forks_widget, watchers_widget" />
 
             <TextView
                 android:id="@+id/repository_name"
