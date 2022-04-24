@@ -31,9 +31,4 @@ Test task and design maket: https://kmm.icerock.dev/university/android-basics/pr
 ****
 
 Download sample
-
-Sample apk is located: [*
-/app/release/*](https://github.com/ExNDY/GitHubViewer/tree/master/app/release)
-
-Or you can download
 here: [link](https://github.com/ExNDY/GitHubViewer/releases/tag/GitHubViewer-sample)
