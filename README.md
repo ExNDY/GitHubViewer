@@ -4,12 +4,6 @@ Test task and design maket: https://kmm.icerock.dev/university/android-basics/pr
 
 ****
 
-| Preview                                                                  |
-| ------------------------------------------------------------------------ |
-| ![](https://github.com/ExNDY/GitHubViewer/blob/master/media/preview.gif) |
-
-****
-
 **Used plugins:**
 
 - [x] [Navigation SafeArgs](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/navigation/navigation-safe-args-gradle-plugin)
