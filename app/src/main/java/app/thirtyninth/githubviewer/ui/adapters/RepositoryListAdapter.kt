@@ -55,9 +55,13 @@ class RepositoryListAdapter(
         if (languageColor == null){
             holder.itemBinding.language.setTextColor(Color.WHITE)
         } else {
-            holder.itemBinding.language.setTextColor(
+            val color = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 languageColor.toArgb()
-            )
+            } else {
+                Color.WHITE
+            }
+
+            holder.itemBinding.language.setTextColor(color)
         }
 
 

@@ -1,8 +1,3 @@
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.plugins
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -14,8 +9,8 @@ plugins {
 }
 
 android {
-    compileSdk = Config.compileSdk
-
+    namespace = "app.thirtyninth.githubviewer"
+    compileSdk = 35
     defaultConfig {
         applicationId = Config.applicationId
         minSdk = Config.minSdk
@@ -37,17 +32,19 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
+    buildToolsVersion = "35.0.0"
 
     kapt {
         correctErrorTypes = true
@@ -112,13 +109,15 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.11.0"
+        artifact = "com.google.protobuf:protoc:3.19.4"
     }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.plugins {
-                create("java") {
-                    option("lite")
+    plugins {
+        generateProtoTasks {
+            all().forEach {
+                it.builtins {
+                    create("java") {
+                        option("lite")
+                    }
                 }
             }
         }

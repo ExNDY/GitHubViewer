@@ -2,6 +2,12 @@ package app.thirtyninth.githubviewer.utils
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Color.alpha
+import android.graphics.Color.blue
+import android.graphics.Color.colorSpace
+import android.graphics.Color.green
+import android.graphics.Color.red
+import android.graphics.ColorSpace
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
@@ -40,8 +46,12 @@ class LanguageColorReader {
         val colorsJson = jsonToJsonObj(context, jsonFilePath)
 
         return colorsJson.mapValues { (_, colorString) ->
-            Color.parseColor(colorString.jsonPrimitive.content).let {
-                Color.valueOf(it)
+            Color.parseColor(colorString.jsonPrimitive.content).let { color ->
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    Color.valueOf(color)
+                } else {
+                    Color()
+                }
             }
         }
     }

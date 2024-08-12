@@ -36,7 +36,7 @@
         <item name="postSplashScreenTheme">@style/Theme.GitHubViewer</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/statusBarColor</item>
         <item name="android:navigationBarColor">@color/navigationBarColor</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar"  tools:targetApi="m">false</item>
     </style>
 
     <style name="GitHubViewer.AlertDialog" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">

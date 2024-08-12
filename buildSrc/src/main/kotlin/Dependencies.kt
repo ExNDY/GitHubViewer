@@ -1,6 +1,6 @@
 object Dependencies {
     object Hilt {
-        private const val version = "2.41"
+        private const val version = "2.47"
         const val android = "com.google.dagger:hilt-android:$version"
         const val compiler = "com.google.dagger:hilt-android-compiler:$version"
     }
@@ -45,16 +45,17 @@ object Dependencies {
         const val dataStore = "androidx.datastore:datastore:$version"
         const val preferences = "androidx.datastore:datastore-preferences:$version"
 
-        const val protobuf = "com.google.protobuf:protobuf-javalite:3.11.0"
+        const val protobuf = "com.google.protobuf:protobuf-javalite:3.19.4"
     }
 
     object Navigation {
-        private const val version = "2.4.1"
+        private const val version = "2.7.7"
         const val fragment = "androidx.navigation:navigation-fragment-ktx:$version"
         const val uiKtx = "androidx.navigation:navigation-ui-ktx:$version"
 
-        const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$version"
-        const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:$version"
+        private const val lifecycleVersion = "2.5.3"
+        const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+        const val lifecycleRuntime = "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion"
     }
 
     object Google {
@@ -62,8 +63,8 @@ object Dependencies {
     }
 
     object UI {
-        const val splashScreen = "androidx.core:core-splashscreen:1.0.0-beta01"
-        const val coil = "io.coil-kt:coil:2.0.0-rc02"
+        const val splashScreen = "androidx.core:core-splashscreen:1.0.1"
+        const val coil = "io.coil-kt:coil:2.0.0"
     }
 
     object Markdown{
